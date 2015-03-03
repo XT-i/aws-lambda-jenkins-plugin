@@ -1,6 +1,6 @@
 # aws-lambda-jenkins-plugin
 
-This plugins adds a build step action that uploads a file or folder to AWS Lambda.
+This plugins adds a post build step that uploads a file or folder to AWS Lambda.
 
 - Create AWS IAM user for use with this plugin. Must have permissions to upload a Lambda deployment package.
 - Select "Deploy into Lambda" under "Add post-build step"
