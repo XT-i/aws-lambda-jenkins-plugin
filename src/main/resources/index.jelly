@@ -1,0 +1,6 @@
+<!--
+  This view is used to render the installed plugins page.
+-->
+<div>
+  This Plugin allows you to upload a zip file or folder to AWS Lambda
+</div>
