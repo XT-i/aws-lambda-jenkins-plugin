@@ -9,7 +9,7 @@
 
 	<groupId>com.xti.jenkins.plugins</groupId>
 	<artifactId>aws-lambda-jenkins-plugin</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<packaging>hpi</packaging>
 
 	<name>AWS Lambda Jenkins Plugin</name>
@@ -29,7 +29,8 @@
         <connection>scm:git:ssh://github.com/jenkinsci/aws-lambda-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/aws-lambda-plugin</url>
-    </scm>
+      <tag>aws-lambda-jenkins-plugin-0.0.1</tag>
+  </scm>
 
 	<organization>
 		<name>XT-i</name>
