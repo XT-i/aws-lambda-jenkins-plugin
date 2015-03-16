@@ -31,17 +31,14 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.tasks.BuildStep;
-import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Builder;
+import hudson.tasks.*;
 import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
-public class AWSLambdaUploadBuilder extends Builder implements BuildStep{
+public class AWSLambdaPublisher extends Notifier{
 
     private String awsAccessKeyId;
     private String awsSecretKey;
@@ -57,7 +54,7 @@ public class AWSLambdaUploadBuilder extends Builder implements BuildStep{
     private Integer timeout;
 
     @DataBoundConstructor
-    public AWSLambdaUploadBuilder(String awsAccessKeyId, String awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, Integer timeout, String mode, String role, String runtime) {
+    public AWSLambdaPublisher(String awsAccessKeyId, String awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, Integer timeout, String mode, String role, String runtime) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
@@ -89,7 +86,7 @@ public class AWSLambdaUploadBuilder extends Builder implements BuildStep{
     }
 
     public BuildStepMonitor getRequiredMonitorService() {
-        return BuildStepMonitor.NONE;
+        return BuildStepMonitor.BUILD;
     }
 
     // Overridden for better type safety.
@@ -104,7 +101,7 @@ public class AWSLambdaUploadBuilder extends Builder implements BuildStep{
 
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
         /**
          * In order to load the persisted global configuration, you have to
