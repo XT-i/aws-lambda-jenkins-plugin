@@ -46,12 +46,12 @@ public class LambdaUploader {
     private final PrintStream logger;
     private final FilePath artifactLocation;
 
-    private ResolvedLambdaVariables config;
+    private LambdaVariables config;
     private AWSLambda lambda;
     private File artifact;
     private Boolean lambdaResultConforms = false;
 
-    public LambdaUploader(ResolvedLambdaVariables config,
+    public LambdaUploader(LambdaVariables config,
                           AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
         this.config = config;
         this.logger = listener.getLogger();
@@ -124,11 +124,11 @@ public class LambdaUploader {
                 && result.getRuntime().equals(request.getRuntime())
                 && result.getMode().equals(request.getMode())
                 && result.getRole().equals(request.getRole())){
-            log("Lambda function response conforms with request");
+            log("Lambda function response conforms with request%n");
             lambdaResultConforms = true;
         }else {
             log("Warning: Lambda function response does not conform with request! " +
-                    "%nCheck AWS console and plugin configuration");
+                    "%nCheck AWS console and plugin configuration%n");
             lambdaResultConforms = false;
         }
     }

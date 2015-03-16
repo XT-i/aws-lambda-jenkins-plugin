@@ -28,8 +28,9 @@ package com.xti.jenkins.plugin.awslambda;
 
 import hudson.EnvVars;
 import hudson.Util;
+import org.kohsuke.stapler.DataBoundConstructor;
 
-public class ResolvedLambdaVariables {
+public class LambdaVariables {
     private String awsAccessKeyId;
     private String awsSecretKey;
     private String awsRegion;
@@ -42,8 +43,10 @@ public class ResolvedLambdaVariables {
     private String role;
     private String runtime;
     private Integer timeout;
+    private boolean successOnly;
 
-    public ResolvedLambdaVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String mode, String role, String runtime, Integer timeout) {
+    @DataBoundConstructor
+    public LambdaVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String mode, String role, String runtime, Integer timeout, boolean successOnly) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
@@ -56,6 +59,7 @@ public class ResolvedLambdaVariables {
         this.role = role;
         this.runtime = runtime;
         this.timeout = timeout;
+        this.successOnly = successOnly;
     }
 
     public String getAwsAccessKeyId() {
@@ -106,7 +110,63 @@ public class ResolvedLambdaVariables {
         return timeout;
     }
 
-    public void expandVariables(EnvVars env) {
+    public boolean getSuccessOnly(){
+        return successOnly;
+    }
+
+    public void setAwsAccessKeyId(String awsAccessKeyId) {
+        this.awsAccessKeyId = awsAccessKeyId;
+    }
+
+    public void setAwsSecretKey(String awsSecretKey) {
+        this.awsSecretKey = awsSecretKey;
+    }
+
+    public void setAwsRegion(String awsRegion) {
+        this.awsRegion = awsRegion;
+    }
+
+    public void setArtifactLocation(String artifactLocation) {
+        this.artifactLocation = artifactLocation;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    public void setHandler(String handler) {
+        this.handler = handler;
+    }
+
+    public void setMemorySize(Integer memorySize) {
+        this.memorySize = memorySize;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setRuntime(String runtime) {
+        this.runtime = runtime;
+    }
+
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
+    }
+
+    public void setSuccessOnly(boolean successOnly) {
+        this.successOnly = successOnly;
+    }
+
+        public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
         awsSecretKey = expand(awsSecretKey, env);
         awsRegion = expand(awsRegion, env);
