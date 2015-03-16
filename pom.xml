@@ -14,6 +14,8 @@
 
 	<name>AWS Lambda Jenkins Plugin</name>
 
+    <url>https://wiki.jenkins-ci.org/display/JENKINS/aws-lambda-plugin</url>
+
     <licenses>
         <license>
             <name>MIT License</name>
