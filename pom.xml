@@ -23,6 +23,12 @@
 
 	<inceptionYear>2015</inceptionYear>
 
+    <scm>
+        <connection>scm:git:ssh://github.com/jenkinsci/aws-lambda-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
+        <url>https://github.com/jenkinsci/aws-lambda-plugin</url>
+    </scm>
+
 	<organization>
 		<name>XT-i</name>
 		<url>http://www.xt-i.com</url>
