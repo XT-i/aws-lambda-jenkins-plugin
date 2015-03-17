@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>aws-lambda-plugin</artifactId>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.2</version>
 	<packaging>hpi</packaging>
 
 	<name>AWS Lambda Plugin</name>
@@ -27,7 +27,8 @@
         <connection>scm:git:ssh://github.com/jenkinsci/aws-lambda-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/aws-lambda-plugin</url>
-    </scm>
+      <tag>aws-lambda-plugin-0.1.2</tag>
+  </scm>
 
 	<organization>
 		<name>XT-i</name>
