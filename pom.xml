@@ -12,6 +12,8 @@
 
 	<name>AWS Lambda Plugin</name>
 
+    <description>This plugins adds a post build action that deploys a zip file or folder to AWS Lambda</description>
+
     <url>https://wiki.jenkins-ci.org/display/JENKINS/aws-lambda-plugin</url>
 
     <licenses>
