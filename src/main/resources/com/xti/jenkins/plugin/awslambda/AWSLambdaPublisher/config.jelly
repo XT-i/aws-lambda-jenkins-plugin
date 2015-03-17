@@ -15,7 +15,7 @@
                             <f:textbox name="awsAccessKeyId" value="${lambdaVariables.awsAccessKeyId}" />
                         </f:entry>
                         <f:entry title="AWS Secret Key" help="/plugin/aws-lambda-plugin/help-awsSecretKey.html">
-                            <f:textbox name="awsSecretKey" value="${lambdaVariables.awsSecretKey}" />
+                            <f:password name="awsSecretKey" value="${lambdaVariables.awsSecretKey}" />
                         </f:entry>
                         <f:entry title="AWS Region" help="/plugin/aws-lambda-plugin/help-awsRegion.html">
                             <f:textbox name="awsRegion" value="${lambdaVariables.awsRegion}" />
