@@ -27,7 +27,6 @@
         <connection>scm:git:ssh://github.com/jenkinsci/aws-lambda-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/aws-lambda-plugin</url>
-      <tag>HEAD</tag>
     </scm>
 
 	<organization>
