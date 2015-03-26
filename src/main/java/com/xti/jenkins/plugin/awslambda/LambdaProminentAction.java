@@ -40,12 +40,12 @@ public class LambdaProminentAction implements ProminentProjectAction {
 
     public LambdaProminentAction(String functionName, Boolean conforms) {
         if(conforms){
-            iconFileName = "/plugin/aws-lambda-plugin/images/Lambda_24.png";
-            bigIconFileName = "/plugin/aws-lambda-plugin/images/Lambda_48.png";
+            iconFileName = "/plugin/aws-lambda/images/Lambda_24.png";
+            bigIconFileName = "/plugin/aws-lambda/images/Lambda_48.png";
             displayName = "Uploaded Lambda: " + functionName;
         }else {
-            iconFileName = "/plugin/aws-lambda-plugin/images/Lambda_grey_24.png";
-            bigIconFileName = "/plugin/aws-lambda-plugin/images/Lambda_grey_48.png";
+            iconFileName = "/plugin/aws-lambda/images/Lambda_grey_24.png";
+            bigIconFileName = "/plugin/aws-lambda/images/Lambda_grey_48.png";
             displayName = "Uploaded Bad Lambda: " + functionName;
         }
     }
