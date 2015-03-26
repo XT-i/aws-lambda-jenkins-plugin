@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>aws-lambda</artifactId>
-	<version>0.1.6</version>
+	<version>0.1.6-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 
 	<name>AWS Lambda Plugin</name>
@@ -26,8 +26,8 @@
 	<inceptionYear>2015</inceptionYear>
 
     <scm>
-        <connection>scm:git:ssh://github.com/jenkinsci/aws-lambda-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
+        <connection>scm:git:https://github.com/jenkinsci/aws-lambda-plugin.git</connection>
+        <developerConnection>scm:git:https://git@github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/aws-lambda-plugin</url>
       <tag>aws-lambda-0.1.6</tag>
   </scm>
