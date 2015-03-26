@@ -27,9 +27,9 @@
 
     <scm>
         <connection>scm:git:https://github.com/jenkinsci/aws-lambda-plugin.git</connection>
-        <developerConnection>scm:git:https://git@github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/aws-lambda-plugin</url>
-      <tag>aws-lambda-0.1.7</tag>
+      <tag>aws-lambda-0.1.8-SNAPSHOT</tag>
   </scm>
 
 	<organization>
