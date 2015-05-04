@@ -80,11 +80,13 @@ public class AWSLambdaPublisher extends Notifier{
             return true;
         }
         try {
-            lambdaVariables.expandVariables(build.getEnvironment(listener));
-            LambdaUploader lambdaUploader = new LambdaUploader(lambdaVariables, build, listener);
+            LambdaVariables executionVariables = lambdaVariables.getClone();
+
+            executionVariables.expandVariables(build.getEnvironment(listener));
+            LambdaUploader lambdaUploader = new LambdaUploader(executionVariables, build, listener);
 
             lambdaUploader.upload();
-            build.addAction(new LambdaProminentAction(lambdaVariables.getFunctionName(), lambdaUploader.getLambdaResultConforms()));
+            build.addAction(new LambdaProminentAction(executionVariables.getFunctionName(), lambdaUploader.getLambdaResultConforms()));
             return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);

@@ -179,6 +179,10 @@ public class LambdaVariables {
         runtime = expand(runtime, env);
     }
 
+    public LambdaVariables getClone(){
+        return new LambdaVariables(awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, mode, role, runtime, timeout, successOnly);
+    }
+
     private String expand(String value, EnvVars env) {
         return Util.replaceMacro(value.trim(), env);
     }
