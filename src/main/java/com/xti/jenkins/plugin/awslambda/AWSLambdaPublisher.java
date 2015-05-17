@@ -32,7 +32,10 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.model.Result;
-import hudson.tasks.*;
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Notifier;
+import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -47,7 +50,7 @@ public class AWSLambdaPublisher extends Notifier{
     List<LambdaVariables> lambdaVariablesList = new ArrayList<LambdaVariables>();
 
     @DataBoundConstructor
-    public AWSLambdaPublisher(List<LambdaVariables> lambdaVariablesList, boolean PublishUnstable) {
+    public AWSLambdaPublisher(List<LambdaVariables> lambdaVariablesList) {
         this.lambdaVariablesList = lambdaVariablesList;
     }
 
@@ -85,8 +88,11 @@ public class AWSLambdaPublisher extends Notifier{
             executionVariables.expandVariables(build.getEnvironment(listener));
             LambdaUploader lambdaUploader = new LambdaUploader(executionVariables, build, listener);
 
-            lambdaUploader.upload();
-            build.addAction(new LambdaProminentAction(executionVariables.getFunctionName(), lambdaUploader.getLambdaResultConforms()));
+            Boolean lambdaSuccess = lambdaUploader.upload();
+            if(!lambdaSuccess){
+                build.setResult(Result.FAILURE);
+            }
+            build.addAction(new LambdaProminentAction(executionVariables.getFunctionName(), lambdaSuccess));
             return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);

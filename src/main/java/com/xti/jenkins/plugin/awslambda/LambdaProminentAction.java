@@ -44,9 +44,9 @@ public class LambdaProminentAction implements ProminentProjectAction {
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48.png";
             displayName = "Uploaded Lambda: " + functionName;
         }else {
-            iconFileName = "/plugin/aws-lambda/images/Lambda_grey_24.png";
-            bigIconFileName = "/plugin/aws-lambda/images/Lambda_grey_48.png";
-            displayName = "Uploaded Bad Lambda: " + functionName;
+            iconFileName = "/plugin/aws-lambda/images/Lambda_24_grey.png";
+            bigIconFileName = "/plugin/aws-lambda/images/Lambda_48_grey.png";
+            displayName = "Lambda Failure: " + functionName;
         }
     }
 

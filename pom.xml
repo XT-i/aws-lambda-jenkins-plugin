@@ -30,7 +30,7 @@
         <developerConnection>scm:git:https://github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/aws-lambda-plugin</url>
       <tag>aws-lambda-0.1.7</tag>
-  </scm>
+    </scm>
 
 	<organization>
 		<name>XT-i</name>
@@ -44,16 +44,26 @@
 		</developer>
 	</developers>
 
+    <properties>
+        <aws.version>1.9.35</aws.version>
+        <jsonpath.version>2.0.0</jsonpath.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-core</artifactId>
-            <version>1.9.22</version>
+            <version>${aws.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-lambda</artifactId>
-            <version>1.9.22</version>
+            <version>${aws.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${jsonpath.version}</version>
         </dependency>
     </dependencies>
 
