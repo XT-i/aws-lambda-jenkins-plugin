@@ -26,6 +26,7 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;

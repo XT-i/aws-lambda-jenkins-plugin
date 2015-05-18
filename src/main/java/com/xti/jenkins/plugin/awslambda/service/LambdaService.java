@@ -4,13 +4,15 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.*;
 import com.xti.jenkins.plugin.awslambda.LambdaVariables;
-import com.xti.jenkins.plugin.awslambda.UpdateModeValue;
+import com.xti.jenkins.plugin.awslambda.invoke.LambdaInvokeVariables;
+import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import com.xti.jenkins.plugin.awslambda.util.LogUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 public class LambdaService {
     private AWSLambdaClient client;
@@ -84,6 +86,27 @@ public class LambdaService {
         }
     }
 
+    public String invokeLambdaFunction(LambdaInvokeVariables invokeConfig){
+        InvokeRequest invokeRequest = new InvokeRequest()
+                .withFunctionName(invokeConfig.getFunctionName())
+                .withPayload(invokeConfig.getPayload());
+
+        if(invokeConfig.getSynchronous()){
+            invokeRequest
+                    .withInvocationType(InvocationType.RequestResponse)
+                    .withLogType(LogType.Tail);
+        } else {
+            invokeRequest
+                    .withInvocationType(InvocationType.Event);
+        }
+        logger.log("Lambda invoke request:%n%s%n", invokeRequest.toString());
+
+        InvokeResult invokeResult = client.invoke(invokeRequest);
+        logger.log("Lambda invoke response:%n%s%n", invokeResult.toString());
+
+        return new String(invokeResult.getPayload().array(), Charset.forName("UTF-8") );
+    }
+
     /**
      * This method calls the AWS Lambda createFunction method based on the given configuration and file.
      * @param config configuration to setup the createFunction call
@@ -92,7 +115,7 @@ public class LambdaService {
      */
     public void createLambdaFunction(LambdaVariables config, File zipFile) throws IOException {
 
-        FunctionCode functionCode = new FunctionCode().withZipFile(getFunctionBase64(zipFile));
+        FunctionCode functionCode = new FunctionCode().withZipFile(getFunctionZip(zipFile));
 
         CreateFunctionRequest createFunctionRequest = new CreateFunctionRequest()
                 .withDescription(config.getDescription())
@@ -103,7 +126,7 @@ public class LambdaService {
                 .withRole(config.getRole())
                 .withRuntime(config.getRuntime())
                 .withCode(functionCode);
-        logger.log("%nLambda create function request:%n%s%n", createFunctionRequest.toString());
+        logger.log("Lambda create function request:%n%s%n", createFunctionRequest.toString());
 
         CreateFunctionResult uploadFunctionResult = client.createFunction(createFunctionRequest);
         logger.log("Lambda create response:%n%s%n", uploadFunctionResult.toString());
@@ -116,16 +139,16 @@ public class LambdaService {
      * @throws IOException
      */
     public void updateCodeOnly(String functionName, File zipFile) throws IOException {
-        ByteBuffer functionCode = getFunctionBase64(zipFile);
+        ByteBuffer functionCode = getFunctionZip(zipFile);
 
         UpdateFunctionCodeRequest updateFunctionCodeRequest = new UpdateFunctionCodeRequest()
                 .withFunctionName(functionName)
                 .withZipFile(functionCode);
 
-        logger.log("%nLambda update code request:%n%s%n", updateFunctionCodeRequest.toString());
+        logger.log("Lambda update code request:%n%s%n", updateFunctionCodeRequest.toString());
 
         UpdateFunctionCodeResult updateFunctionCodeResult = client.updateFunctionCode(updateFunctionCodeRequest);
-        logger.log("%nLambda update code response:%n%s%n", updateFunctionCodeResult.toString());
+        logger.log("Lambda update code response:%n%s%n", updateFunctionCodeResult.toString());
     }
 
     /**
@@ -140,10 +163,10 @@ public class LambdaService {
                 .withMemorySize(config.getMemorySize())
                 .withTimeout(config.getTimeout())
                 .withRole(config.getRole());
-        logger.log("%nLambda update configuration request:%n%s%n", updateFunctionConfigurationRequest.toString());
+        logger.log("Lambda update configuration request:%n%s%n", updateFunctionConfigurationRequest.toString());
 
         UpdateFunctionConfigurationResult updateFunctionConfigurationResult = client.updateFunctionConfiguration(updateFunctionConfigurationRequest);
-        logger.log("%nLambda update configuration response:%n%s%n", updateFunctionConfigurationResult.toString());
+        logger.log("Lambda update configuration response:%n%s%n", updateFunctionConfigurationResult.toString());
     }
 
     /**
@@ -154,27 +177,24 @@ public class LambdaService {
     private Boolean functionExists(String functionName){
         GetFunctionRequest getFunctionRequest = new GetFunctionRequest()
                 .withFunctionName(functionName);
-        logger.log("%nLambda function existence check:%n%s%n", getFunctionRequest.toString());
+        logger.log("Lambda function existence check:%n%s%n", getFunctionRequest.toString());
         try {
             GetFunctionResult functionResult = client.getFunction(getFunctionRequest);
-            logger.log("%nLambda function exists:%n%s%n", functionResult.toString());
+            logger.log("Lambda function exists:%n%s%n", functionResult.toString());
             return true;
         } catch (ResourceNotFoundException rnfe) {
-            logger.log("%nLambda function does not exist.");
+            logger.log("Lambda function does not exist.");
             return false;
         }
     }
 
     /**
-     * Get Base64 representation of zip file.
-     * @param zipFile file to be re-encoded.
-     * @return ByteBuffer containing Base64 representation
+     * Get ByteBuffer from zip file.
+     * @param zipFile file to be wrapped.
+     * @return ByteBuffer containing zip file.
      * @throws IOException
      */
-    private ByteBuffer getFunctionBase64(File zipFile) throws IOException {
-        FileInputStream fileInputStreamReader = new FileInputStream(zipFile);
-        byte[] bytes = new byte[(int)zipFile.length()];
-        fileInputStreamReader.read(bytes);
-        return ByteBuffer.wrap(bytes);
+    private ByteBuffer getFunctionZip(File zipFile) throws IOException {
+        return ByteBuffer.wrap(FileUtils.readFileToByteArray(zipFile));
     }
 }

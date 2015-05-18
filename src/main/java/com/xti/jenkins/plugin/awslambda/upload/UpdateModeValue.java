@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda;
+package com.xti.jenkins.plugin.awslambda.upload;
 
 import org.apache.commons.lang.StringUtils;
 

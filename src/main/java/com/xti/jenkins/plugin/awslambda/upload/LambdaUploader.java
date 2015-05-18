@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda;
+package com.xti.jenkins.plugin.awslambda.upload;
 
 /*
  * #%L
@@ -26,6 +26,7 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.LambdaVariables;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaClientConfig;
 import com.xti.jenkins.plugin.awslambda.service.LambdaService;
@@ -50,6 +51,7 @@ public class LambdaUploader {
         if(StringUtils.isNotEmpty(config.getArtifactLocation())) {
             artifactLocation = new FilePath(build.getWorkspace(), config.getArtifactLocation());
         }
+        build.getEnvironment(listener);
     }
 
     public Boolean upload() throws IOException, InterruptedException {
