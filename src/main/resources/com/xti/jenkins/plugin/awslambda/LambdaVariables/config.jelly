@@ -40,9 +40,6 @@
                     <f:entry field="updateMode" title="Update Mode" help="/plugin/aws-lambda/help-updateMode.html">
                         <f:select />
                     </f:entry>
-                    <f:entry title="Upload Lambda on success only" help="/plugin/aws-lambda/help-successOnly.html">
-                        <f:checkbox name="successOnly" field="successOnly" value="true" default="true" />
-                    </f:entry>
                 </table>
             </div>
         </f:nested>

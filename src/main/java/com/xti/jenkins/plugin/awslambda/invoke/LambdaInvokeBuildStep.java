@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda.upload;
+package com.xti.jenkins.plugin.awslambda.invoke;
 
 /*
  * #%L
@@ -26,8 +26,6 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
-import com.xti.jenkins.plugin.awslambda.LambdaProminentAction;
-import com.xti.jenkins.plugin.awslambda.LambdaVariables;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -42,47 +40,44 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
-public class LambdaUploadBuildStep extends Builder implements BuildStep{
+import java.util.Map;
 
-    private LambdaVariables lambdaVariables;
+public class LambdaInvokeBuildStep extends Builder implements BuildStep{
+
+    private LambdaInvokeVariables lambdaInvokeVariables;
 
     @DataBoundConstructor
-    public LambdaUploadBuildStep(LambdaVariables lambdaVariables) {
-        this.lambdaVariables = lambdaVariables;
+    public LambdaInvokeBuildStep(LambdaInvokeVariables lambdaInvokeVariables) {
+        this.lambdaInvokeVariables = lambdaInvokeVariables;
     }
 
-    public LambdaVariables getLambdaVariables() {
-        return lambdaVariables;
+    public LambdaInvokeVariables getLambdaInvokeVariables() {
+        return lambdaInvokeVariables;
     }
 
-    public void setLambdaVariables(LambdaVariables lambdaVariables) {
-        this.lambdaVariables = lambdaVariables;
+    public void setLambdaInvokeVariables(LambdaInvokeVariables lambdaInvokeVariables) {
+        this.lambdaInvokeVariables = lambdaInvokeVariables;
     }
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-        return perform(lambdaVariables, build, launcher, listener);
+        return perform(lambdaInvokeVariables, build, launcher, listener);
     }
 
-    public boolean perform(LambdaVariables lambdaVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-        if (lambdaVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.SUCCESS)) {
-            listener.getLogger().println("Build not successful, not uploading Lambda function: " + lambdaVariables.getFunctionName());
-            return true;
-        } else if (!lambdaVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.UNSTABLE)) {
-            listener.getLogger().println("Build failed, not uploading Lambda function: " + lambdaVariables.getFunctionName());
-            return true;
-        }
+    public boolean perform(LambdaInvokeVariables lambdaInvokeVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         try {
-            LambdaVariables executionVariables = lambdaVariables.getClone();
+            LambdaInvokeVariables executionVariables = lambdaInvokeVariables.getClone();
 
             executionVariables.expandVariables(build.getEnvironment(listener));
-            LambdaUploader lambdaUploader = new LambdaUploader(executionVariables, build, listener);
+            LambdaInvoker lambdaInvoker = new LambdaInvoker(executionVariables, build, listener);
 
-            Boolean lambdaSuccess = lambdaUploader.upload();
-            if(!lambdaSuccess){
+            LambdaInvocationResult invocationResult = lambdaInvoker.invoke();
+            if(!invocationResult.isSuccess()){
                 build.setResult(Result.FAILURE);
             }
-            build.addAction(new LambdaProminentAction(executionVariables.getFunctionName(), lambdaSuccess));
+            for (Map.Entry<String,String> entry : invocationResult.getInjectables().entrySet()) {
+                build.addAction(new LambdaOutputInjectionAction(entry.getKey(), entry.getValue()));
+            }
             return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);
@@ -90,7 +85,7 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
     }
 
     public BuildStepMonitor getRequiredMonitorService() {
-        return BuildStepMonitor.BUILD;
+        return BuildStepMonitor.NONE;
     }
 
     // Overridden for better type safety.
@@ -126,7 +121,7 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
          * This human readable name is used in the configuration screen.
          */
         public String getDisplayName() {
-            return "Deploy into Lambda";
+            return "Invoke Lambda";
         }
 
         @Override

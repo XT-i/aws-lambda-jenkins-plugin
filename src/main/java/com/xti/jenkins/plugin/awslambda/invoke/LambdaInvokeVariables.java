@@ -33,6 +33,7 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeVariables> {
@@ -42,17 +43,17 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     private String functionName;
     private String payload;
     private boolean synchronous;
-    private List<JsonParameter> jsonParameterList;
+    private List<JsonParameter> jsonParameters;
 
     @DataBoundConstructor
-    public LambdaInvokeVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, List<JsonParameter> jsonParameterList) {
+    public LambdaInvokeVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, List<JsonParameter> jsonParameters) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.payload = payload;
         this.synchronous = synchronous;
-        this.jsonParameterList = jsonParameterList;
+        this.jsonParameters = jsonParameters;
     }
 
     public String getAwsAccessKeyId() {
@@ -79,8 +80,12 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         return synchronous;
     }
 
-    public List<JsonParameter> getJsonParameterList() {
-        return jsonParameterList;
+    public List<JsonParameter> getJsonParameters() {
+        if(jsonParameters == null){
+            return new ArrayList<JsonParameter>();
+        } else {
+            return jsonParameters;
+        }
     }
 
     public void setAwsAccessKeyId(String awsAccessKeyId) {
@@ -107,8 +112,8 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         this.synchronous = synchronous;
     }
 
-    public void setJsonParameterList(List<JsonParameter> jsonParameterList) {
-        this.jsonParameterList = jsonParameterList;
+    public void setJsonParameters(List<JsonParameter> jsonParameters) {
+        this.jsonParameters = jsonParameters;
     }
 
     public void expandVariables(EnvVars env) {
@@ -119,7 +124,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     }
 
     public LambdaInvokeVariables getClone(){
-        return new LambdaInvokeVariables(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, jsonParameterList);
+        return new LambdaInvokeVariables(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, jsonParameters);
     }
 
     private String expand(String value, EnvVars env) {
