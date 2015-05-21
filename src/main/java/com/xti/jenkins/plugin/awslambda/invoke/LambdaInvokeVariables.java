@@ -43,16 +43,18 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     private String functionName;
     private String payload;
     private boolean synchronous;
+    private boolean successOnly;
     private List<JsonParameter> jsonParameters;
 
     @DataBoundConstructor
-    public LambdaInvokeVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, List<JsonParameter> jsonParameters) {
+    public LambdaInvokeVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameter> jsonParameters) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.payload = payload;
         this.synchronous = synchronous;
+        this.successOnly = successOnly;
         this.jsonParameters = jsonParameters;
     }
 
@@ -78,6 +80,10 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
 
     public boolean getSynchronous(){
         return synchronous;
+    }
+
+    public boolean getSuccessOnly() {
+        return successOnly;
     }
 
     public List<JsonParameter> getJsonParameters() {
@@ -112,6 +118,10 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         this.synchronous = synchronous;
     }
 
+    public void setSuccessOnly(boolean successOnly) {
+        this.successOnly = successOnly;
+    }
+
     public void setJsonParameters(List<JsonParameter> jsonParameters) {
         this.jsonParameters = jsonParameters;
     }
@@ -124,7 +134,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     }
 
     public LambdaInvokeVariables getClone(){
-        return new LambdaInvokeVariables(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, jsonParameters);
+        return new LambdaInvokeVariables(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, successOnly, jsonParameters);
     }
 
     private String expand(String value, EnvVars env) {

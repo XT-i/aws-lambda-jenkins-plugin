@@ -18,9 +18,14 @@
                     <f:entry title="Payload" help="/plugin/aws-lambda/help-payload.html">
                         <f:textarea name="payload" field="payload" />
                     </f:entry>
-                    <f:entry title="Synchronous/Asynchronous" help="/plugin/aws-lambda/help-synchronous.html">
-                        <f:checkbox name="synchronous" field="synchronous" value="true" default="true" />
+                    <f:entry title="Synchronous" help="/plugin/aws-lambda/help-synchronous.html">
+                        <f:checkbox field="synchronous" value="true" default="true" />
                     </f:entry>
+                    <j:if test="${add_success_only == 'yes'}" >
+                        <f:entry title="Success only" help="/plugin/aws-lambda/help-synchronous.html">
+                            <f:checkbox field="successOnly" value="true" default="true" />
+                        </f:entry>
+                    </j:if>
                     <f:entry title="Json Parameters">
                         <f:repeatableProperty field="jsonParameters" />
                     </f:entry>

@@ -65,10 +65,10 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
     }
 
     public boolean perform(LambdaVariables lambdaVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-        if (lambdaVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.SUCCESS)) {
+        if (build.getResult() != null && lambdaVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.SUCCESS)) {
             listener.getLogger().println("Build not successful, not uploading Lambda function: " + lambdaVariables.getFunctionName());
             return true;
-        } else if (!lambdaVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.UNSTABLE)) {
+        } else if (build.getResult() != null && !lambdaVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.UNSTABLE)) {
             listener.getLogger().println("Build failed, not uploading Lambda function: " + lambdaVariables.getFunctionName());
             return true;
         }

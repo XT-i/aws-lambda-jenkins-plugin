@@ -78,6 +78,7 @@ public class LambdaInvokeBuildStep extends Builder implements BuildStep{
             for (Map.Entry<String,String> entry : invocationResult.getInjectables().entrySet()) {
                 build.addAction(new LambdaOutputInjectionAction(entry.getKey(), entry.getValue()));
             }
+            build.getEnvironment(listener);
             return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);

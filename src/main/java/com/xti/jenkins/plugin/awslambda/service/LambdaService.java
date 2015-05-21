@@ -3,6 +3,7 @@ package com.xti.jenkins.plugin.awslambda.service;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.*;
+import com.amazonaws.util.Base64;
 import com.xti.jenkins.plugin.awslambda.LambdaVariables;
 import com.xti.jenkins.plugin.awslambda.invoke.LambdaInvokeVariables;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
@@ -99,12 +100,20 @@ public class LambdaService {
             invokeRequest
                     .withInvocationType(InvocationType.Event);
         }
-        logger.log("Lambda invoke request:%n%s%n", invokeRequest.toString());
+        logger.log("Lambda invoke request:%n%s%nPayload:%n%s%n", invokeRequest.toString(), invokeConfig.getPayload());
 
         InvokeResult invokeResult = client.invoke(invokeRequest);
-        logger.log("Lambda invoke response:%n%s%n", invokeResult.toString());
+        String payload = "";
+        if(invokeResult.getPayload() != null){
+            payload = new String(invokeResult.getPayload().array(), Charset.forName("UTF-8"));
+        }
+        logger.log("Lambda invoke response:%n%s%nPayload:%n%s%n", invokeResult.toString(), payload);
 
-        return new String(invokeResult.getPayload().array(), Charset.forName("UTF-8") );
+        if(invokeResult.getLogResult() != null){
+            logger.log("Log:%n%s%n", new String(Base64.decode(invokeResult.getLogResult()), Charset.forName("UTF-8")));
+        }
+
+        return payload;
     }
 
     /**
