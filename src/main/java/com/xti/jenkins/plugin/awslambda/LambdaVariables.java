@@ -26,14 +26,15 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
-import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
+import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.ListBoxModel;
+import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
@@ -42,7 +43,7 @@ import org.kohsuke.stapler.QueryParameter;
  */
 public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     private String awsAccessKeyId;
-    private String awsSecretKey;
+    private Secret awsSecretKey;
     private String awsRegion;
     private String artifactLocation;
     private String description;
@@ -56,7 +57,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     private String updateMode;
 
     @DataBoundConstructor
-    public LambdaVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, boolean successOnly, String updateMode) {
+    public LambdaVariables(String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, boolean successOnly, String updateMode) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
@@ -76,7 +77,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return awsAccessKeyId;
     }
 
-    public String getAwsSecretKey() {
+    public Secret getAwsSecretKey() {
         return awsSecretKey;
     }
 
@@ -128,7 +129,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         this.awsAccessKeyId = awsAccessKeyId;
     }
 
-    public void setAwsSecretKey(String awsSecretKey) {
+    public void setAwsSecretKey(Secret awsSecretKey) {
         this.awsSecretKey = awsSecretKey;
     }
 
@@ -178,7 +179,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
 
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
-        awsSecretKey = expand(awsSecretKey, env);
+        awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
         awsRegion = expand(awsRegion, env);
         artifactLocation = expand(artifactLocation, env);
         description = expand(description, env);
@@ -193,7 +194,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, updateMode);
+        return new DeployConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, updateMode);
     }
 
     private String expand(String value, EnvVars env) {

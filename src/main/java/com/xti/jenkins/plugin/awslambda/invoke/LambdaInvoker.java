@@ -48,7 +48,7 @@ public class LambdaInvoker {
     }
 
     public LambdaInvocationResult invoke() throws IOException, InterruptedException {
-        logger.log("%nStarting lambda invocation procedure");
+        logger.log("%nStarting lambda invocation.");
 
         String output = lambda.invokeLambdaFunction(config);
 

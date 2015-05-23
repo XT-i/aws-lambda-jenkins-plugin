@@ -31,6 +31,7 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ import java.util.List;
 
 public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeVariables> {
     private String awsAccessKeyId;
-    private String awsSecretKey;
+    private Secret awsSecretKey;
     private String awsRegion;
     private String functionName;
     private String payload;
@@ -47,7 +48,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     private List<JsonParameterVariables> jsonParameters;
 
     @DataBoundConstructor
-    public LambdaInvokeVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
+    public LambdaInvokeVariables(String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
@@ -62,7 +63,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         return awsAccessKeyId;
     }
 
-    public String getAwsSecretKey() {
+    public Secret getAwsSecretKey() {
         return awsSecretKey;
     }
 
@@ -98,7 +99,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         this.awsAccessKeyId = awsAccessKeyId;
     }
 
-    public void setAwsSecretKey(String awsSecretKey) {
+    public void setAwsSecretKey(Secret awsSecretKey) {
         this.awsSecretKey = awsSecretKey;
     }
 
@@ -128,7 +129,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
 
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
-        awsSecretKey = expand(awsSecretKey, env);
+        awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
         awsRegion = expand(awsRegion, env);
         functionName = expand(functionName, env);
     }
@@ -146,7 +147,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         for (JsonParameterVariables jsonParameterVariables : getJsonParameters()) {
             jsonParameters.add(jsonParameterVariables.getJsonParameter());
         }
-        return new InvokeConfig(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, successOnly, jsonParameters);
+        return new InvokeConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion, functionName, payload, synchronous, successOnly, jsonParameters);
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
