@@ -26,13 +26,17 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
+import hudson.model.Descriptor;
+import org.kohsuke.stapler.DataBoundConstructor;
 
-public class JsonParameter extends AbstractDescribableImpl<JsonParameter> {
+public class JsonParameterVariables extends AbstractDescribableImpl<JsonParameterVariables> {
     private String envVarName;
     private String jsonPath;
 
-    public JsonParameter(String envVarName, String jsonPath) {
+    @DataBoundConstructor
+    public JsonParameterVariables(String envVarName, String jsonPath) {
         this.envVarName = envVarName;
         this.jsonPath = jsonPath;
     }
@@ -53,4 +57,20 @@ public class JsonParameter extends AbstractDescribableImpl<JsonParameter> {
         this.jsonPath = jsonPath;
     }
 
+    public JsonParameter getJsonParameter(){
+        return new JsonParameter(envVarName, jsonPath);
+    }
+
+    @Extension // This indicates to Jenkins that this is an implementation of an extension point.
+    public static class DescriptorImpl extends Descriptor<JsonParameterVariables> {
+
+        /**
+         * This human readable name is used in the configuration screen.
+         */
+        public String getDisplayName() {
+            return "Environment Variable";
+        }
+
+
+    }
 }

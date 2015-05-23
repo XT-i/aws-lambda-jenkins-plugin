@@ -26,31 +26,46 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
-import hudson.model.AbstractDescribableImpl;
+import hudson.model.ProminentProjectAction;
 
-public class JsonParameter extends AbstractDescribableImpl<JsonParameter> {
-    private String envVarName;
-    private String jsonPath;
+public class LambdaInvokeAction implements ProminentProjectAction {
 
-    public JsonParameter(String envVarName, String jsonPath) {
-        this.envVarName = envVarName;
-        this.jsonPath = jsonPath;
+    //Nothing to show, go to console for now
+    private static final String URL_NAME = "console";
+
+    private final String iconFileName;
+    private final String bigIconFileName;
+    private final String displayName;
+
+
+    public LambdaInvokeAction(String functionName, Boolean success) {
+        if(success){
+            iconFileName = "/plugin/aws-lambda/images/Lambda_24.png";
+            bigIconFileName = "/plugin/aws-lambda/images/Lambda_48.png";
+            displayName = "Invoked Lambda: " + functionName;
+        }else {
+            iconFileName = "/plugin/aws-lambda/images/Lambda_24_grey.png";
+            bigIconFileName = "/plugin/aws-lambda/images/Lambda_48_grey.png";
+            displayName = "Lambda Invocation Failure: " + functionName;
+        }
     }
 
-    public String getEnvVarName() {
-        return envVarName;
+    @Override
+    public String getIconFileName() {
+        return iconFileName;
     }
 
-    public String getJsonPath() {
-        return jsonPath;
+    public String getBigIconFileName() {
+        return bigIconFileName;
     }
 
-    public void setEnvVarName(String envVarName) {
-        this.envVarName = envVarName;
+    @Override
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setJsonPath(String jsonPath) {
-        this.jsonPath = jsonPath;
+    @Override
+    public String getUrlName() {
+        return URL_NAME;
     }
-
 }

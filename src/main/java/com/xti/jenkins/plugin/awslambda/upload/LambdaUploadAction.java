@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda;
+package com.xti.jenkins.plugin.awslambda.upload;
 
 /*
  * #%L
@@ -28,7 +28,7 @@ package com.xti.jenkins.plugin.awslambda;
 
 import hudson.model.ProminentProjectAction;
 
-public class LambdaProminentAction implements ProminentProjectAction {
+public class LambdaUploadAction implements ProminentProjectAction {
 
     //Nothing to show, go to console for now
     private static final String URL_NAME = "console";
@@ -38,8 +38,8 @@ public class LambdaProminentAction implements ProminentProjectAction {
     private final String displayName;
 
 
-    public LambdaProminentAction(String functionName, Boolean conforms) {
-        if(conforms){
+    public LambdaUploadAction(String functionName, Boolean success) {
+        if(success){
             iconFileName = "/plugin/aws-lambda/images/Lambda_24.png";
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48.png";
             displayName = "Uploaded Lambda: " + functionName;

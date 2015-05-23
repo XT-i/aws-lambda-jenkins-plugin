@@ -36,25 +36,23 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeVariables> {
+public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<LambdaInvokeBuildStepVariables> {
     private String awsAccessKeyId;
     private String awsSecretKey;
     private String awsRegion;
     private String functionName;
     private String payload;
     private boolean synchronous;
-    private boolean successOnly;
     private List<JsonParameterVariables> jsonParameters;
 
     @DataBoundConstructor
-    public LambdaInvokeVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
+    public LambdaInvokeBuildStepVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, List<JsonParameterVariables> jsonParameters) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.payload = payload;
         this.synchronous = synchronous;
-        this.successOnly = successOnly;
         this.jsonParameters = jsonParameters;
     }
 
@@ -80,10 +78,6 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
 
     public boolean getSynchronous(){
         return synchronous;
-    }
-
-    public boolean getSuccessOnly() {
-        return successOnly;
     }
 
     public List<JsonParameterVariables> getJsonParameters() {
@@ -118,10 +112,6 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         this.synchronous = synchronous;
     }
 
-    public void setSuccessOnly(boolean successOnly) {
-        this.successOnly = successOnly;
-    }
-
     public void setJsonParameters(List<JsonParameterVariables> jsonParameters) {
         this.jsonParameters = jsonParameters;
     }
@@ -133,8 +123,8 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         functionName = expand(functionName, env);
     }
 
-    public LambdaInvokeVariables getClone(){
-        return new LambdaInvokeVariables(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, successOnly, jsonParameters);
+    public LambdaInvokeBuildStepVariables getClone(){
+        return new LambdaInvokeBuildStepVariables(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, jsonParameters);
     }
 
     private String expand(String value, EnvVars env) {
@@ -146,11 +136,11 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         for (JsonParameterVariables jsonParameterVariables : getJsonParameters()) {
             jsonParameters.add(jsonParameterVariables.getJsonParameter());
         }
-        return new InvokeConfig(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, successOnly, jsonParameters);
+        return new InvokeConfig(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, false,jsonParameters);
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static class DescriptorImpl extends Descriptor<LambdaInvokeVariables> {
+    public static class DescriptorImpl extends Descriptor<LambdaInvokeBuildStepVariables> {
 
         /**
          * This human readable name is used in the configuration screen.

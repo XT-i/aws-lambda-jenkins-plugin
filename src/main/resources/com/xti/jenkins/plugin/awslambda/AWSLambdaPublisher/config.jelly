@@ -1,10 +1,10 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-    <f:entry title="Publish AWS Lambda functions">
+    <f:entry title="Deploy AWS Lambda functions">
         <f:nested>
             <div style="padding-left:1em">
                 <!--items="${instance.lambdaVariablesList}"-->
-                <f:repeatable name="lambdaVariablesList" var="lambdaVariables" field="lambdaVariablesList"   header="Lambda Function" add="Add Lambda function">
+                <f:repeatable name="lambdaVariablesList" var="lambdaVariables" field="lambdaVariablesList" header="Lambda deployment" add="Deploy AWS Lambda">
                     <table width="100%">
 
                         <f:entry title="AWS Access Key Id" help="/plugin/aws-lambda/help-awsAccessKeyId.html">
@@ -43,15 +43,6 @@
                         <f:entry field="updateMode" title="Update Mode" help="/plugin/aws-lambda/help-updateMode.html">
                             <f:select />
                         </f:entry>
-                        <!--
-                        <f:entry field="updateMode" title="Update Mode" help="/plugin/aws-lambda/help-updateMode.html">
-                            <select name="updateMode">
-                                <j:forEach var="updateModeValue" items="${lambdaVariables.updateModeValues}">
-                                    <option value="${updateModeValue.mode}" selected="${updateModeValue.mode == lambdaVariables.updateMode?'true':null}">${updateModeValue.displayName}</option>
-                                </j:forEach>
-                            </select>
-                        </f:entry>
-                        -->
                         <f:entry title="Upload Lambda on success only" help="/plugin/aws-lambda/help-successOnly.html">
                             <f:checkbox name="successOnly" field="successOnly" value="true" default="true" />
                         </f:entry>

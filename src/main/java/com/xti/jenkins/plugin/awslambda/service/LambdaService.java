@@ -4,9 +4,9 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.*;
 import com.amazonaws.util.Base64;
-import com.xti.jenkins.plugin.awslambda.LambdaVariables;
-import com.xti.jenkins.plugin.awslambda.invoke.LambdaInvokeVariables;
+import com.xti.jenkins.plugin.awslambda.invoke.InvokeConfig;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
+import com.xti.jenkins.plugin.awslambda.upload.UploadConfig;
 import com.xti.jenkins.plugin.awslambda.util.LogUtils;
 import org.apache.commons.io.FileUtils;
 
@@ -36,7 +36,7 @@ public class LambdaService {
      * @param updateModeValue Full, Code or Config, only used if function does not already exists.
      * @return true if successful, false in case of failure.
      */
-    public Boolean processLambdaDeployment(LambdaVariables config, File zipFile, UpdateModeValue updateModeValue){
+    public Boolean processLambdaDeployment(UploadConfig config, File zipFile, UpdateModeValue updateModeValue){
         if(functionExists(config.getFunctionName())){
 
             //update code
@@ -87,12 +87,12 @@ public class LambdaService {
         }
     }
 
-    public String invokeLambdaFunction(LambdaInvokeVariables invokeConfig){
+    public String invokeLambdaFunction(InvokeConfig invokeConfig){
         InvokeRequest invokeRequest = new InvokeRequest()
                 .withFunctionName(invokeConfig.getFunctionName())
                 .withPayload(invokeConfig.getPayload());
 
-        if(invokeConfig.getSynchronous()){
+        if(invokeConfig.isSynchronous()){
             invokeRequest
                     .withInvocationType(InvocationType.RequestResponse)
                     .withLogType(LogType.Tail);
@@ -122,7 +122,7 @@ public class LambdaService {
      * @param zipFile zipfile that will be uploaded
      * @throws IOException
      */
-    public void createLambdaFunction(LambdaVariables config, File zipFile) throws IOException {
+    public void createLambdaFunction(UploadConfig config, File zipFile) throws IOException {
 
         FunctionCode functionCode = new FunctionCode().withZipFile(getFunctionZip(zipFile));
 
@@ -164,7 +164,7 @@ public class LambdaService {
      * This method calls the AWS Lambda updateFunctionConfiguration method based on the given config.
      * @param config new configuration for the function
      */
-    public void updateConfigurationOnly(LambdaVariables config){
+    public void updateConfigurationOnly(UploadConfig config){
         UpdateFunctionConfigurationRequest updateFunctionConfigurationRequest = new UpdateFunctionConfigurationRequest()
                 .withFunctionName(config.getFunctionName())
                 .withDescription(config.getDescription())

@@ -26,7 +26,9 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadAction;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploader;
+import com.xti.jenkins.plugin.awslambda.upload.UploadConfig;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -83,15 +85,16 @@ public class AWSLambdaPublisher extends Notifier{
         }
         try {
             LambdaVariables executionVariables = lambdaVariables.getClone();
-
             executionVariables.expandVariables(build.getEnvironment(listener));
-            LambdaUploader lambdaUploader = new LambdaUploader(executionVariables, build, listener);
+            UploadConfig uploadConfig = executionVariables.getUploadConfig();
+
+            LambdaUploader lambdaUploader = new LambdaUploader(uploadConfig, build, listener);
 
             Boolean lambdaSuccess = lambdaUploader.upload();
             if(!lambdaSuccess){
                 build.setResult(Result.FAILURE);
             }
-            build.addAction(new LambdaProminentAction(executionVariables.getFunctionName(), lambdaSuccess));
+            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), lambdaSuccess));
             return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);
@@ -135,7 +138,7 @@ public class AWSLambdaPublisher extends Notifier{
          * This human readable name is used in the configuration screen.
          */
         public String getDisplayName() {
-            return "Deploy into Lambda";
+            return "AWS Lambda deployment";
         }
 
         @Override

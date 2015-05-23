@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda;
+package com.xti.jenkins.plugin.awslambda.upload;
 
 /*
  * #%L
@@ -26,8 +26,6 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
-import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
-import com.xti.jenkins.plugin.awslambda.upload.UploadConfig;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
@@ -40,7 +38,7 @@ import org.kohsuke.stapler.QueryParameter;
 /**
  * Describable containing Lambda post build action config, checking feasability of migrating it to upload package.
  */
-public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
+public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<LambdaUploadBuildStepVariables> {
     private String awsAccessKeyId;
     private String awsSecretKey;
     private String awsRegion;
@@ -52,11 +50,10 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     private String role;
     private String runtime;
     private Integer timeout;
-    private boolean successOnly;
     private String updateMode;
 
     @DataBoundConstructor
-    public LambdaVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, boolean successOnly, String updateMode) {
+    public LambdaUploadBuildStepVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
@@ -68,7 +65,6 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         this.role = role;
         this.runtime = runtime;
         this.timeout = timeout;
-        this.successOnly = successOnly;
         this.updateMode = updateMode;
     }
 
@@ -120,10 +116,6 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return updateMode;
     }
 
-    public boolean getSuccessOnly(){
-        return successOnly;
-    }
-
     public void setAwsAccessKeyId(String awsAccessKeyId) {
         this.awsAccessKeyId = awsAccessKeyId;
     }
@@ -172,10 +164,6 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         this.updateMode = updateMode;
     }
 
-    public void setSuccessOnly(boolean successOnly) {
-        this.successOnly = successOnly;
-    }
-
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
         awsSecretKey = expand(awsSecretKey, env);
@@ -188,12 +176,12 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         runtime = expand(runtime, env);
     }
 
-    public LambdaVariables getClone(){
-        return new LambdaVariables(awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, updateMode);
+    public LambdaUploadBuildStepVariables getClone(){
+        return new LambdaUploadBuildStepVariables(awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode);
     }
 
     public UploadConfig getUploadConfig(){
-        return new UploadConfig(awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, updateMode);
+        return new UploadConfig(awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, false, updateMode);
     }
 
     private String expand(String value, EnvVars env) {
@@ -201,7 +189,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static class DescriptorImpl extends Descriptor<LambdaVariables> {
+    public static class DescriptorImpl extends Descriptor<LambdaUploadBuildStepVariables> {
 
         /* TODO: conditionally check based on UpdateMode
         public FormValidation doCheckTimeout(@QueryParameter String value) {

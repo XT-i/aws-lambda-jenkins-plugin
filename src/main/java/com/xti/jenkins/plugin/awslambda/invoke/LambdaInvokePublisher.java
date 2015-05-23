@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda.upload;
+package com.xti.jenkins.plugin.awslambda.invoke;
 
 /*
  * #%L
@@ -32,49 +32,73 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.model.Result;
-import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Builder;
+import hudson.tasks.Notifier;
+import hudson.tasks.Publisher;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
-public class LambdaUploadBuildStep extends Builder implements BuildStep{
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-    private LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables;
+public class LambdaInvokePublisher extends Notifier{
+
+    List<LambdaInvokeVariables> lambdaInvokeVariablesList = new ArrayList<LambdaInvokeVariables>();
 
     @DataBoundConstructor
-    public LambdaUploadBuildStep(LambdaUploadBuildStepVariables LambdaUploadBuildStepVariables) {
-        this.lambdaUploadBuildStepVariables = LambdaUploadBuildStepVariables;
+    public LambdaInvokePublisher(List<LambdaInvokeVariables> lambdaInvokeVariablesList) {
+        this.lambdaInvokeVariablesList = lambdaInvokeVariablesList;
     }
 
-    public LambdaUploadBuildStepVariables getLambdaUploadBuildStepVariables() {
-        return lambdaUploadBuildStepVariables;
+    public List<LambdaInvokeVariables> getLambdaInvokeVariablesList() {
+        return lambdaInvokeVariablesList;
     }
 
-    public void setLambdaUploadBuildStepVariables(LambdaUploadBuildStepVariables LambdaUploadBuildStepVariables) {
-        this.lambdaUploadBuildStepVariables = LambdaUploadBuildStepVariables;
+    public void setLambdaInvokeVariablesList(List<LambdaInvokeVariables> lambdaInvokeVariablesList) {
+        this.lambdaInvokeVariablesList = lambdaInvokeVariablesList;
     }
 
     @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-        return perform(lambdaUploadBuildStepVariables, build, launcher, listener);
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
+                           BuildListener listener) {
+        boolean returnValue = true;
+
+        for (LambdaInvokeVariables lambdaInvokeVariables : lambdaInvokeVariablesList) {
+            returnValue = returnValue && perform(lambdaInvokeVariables, build, launcher, listener);
+        }
+
+        return returnValue;
     }
 
-    public boolean perform(LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+    public boolean perform(LambdaInvokeVariables lambdaInvokeVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+        if (lambdaInvokeVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.SUCCESS)) {
+            listener.getLogger().println("Build not successful, not uploading Lambda function: " + lambdaInvokeVariables.getFunctionName());
+            return true;
+        } else if (!lambdaInvokeVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.UNSTABLE)) {
+            listener.getLogger().println("Build failed, not uploading Lambda function: " + lambdaInvokeVariables.getFunctionName());
+            return true;
+        }
         try {
-            LambdaUploadBuildStepVariables executionVariables = lambdaUploadBuildStepVariables.getClone();
+            LambdaInvokeVariables executionVariables = lambdaInvokeVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
-            UploadConfig uploadConfig = executionVariables.getUploadConfig();
+            InvokeConfig invokeConfig = executionVariables.getInvokeConfig();
 
-            LambdaUploader lambdaUploader = new LambdaUploader(uploadConfig, build, listener);
+            LambdaInvoker lambdaInvoker = new LambdaInvoker(invokeConfig, build, listener);
 
-            Boolean lambdaSuccess = lambdaUploader.upload();
-            if(!lambdaSuccess){
+            LambdaInvocationResult invocationResult = lambdaInvoker.invoke();
+
+            if(!invocationResult.isSuccess()){
                 build.setResult(Result.FAILURE);
             }
-            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), lambdaSuccess));
+
+            for (Map.Entry<String,String> entry : invocationResult.getInjectables().entrySet()) {
+                build.addAction(new LambdaOutputInjectionAction(entry.getKey(), entry.getValue()));
+            }
+            build.getEnvironment(listener);
+            build.addAction(new LambdaInvokeAction(executionVariables.getFunctionName(), invocationResult.isSuccess()));
             return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);
@@ -97,7 +121,7 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
 
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
         /**
          * In order to load the persisted global configuration, you have to
@@ -118,7 +142,7 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
          * This human readable name is used in the configuration screen.
          */
         public String getDisplayName() {
-            return "AWS Lambda deployment";
+            return "AWS Lambda invocation";
         }
 
         @Override

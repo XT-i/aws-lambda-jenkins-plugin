@@ -26,7 +26,6 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
-import com.xti.jenkins.plugin.awslambda.LambdaVariables;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaClientConfig;
 import com.xti.jenkins.plugin.awslambda.service.LambdaService;
@@ -35,15 +34,17 @@ import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class LambdaUploader {
     private JenkinsLogger logger;
-    private LambdaVariables config;
+    private UploadConfig config;
     private LambdaService lambda;
     private FilePath artifactLocation = null;
 
-    public LambdaUploader(LambdaVariables config, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
+    public LambdaUploader(UploadConfig config, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
         this.config = config;
         logger = new JenkinsLogger(listener.getLogger());
         LambdaClientConfig lambdaClientConfig = new LambdaClientConfig(config.getAwsAccessKeyId(), config.getAwsSecretKey(), config.getAwsRegion());

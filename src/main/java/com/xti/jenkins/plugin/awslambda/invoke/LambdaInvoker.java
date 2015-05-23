@@ -38,11 +38,11 @@ import java.util.Map;
 
 public class LambdaInvoker {
     private JenkinsLogger logger;
-    private LambdaInvokeVariables config;
+    private InvokeConfig config;
     private LambdaService lambda;
     private JsonPathParser jsonPathParser;
 
-    public LambdaInvoker(LambdaInvokeVariables config, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
+    public LambdaInvoker(InvokeConfig config, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
         this.config = config;
         logger = new JenkinsLogger(listener.getLogger());
         LambdaClientConfig lambdaClientConfig = new LambdaClientConfig(config.getAwsAccessKeyId(), config.getAwsSecretKey(), config.getAwsRegion());

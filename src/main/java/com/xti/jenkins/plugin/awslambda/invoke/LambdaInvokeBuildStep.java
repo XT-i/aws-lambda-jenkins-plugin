@@ -44,32 +44,33 @@ import java.util.Map;
 
 public class LambdaInvokeBuildStep extends Builder implements BuildStep{
 
-    private LambdaInvokeVariables lambdaInvokeVariables;
+    private LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables;
 
     @DataBoundConstructor
-    public LambdaInvokeBuildStep(LambdaInvokeVariables lambdaInvokeVariables) {
-        this.lambdaInvokeVariables = lambdaInvokeVariables;
+    public LambdaInvokeBuildStep(LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables) {
+        this.lambdaInvokeBuildStepVariables = lambdaInvokeBuildStepVariables;
     }
 
-    public LambdaInvokeVariables getLambdaInvokeVariables() {
-        return lambdaInvokeVariables;
+    public LambdaInvokeBuildStepVariables getLambdaInvokeBuildStepVariables() {
+        return lambdaInvokeBuildStepVariables;
     }
 
-    public void setLambdaInvokeVariables(LambdaInvokeVariables lambdaInvokeVariables) {
-        this.lambdaInvokeVariables = lambdaInvokeVariables;
+    public void setLambdaInvokeBuildStepVariables(LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables) {
+        this.lambdaInvokeBuildStepVariables = lambdaInvokeBuildStepVariables;
     }
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-        return perform(lambdaInvokeVariables, build, launcher, listener);
+        return perform(lambdaInvokeBuildStepVariables, build, launcher, listener);
     }
 
-    public boolean perform(LambdaInvokeVariables lambdaInvokeVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+    public boolean perform(LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         try {
-            LambdaInvokeVariables executionVariables = lambdaInvokeVariables.getClone();
-
+            LambdaInvokeBuildStepVariables executionVariables = lambdaInvokeBuildStepVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
-            LambdaInvoker lambdaInvoker = new LambdaInvoker(executionVariables, build, listener);
+            InvokeConfig invokeConfig = executionVariables.getInvokeConfig();
+
+            LambdaInvoker lambdaInvoker = new LambdaInvoker(invokeConfig, build, listener);
 
             LambdaInvocationResult invocationResult = lambdaInvoker.invoke();
             if(!invocationResult.isSuccess()){
@@ -79,6 +80,7 @@ public class LambdaInvokeBuildStep extends Builder implements BuildStep{
                 build.addAction(new LambdaOutputInjectionAction(entry.getKey(), entry.getValue()));
             }
             build.getEnvironment(listener);
+            build.addAction(new LambdaInvokeAction(executionVariables.getFunctionName(), invocationResult.isSuccess()));
             return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);
@@ -122,7 +124,7 @@ public class LambdaInvokeBuildStep extends Builder implements BuildStep{
          * This human readable name is used in the configuration screen.
          */
         public String getDisplayName() {
-            return "Invoke Lambda";
+            return "AWS Lambda invocation";
         }
 
         @Override
