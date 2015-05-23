@@ -180,8 +180,8 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         return new LambdaUploadBuildStepVariables(awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode);
     }
 
-    public UploadConfig getUploadConfig(){
-        return new UploadConfig(awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, false, updateMode);
+    public DeployConfig getUploadConfig(){
+        return new DeployConfig(awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, false, updateMode);
     }
 
     private String expand(String value, EnvVars env) {

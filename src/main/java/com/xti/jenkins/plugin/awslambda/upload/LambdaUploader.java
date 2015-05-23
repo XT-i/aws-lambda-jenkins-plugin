@@ -28,7 +28,7 @@ package com.xti.jenkins.plugin.awslambda.upload;
 
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaClientConfig;
-import com.xti.jenkins.plugin.awslambda.service.LambdaService;
+import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
@@ -40,15 +40,15 @@ import java.io.IOException;
 
 public class LambdaUploader {
     private JenkinsLogger logger;
-    private UploadConfig config;
-    private LambdaService lambda;
+    private DeployConfig config;
+    private LambdaDeployService lambda;
     private FilePath artifactLocation = null;
 
-    public LambdaUploader(UploadConfig config, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
+    public LambdaUploader(DeployConfig config, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
         this.config = config;
         logger = new JenkinsLogger(listener.getLogger());
         LambdaClientConfig lambdaClientConfig = new LambdaClientConfig(config.getAwsAccessKeyId(), config.getAwsSecretKey(), config.getAwsRegion());
-        lambda = new LambdaService(lambdaClientConfig.getClient(), logger);
+        lambda = new LambdaDeployService(lambdaClientConfig.getClient(), logger);
         if(StringUtils.isNotEmpty(config.getArtifactLocation())) {
             artifactLocation = new FilePath(build.getWorkspace(), config.getArtifactLocation());
         }
@@ -60,7 +60,7 @@ public class LambdaUploader {
         if(artifactLocation != null){
             zipFile = getArtifactFile(artifactLocation);
         }
-        return lambda.processLambdaDeployment(config, zipFile, UpdateModeValue.fromString(config.getUpdateMode()));
+        return lambda.deployLambda(config, zipFile, UpdateModeValue.fromString(config.getUpdateMode()));
     }
 
     private File getArtifactFile(FilePath artifactLocation) throws IOException, InterruptedException {

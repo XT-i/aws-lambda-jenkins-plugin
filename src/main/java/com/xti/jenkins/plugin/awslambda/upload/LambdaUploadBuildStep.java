@@ -45,8 +45,8 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
     private LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables;
 
     @DataBoundConstructor
-    public LambdaUploadBuildStep(LambdaUploadBuildStepVariables LambdaUploadBuildStepVariables) {
-        this.lambdaUploadBuildStepVariables = LambdaUploadBuildStepVariables;
+    public LambdaUploadBuildStep(LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables) {
+        this.lambdaUploadBuildStepVariables = lambdaUploadBuildStepVariables;
     }
 
     public LambdaUploadBuildStepVariables getLambdaUploadBuildStepVariables() {
@@ -66,9 +66,9 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
         try {
             LambdaUploadBuildStepVariables executionVariables = lambdaUploadBuildStepVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
-            UploadConfig uploadConfig = executionVariables.getUploadConfig();
+            DeployConfig deployConfig = executionVariables.getUploadConfig();
 
-            LambdaUploader lambdaUploader = new LambdaUploader(uploadConfig, build, listener);
+            LambdaUploader lambdaUploader = new LambdaUploader(deployConfig, build, listener);
 
             Boolean lambdaSuccess = lambdaUploader.upload();
             if(!lambdaSuccess){
