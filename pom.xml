@@ -3,16 +3,18 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.599</version>
-		<!-- which version of Jenkins is this plugin built against? -->
+		<version>1.580</version>
 	</parent>
 
-	<groupId>com.xti.jenkins.plugins</groupId>
-	<artifactId>aws-lambda-jenkins-plugin</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>aws-lambda</artifactId>
+	<version>0.1.10-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 
-	<name>AWS Lambda Jenkins Plugin</name>
+	<name>AWS Lambda Plugin</name>
+
+    <description>This plugins adds a post build action that deploys a zip file or folder to AWS Lambda</description>
+
+    <url>https://wiki.jenkins-ci.org/display/JENKINS/AWS+Lambda+Plugin</url>
 
     <licenses>
         <license>
@@ -24,9 +26,10 @@
 	<inceptionYear>2015</inceptionYear>
 
     <scm>
-        <connection>scm:git:ssh://github.com/jenkinsci/aws-lambda-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
+        <connection>scm:git:https://github.com/jenkinsci/aws-lambda-plugin.git</connection>
+        <developerConnection>scm:git:https://github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/aws-lambda-plugin</url>
+      <tag>aws-lambda-0.1.7</tag>
     </scm>
 
 	<organization>
@@ -40,6 +43,29 @@
 			<name>Michael Willemse</name>
 		</developer>
 	</developers>
+
+    <properties>
+        <aws.version>1.9.35</aws.version>
+        <jsonpath.version>2.0.0</jsonpath.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-core</artifactId>
+            <version>${aws.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-lambda</artifactId>
+            <version>${aws.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${jsonpath.version}</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<resources>
@@ -59,19 +85,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<dependencies>
-		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-core</artifactId>
-			<version>1.9.22</version>
-		</dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-lambda</artifactId>
-            <version>1.9.22</version>
-        </dependency>
-	</dependencies>
 
 	<repositories>
 		<repository>
