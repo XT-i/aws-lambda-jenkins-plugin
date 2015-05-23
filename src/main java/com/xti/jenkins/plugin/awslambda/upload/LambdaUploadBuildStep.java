@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda;
+package com.xti.jenkins.plugin.awslambda.upload;
 
 /*
  * #%L
@@ -26,65 +26,45 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
-import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadAction;
-import com.xti.jenkins.plugin.awslambda.upload.LambdaUploader;
-import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
 import hudson.model.Result;
+import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Notifier;
-import hudson.tasks.Publisher;
+import hudson.tasks.Builder;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
-import java.util.ArrayList;
-import java.util.List;
+public class LambdaUploadBuildStep extends Builder implements BuildStep{
 
-public class AWSLambdaPublisher extends Notifier{
-
-    List<LambdaVariables> lambdaVariablesList = new ArrayList<LambdaVariables>();
+    private LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables;
 
     @DataBoundConstructor
-    public AWSLambdaPublisher(List<LambdaVariables> lambdaVariablesList) {
-        this.lambdaVariablesList = lambdaVariablesList;
+    public LambdaUploadBuildStep(LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables) {
+        this.lambdaUploadBuildStepVariables = lambdaUploadBuildStepVariables;
     }
 
-    public List<LambdaVariables> getLambdaVariablesList() {
-        return lambdaVariablesList;
+    public LambdaUploadBuildStepVariables getLambdaUploadBuildStepVariables() {
+        return lambdaUploadBuildStepVariables;
     }
 
-    public void setLambdaVariablesList(List<LambdaVariables> lambdaVariablesList) {
-        this.lambdaVariablesList = lambdaVariablesList;
+    public void setLambdaUploadBuildStepVariables(LambdaUploadBuildStepVariables LambdaUploadBuildStepVariables) {
+        this.lambdaUploadBuildStepVariables = LambdaUploadBuildStepVariables;
     }
 
     @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
-                           BuildListener listener) {
-        boolean returnValue = true;
-
-        for (LambdaVariables lambdaVariables : lambdaVariablesList) {
-            returnValue = returnValue && perform(lambdaVariables, build, launcher, listener);
-        }
-
-        return returnValue;
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+        return perform(lambdaUploadBuildStepVariables, build, launcher, listener);
     }
 
-    public boolean perform(LambdaVariables lambdaVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-        if (lambdaVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.SUCCESS)) {
-            listener.getLogger().println("Build not successful, not uploading Lambda function: " + lambdaVariables.getFunctionName());
-            return true;
-        } else if (!lambdaVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.UNSTABLE)) {
-            listener.getLogger().println("Build failed, not uploading Lambda function: " + lambdaVariables.getFunctionName());
-            return true;
-        }
+    public boolean perform(LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         try {
-            LambdaVariables executionVariables = lambdaVariables.getClone();
+            LambdaUploadBuildStepVariables executionVariables = lambdaUploadBuildStepVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
             DeployConfig deployConfig = executionVariables.getUploadConfig();
 
@@ -117,7 +97,7 @@ public class AWSLambdaPublisher extends Notifier{
 
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 
         /**
          * In order to load the persisted global configuration, you have to

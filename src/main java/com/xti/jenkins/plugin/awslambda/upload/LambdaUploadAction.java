@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda.invoke;
+package com.xti.jenkins.plugin.awslambda.upload;
 
 /*
  * #%L
@@ -28,7 +28,7 @@ package com.xti.jenkins.plugin.awslambda.invoke;
 
 import hudson.model.ProminentProjectAction;
 
-public class LambdaInvokeAction implements ProminentProjectAction {
+public class LambdaUploadAction implements ProminentProjectAction {
 
     //Nothing to show, go to console for now
     private static final String URL_NAME = "console";
@@ -38,15 +38,15 @@ public class LambdaInvokeAction implements ProminentProjectAction {
     private final String displayName;
 
 
-    public LambdaInvokeAction(String functionName, Boolean success) {
+    public LambdaUploadAction(String functionName, Boolean success) {
         if(success){
             iconFileName = "/plugin/aws-lambda/images/Lambda_24.png";
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48.png";
-            displayName = "Invoked Lambda: " + functionName;
+            displayName = "Deployed Lambda: " + functionName;
         }else {
             iconFileName = "/plugin/aws-lambda/images/Lambda_24_grey.png";
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48_grey.png";
-            displayName = "Lambda invocation failure: " + functionName;
+            displayName = "Lambda deployment failure: " + functionName;
         }
     }
 

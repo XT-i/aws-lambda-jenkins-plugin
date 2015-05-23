@@ -3,23 +3,20 @@ package com.xti.jenkins.plugin.awslambda.service;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.*;
-import com.amazonaws.util.Base64;
-import com.xti.jenkins.plugin.awslambda.invoke.InvokeConfig;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
-import com.xti.jenkins.plugin.awslambda.upload.UploadConfig;
+import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.util.LogUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
-public class LambdaService {
+public class LambdaDeployService {
     private AWSLambdaClient client;
     private JenkinsLogger logger;
 
-    public LambdaService(AWSLambdaClient client, JenkinsLogger logger) {
+    public LambdaDeployService(AWSLambdaClient client, JenkinsLogger logger) {
         this.client = client;
         this.logger = logger;
     }
@@ -36,7 +33,7 @@ public class LambdaService {
      * @param updateModeValue Full, Code or Config, only used if function does not already exists.
      * @return true if successful, false in case of failure.
      */
-    public Boolean processLambdaDeployment(UploadConfig config, File zipFile, UpdateModeValue updateModeValue){
+    public Boolean deployLambda(DeployConfig config, File zipFile, UpdateModeValue updateModeValue){
         if(functionExists(config.getFunctionName())){
 
             //update code
@@ -87,42 +84,13 @@ public class LambdaService {
         }
     }
 
-    public String invokeLambdaFunction(InvokeConfig invokeConfig){
-        InvokeRequest invokeRequest = new InvokeRequest()
-                .withFunctionName(invokeConfig.getFunctionName())
-                .withPayload(invokeConfig.getPayload());
-
-        if(invokeConfig.isSynchronous()){
-            invokeRequest
-                    .withInvocationType(InvocationType.RequestResponse)
-                    .withLogType(LogType.Tail);
-        } else {
-            invokeRequest
-                    .withInvocationType(InvocationType.Event);
-        }
-        logger.log("Lambda invoke request:%n%s%nPayload:%n%s%n", invokeRequest.toString(), invokeConfig.getPayload());
-
-        InvokeResult invokeResult = client.invoke(invokeRequest);
-        String payload = "";
-        if(invokeResult.getPayload() != null){
-            payload = new String(invokeResult.getPayload().array(), Charset.forName("UTF-8"));
-        }
-        logger.log("Lambda invoke response:%n%s%nPayload:%n%s%n", invokeResult.toString(), payload);
-
-        if(invokeResult.getLogResult() != null){
-            logger.log("Log:%n%s%n", new String(Base64.decode(invokeResult.getLogResult()), Charset.forName("UTF-8")));
-        }
-
-        return payload;
-    }
-
     /**
      * This method calls the AWS Lambda createFunction method based on the given configuration and file.
      * @param config configuration to setup the createFunction call
      * @param zipFile zipfile that will be uploaded
      * @throws IOException
      */
-    public void createLambdaFunction(UploadConfig config, File zipFile) throws IOException {
+    private void createLambdaFunction(DeployConfig config, File zipFile) throws IOException {
 
         FunctionCode functionCode = new FunctionCode().withZipFile(getFunctionZip(zipFile));
 
@@ -147,7 +115,7 @@ public class LambdaService {
      * @param zipFile zipfile that will be uploaded
      * @throws IOException
      */
-    public void updateCodeOnly(String functionName, File zipFile) throws IOException {
+    private void updateCodeOnly(String functionName, File zipFile) throws IOException {
         ByteBuffer functionCode = getFunctionZip(zipFile);
 
         UpdateFunctionCodeRequest updateFunctionCodeRequest = new UpdateFunctionCodeRequest()
@@ -164,7 +132,7 @@ public class LambdaService {
      * This method calls the AWS Lambda updateFunctionConfiguration method based on the given config.
      * @param config new configuration for the function
      */
-    public void updateConfigurationOnly(UploadConfig config){
+    private void updateConfigurationOnly(DeployConfig config){
         UpdateFunctionConfigurationRequest updateFunctionConfigurationRequest = new UpdateFunctionConfigurationRequest()
                 .withFunctionName(config.getFunctionName())
                 .withDescription(config.getDescription())

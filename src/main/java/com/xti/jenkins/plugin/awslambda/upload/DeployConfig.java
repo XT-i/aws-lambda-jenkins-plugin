@@ -1,6 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.upload;
 
-public class UploadConfig {
+public class DeployConfig {
     private String awsAccessKeyId;
     private String awsSecretKey;
     private String awsRegion;
@@ -15,7 +15,7 @@ public class UploadConfig {
     private boolean successOnly;
     private String updateMode;
 
-    public UploadConfig(String awsAccessKeyId, String awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, boolean successOnly, String updateMode) {
+    public DeployConfig(String awsAccessKeyId, String awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, boolean successOnly, String updateMode) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
