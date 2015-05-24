@@ -1,5 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.service;
 
+import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;

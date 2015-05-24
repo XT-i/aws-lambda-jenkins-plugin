@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda.service;
+package com.xti.jenkins.plugin.awslambda.util;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSCredentialsProviderChain;

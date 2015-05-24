@@ -26,6 +26,7 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
@@ -182,7 +183,11 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, false, updateMode);
+        return new DeployConfig(artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode);
+    }
+
+    public LambdaClientConfig getLambdaClientConfig(){
+        return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
     }
 
     private String expand(String value, EnvVars env) {

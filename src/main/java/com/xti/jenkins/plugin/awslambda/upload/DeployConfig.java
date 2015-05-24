@@ -1,9 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.upload;
 
 public class DeployConfig {
-    private String awsAccessKeyId;
-    private String awsSecretKey;
-    private String awsRegion;
     private String artifactLocation;
     private String description;
     private String functionName;
@@ -12,13 +9,9 @@ public class DeployConfig {
     private String role;
     private String runtime;
     private Integer timeout;
-    private boolean successOnly;
     private String updateMode;
 
-    public DeployConfig(String awsAccessKeyId, String awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, boolean successOnly, String updateMode) {
-        this.awsAccessKeyId = awsAccessKeyId;
-        this.awsSecretKey = awsSecretKey;
-        this.awsRegion = awsRegion;
+    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode) {
         this.artifactLocation = artifactLocation;
         this.description = description;
         this.functionName = functionName;
@@ -27,32 +20,7 @@ public class DeployConfig {
         this.role = role;
         this.runtime = runtime;
         this.timeout = timeout;
-        this.successOnly = successOnly;
         this.updateMode = updateMode;
-    }
-
-    public String getAwsAccessKeyId() {
-        return awsAccessKeyId;
-    }
-
-    public void setAwsAccessKeyId(String awsAccessKeyId) {
-        this.awsAccessKeyId = awsAccessKeyId;
-    }
-
-    public String getAwsSecretKey() {
-        return awsSecretKey;
-    }
-
-    public void setAwsSecretKey(String awsSecretKey) {
-        this.awsSecretKey = awsSecretKey;
-    }
-
-    public String getAwsRegion() {
-        return awsRegion;
-    }
-
-    public void setAwsRegion(String awsRegion) {
-        this.awsRegion = awsRegion;
     }
 
     public String getArtifactLocation() {
@@ -117,14 +85,6 @@ public class DeployConfig {
 
     public void setTimeout(Integer timeout) {
         this.timeout = timeout;
-    }
-
-    public boolean isSuccessOnly() {
-        return successOnly;
-    }
-
-    public void setSuccessOnly(boolean successOnly) {
-        this.successOnly = successOnly;
     }
 
     public String getUpdateMode() {

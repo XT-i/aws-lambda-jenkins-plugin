@@ -26,6 +26,7 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
@@ -137,7 +138,11 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         for (JsonParameterVariables jsonParameterVariables : getJsonParameters()) {
             jsonParameters.add(jsonParameterVariables.getJsonParameter());
         }
-        return new InvokeConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion, functionName, payload, synchronous, false, jsonParameters);
+        return new InvokeConfig(functionName, payload, synchronous, jsonParameters);
+    }
+
+    public LambdaClientConfig getLambdaClientConfig(){
+        return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.

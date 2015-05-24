@@ -26,6 +26,9 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
+import com.xti.jenkins.plugin.awslambda.service.LambdaInvokeService;
+import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -86,11 +89,14 @@ public class LambdaInvokePublisher extends Notifier{
         try {
             LambdaInvokeVariables executionVariables = lambdaInvokeVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
+            JenkinsLogger logger = new JenkinsLogger(listener.getLogger());
+            LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
             InvokeConfig invokeConfig = executionVariables.getInvokeConfig();
+            LambdaInvokeService service = new LambdaInvokeService(clientConfig.getClient(), logger);
 
-            LambdaInvoker lambdaInvoker = new LambdaInvoker(invokeConfig, build, listener);
+            LambdaInvoker lambdaInvoker = new LambdaInvoker(service, logger);
 
-            LambdaInvocationResult invocationResult = lambdaInvoker.invoke();
+            LambdaInvocationResult invocationResult = lambdaInvoker.invoke(invokeConfig);
 
             if(!invocationResult.isSuccess()){
                 build.setResult(Result.FAILURE);

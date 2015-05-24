@@ -28,6 +28,7 @@ package com.xti.jenkins.plugin.awslambda;
 
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
+import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
@@ -194,7 +195,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, updateMode);
+        return new DeployConfig(artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode);
+    }
+
+    public LambdaClientConfig getLambdaClientConfig(){
+        return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
     }
 
     private String expand(String value, EnvVars env) {

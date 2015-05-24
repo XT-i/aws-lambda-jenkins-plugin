@@ -26,32 +26,27 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
-import com.xti.jenkins.plugin.awslambda.service.*;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
+import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
+import com.xti.jenkins.plugin.awslambda.service.JsonPathParser;
+import com.xti.jenkins.plugin.awslambda.service.LambdaInvokeService;
 
 import java.io.IOException;
 import java.util.Map;
 
 public class LambdaInvoker {
-    private JenkinsLogger logger;
-    private InvokeConfig config;
-    private LambdaInvokeService lambda;
-    private JsonPathParser jsonPathParser;
 
-    public LambdaInvoker(InvokeConfig config, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
-        this.config = config;
-        logger = new JenkinsLogger(listener.getLogger());
-        LambdaClientConfig lambdaClientConfig = new LambdaClientConfig(config.getAwsAccessKeyId(), config.getAwsSecretKey(), config.getAwsRegion());
-        lambda = new LambdaInvokeService(lambdaClientConfig.getClient(), logger);
-        jsonPathParser = new JsonPathParser(config.getJsonParameters(), logger);
+    private LambdaInvokeService lambda;
+    private JenkinsLogger logger;
+
+    public LambdaInvoker(LambdaInvokeService lambda, JenkinsLogger logger) {
+        this.lambda = lambda;
+        this.logger = logger;
     }
 
-    public LambdaInvocationResult invoke() throws IOException, InterruptedException {
+    public LambdaInvocationResult invoke(InvokeConfig config) throws IOException, InterruptedException {
+        JsonPathParser jsonPathParser = new JsonPathParser(config.getJsonParameters(), logger);
         logger.log("%nStarting lambda invocation.");
-
         String output = lambda.invokeLambdaFunction(config);
-
         Map<String, String> injectables = jsonPathParser.parse(output);
 
         return new LambdaInvocationResult(true, injectables);
