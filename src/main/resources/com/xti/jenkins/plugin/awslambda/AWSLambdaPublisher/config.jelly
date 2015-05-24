@@ -3,48 +3,47 @@
     <f:entry title="Deploy AWS Lambda functions">
         <f:nested>
             <div style="padding-left:1em">
-                <!--items="${instance.lambdaVariablesList}"-->
-                <f:repeatable name="lambdaVariablesList" var="lambdaVariables" field="lambdaVariablesList" header="Lambda deployment" add="Deploy AWS Lambda">
+                <f:repeatable field="lambdaVariablesList" header="Lambda deployment" add="Deploy AWS Lambda">
                     <table width="100%">
 
-                        <f:entry title="AWS Access Key Id" help="/plugin/aws-lambda/help-awsAccessKeyId.html">
-                            <f:textbox name="awsAccessKeyId" field="awsAccessKeyId" />
+                        <f:entry title="AWS Access Key Id" field="awsAccessKeyId" help="/plugin/aws-lambda/help-awsAccessKeyId.html">
+                            <f:textbox />
                         </f:entry>
-                        <f:entry title="AWS Secret Key" help="/plugin/aws-lambda/help-awsSecretKey.html">
-                            <f:password name="awsSecretKey" field="awsSecretKey" />
+                        <f:entry title="AWS Secret Key" field="awsSecretKey" help="/plugin/aws-lambda/help-awsSecretKey.html">
+                            <f:password />
                         </f:entry>
-                        <f:entry title="AWS Region" help="/plugin/aws-lambda/help-awsRegion.html">
-                            <f:textbox name="awsRegion" field="awsRegion" />
+                        <f:entry title="AWS Region" field="awsRegion" help="/plugin/aws-lambda/help-awsRegion.html">
+                            <f:textbox />
                         </f:entry>
-                        <f:entry title="Function Name" help="/plugin/aws-lambda/help-functionName.html">
-                            <f:textbox name="functionName" field="functionName" />
+                        <f:entry title="Function Name" field="functionName" help="/plugin/aws-lambda/help-functionName.html">
+                            <f:textbox />
                         </f:entry>
-                        <f:entry title="Description" help="/plugin/aws-lambda/help-description.html">
-                            <f:textbox name="description" field="description" />
+                        <f:entry title="Description" field="description" help="/plugin/aws-lambda/help-description.html">
+                            <f:textbox />
                         </f:entry>
-                        <f:entry title="Role" help="/plugin/aws-lambda/help-role.html">
-                            <f:textbox name="role" field="role" />
+                        <f:entry title="Role" field="role" help="/plugin/aws-lambda/help-role.html">
+                            <f:textbox />
                         </f:entry>
-                        <f:entry title="Artifact Location (Zip file or directory)" help="/plugin/aws-lambda/help-artifactLocation.html">
-                            <f:textbox name="artifactLocation" field="artifactLocation" />
+                        <f:entry title="Artifact Location (Zip file or directory)" field="artifactLocation" help="/plugin/aws-lambda/help-artifactLocation.html">
+                            <f:textbox />
                         </f:entry>
-                        <f:entry title="Handler Name" help="/plugin/aws-lambda/help-handler.html">
-                            <f:textbox name="handler" field="handler" />
+                        <f:entry title="Handler Name" field="handler" help="/plugin/aws-lambda/help-handler.html">
+                            <f:textbox />
                         </f:entry>
-                        <f:entry title="Memory Size" help="/plugin/aws-lambda/help-memorySize.html">
-                            <f:textbox name="memorySize" field="memorySize" />
+                        <f:entry title="Memory Size" field="memorySize" help="/plugin/aws-lambda/help-memorySize.html">
+                            <f:textbox />
                         </f:entry>
-                        <f:entry title="Timeout" help="/plugin/aws-lambda/help-timeout.html">
-                            <f:textbox name="timeout" field="timeout" />
+                        <f:entry title="Timeout" field="timeout" help="/plugin/aws-lambda/help-timeout.html">
+                            <f:textbox />
                         </f:entry>
-                        <f:entry title="Runtime" help="/plugin/aws-lambda/help-runtime.html">
-                            <f:textbox name="runtime" field="runtime" />
+                        <f:entry title="Runtime" field="runtime" help="/plugin/aws-lambda/help-runtime.html">
+                            <f:textbox />
                         </f:entry>
                         <f:entry field="updateMode" title="Update Mode" help="/plugin/aws-lambda/help-updateMode.html">
                             <f:select />
                         </f:entry>
-                        <f:entry title="Upload Lambda on success only" help="/plugin/aws-lambda/help-successOnly.html">
-                            <f:checkbox name="successOnly" field="successOnly" value="true" default="true" />
+                        <f:entry title="Upload Lambda on success only" field="successOnly" help="/plugin/aws-lambda/help-successOnly.html">
+                            <f:checkbox value="true" default="true" />
                         </f:entry>
 
                         <f:entry title="">

@@ -136,4 +136,20 @@ public class LambdaInvokeBuildStep extends Builder implements BuildStep{
             return super.configure(req,formData);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LambdaInvokeBuildStep that = (LambdaInvokeBuildStep) o;
+
+        return !(lambdaInvokeBuildStepVariables != null ? !lambdaInvokeBuildStepVariables.equals(that.lambdaInvokeBuildStepVariables) : that.lambdaInvokeBuildStepVariables != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return lambdaInvokeBuildStepVariables != null ? lambdaInvokeBuildStepVariables.hashCode() : 0;
+    }
 }

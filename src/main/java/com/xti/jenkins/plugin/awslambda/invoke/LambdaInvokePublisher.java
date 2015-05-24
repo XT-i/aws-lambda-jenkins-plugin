@@ -154,4 +154,20 @@ public class LambdaInvokePublisher extends Notifier{
             return super.configure(req,formData);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LambdaInvokePublisher that = (LambdaInvokePublisher) o;
+
+        return !(lambdaInvokeVariablesList != null ? !lambdaInvokeVariablesList.equals(that.lambdaInvokeVariablesList) : that.lambdaInvokeVariablesList != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return lambdaInvokeVariablesList != null ? lambdaInvokeVariablesList.hashCode() : 0;
+    }
 }

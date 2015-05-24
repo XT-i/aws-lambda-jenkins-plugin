@@ -71,6 +71,24 @@ public class JsonParameterVariables extends AbstractDescribableImpl<JsonParamete
             return "Environment Variable";
         }
 
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JsonParameterVariables that = (JsonParameterVariables) o;
+
+        if (envVarName != null ? !envVarName.equals(that.envVarName) : that.envVarName != null) return false;
+        return !(jsonPath != null ? !jsonPath.equals(that.jsonPath) : that.jsonPath != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = envVarName != null ? envVarName.hashCode() : 0;
+        result = 31 * result + (jsonPath != null ? jsonPath.hashCode() : 0);
+        return result;
     }
 }

@@ -45,7 +45,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     private String payload;
     private boolean synchronous;
     private boolean successOnly;
-    private List<JsonParameterVariables> jsonParameters;
+    private List<JsonParameterVariables> jsonParameters = new ArrayList<JsonParameterVariables>();
 
     @DataBoundConstructor
     public LambdaInvokeVariables(String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
@@ -160,6 +160,37 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
             return "Invoke Lambda function";
         }
 
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LambdaInvokeVariables that = (LambdaInvokeVariables) o;
+
+        if (synchronous != that.synchronous) return false;
+        if (successOnly != that.successOnly) return false;
+        if (awsAccessKeyId != null ? !awsAccessKeyId.equals(that.awsAccessKeyId) : that.awsAccessKeyId != null)
+            return false;
+        if (awsSecretKey != null ? !awsSecretKey.equals(that.awsSecretKey) : that.awsSecretKey != null) return false;
+        if (awsRegion != null ? !awsRegion.equals(that.awsRegion) : that.awsRegion != null) return false;
+        if (functionName != null ? !functionName.equals(that.functionName) : that.functionName != null) return false;
+        if (payload != null ? !payload.equals(that.payload) : that.payload != null) return false;
+        return !(jsonParameters != null ? !jsonParameters.equals(that.jsonParameters) : that.jsonParameters != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = awsAccessKeyId != null ? awsAccessKeyId.hashCode() : 0;
+        result = 31 * result + (awsSecretKey != null ? awsSecretKey.hashCode() : 0);
+        result = 31 * result + (awsRegion != null ? awsRegion.hashCode() : 0);
+        result = 31 * result + (functionName != null ? functionName.hashCode() : 0);
+        result = 31 * result + (payload != null ? payload.hashCode() : 0);
+        result = 31 * result + (synchronous ? 1 : 0);
+        result = 31 * result + (successOnly ? 1 : 0);
+        result = 31 * result + (jsonParameters != null ? jsonParameters.hashCode() : 0);
+        return result;
     }
 }

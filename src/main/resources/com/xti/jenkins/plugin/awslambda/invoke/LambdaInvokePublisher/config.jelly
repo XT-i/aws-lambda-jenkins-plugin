@@ -1,9 +1,9 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <f:entry title="Invoke AWS Lambda functions">
-        <f:repeatable name="lambdaInvokeVariablesList" var="lambdaInvokeVariables" field="lambdaInvokeVariablesList" header="Lambda invocation" add="Invoke AWS Lambda">
+        <f:repeatable field="lambdaInvokeVariablesList" header="Lambda invocation" add="Invoke AWS Lambda">
             <table width="100%">
-                <f:entry title="AWS Access Key Id" help="/plugin/aws-lambda/help-awsAccessKeyId.html">
-                    <f:textbox name="awsAccessKeyId" field="awsAccessKeyId" />
+                <f:entry title="AWS Access Key Id" field="awsAccessKeyId" help="/plugin/aws-lambda/help-awsAccessKeyId.html">
+                    <f:textbox />
                 </f:entry>
                 <f:entry field="awsSecretKey" title="AWS Secret Key" help="/plugin/aws-lambda/help-awsSecretKey.html">
                     <f:password />

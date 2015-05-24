@@ -150,6 +150,37 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
             return "Invoke Lambda function";
         }
 
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LambdaInvokeBuildStepVariables variables = (LambdaInvokeBuildStepVariables) o;
+
+        if (synchronous != variables.synchronous) return false;
+        if (awsAccessKeyId != null ? !awsAccessKeyId.equals(variables.awsAccessKeyId) : variables.awsAccessKeyId != null)
+            return false;
+        if (awsSecretKey != null ? !awsSecretKey.equals(variables.awsSecretKey) : variables.awsSecretKey != null)
+            return false;
+        if (awsRegion != null ? !awsRegion.equals(variables.awsRegion) : variables.awsRegion != null) return false;
+        if (functionName != null ? !functionName.equals(variables.functionName) : variables.functionName != null)
+            return false;
+        if (payload != null ? !payload.equals(variables.payload) : variables.payload != null) return false;
+        return !(jsonParameters != null ? !jsonParameters.equals(variables.jsonParameters) : variables.jsonParameters != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = awsAccessKeyId != null ? awsAccessKeyId.hashCode() : 0;
+        result = 31 * result + (awsSecretKey != null ? awsSecretKey.hashCode() : 0);
+        result = 31 * result + (awsRegion != null ? awsRegion.hashCode() : 0);
+        result = 31 * result + (functionName != null ? functionName.hashCode() : 0);
+        result = 31 * result + (payload != null ? payload.hashCode() : 0);
+        result = 31 * result + (synchronous ? 1 : 0);
+        result = 31 * result + (jsonParameters != null ? jsonParameters.hashCode() : 0);
+        return result;
     }
 }
