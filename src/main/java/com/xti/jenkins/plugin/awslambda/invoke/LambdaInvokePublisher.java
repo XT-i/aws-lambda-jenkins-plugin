@@ -66,8 +66,10 @@ public class LambdaInvokePublisher extends Notifier{
                            BuildListener listener) {
         boolean returnValue = true;
 
-        for (LambdaInvokeVariables lambdaInvokeVariables : lambdaInvokeVariablesList) {
-            returnValue = returnValue && perform(lambdaInvokeVariables, build, launcher, listener);
+        if(lambdaInvokeVariablesList != null) {
+            for (LambdaInvokeVariables lambdaInvokeVariables : lambdaInvokeVariablesList) {
+                returnValue = returnValue && perform(lambdaInvokeVariables, build, launcher, listener);
+            }
         }
 
         return returnValue;

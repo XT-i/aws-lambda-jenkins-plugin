@@ -68,8 +68,10 @@ public class AWSLambdaPublisher extends Notifier{
                            BuildListener listener) {
         boolean returnValue = true;
 
-        for (LambdaVariables lambdaVariables : lambdaVariablesList) {
-            returnValue = returnValue && perform(lambdaVariables, build, launcher, listener);
+        if (lambdaVariablesList != null){
+            for (LambdaVariables lambdaVariables : lambdaVariablesList) {
+                returnValue = returnValue && perform(lambdaVariables, build, launcher, listener);
+            }
         }
 
         return returnValue;

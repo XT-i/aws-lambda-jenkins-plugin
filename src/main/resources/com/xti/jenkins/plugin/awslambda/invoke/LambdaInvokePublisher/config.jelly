@@ -25,7 +25,7 @@
                     <f:checkbox value="true" default="true" />
                 </f:entry>
                 <f:entry title="Json Parameters">
-                    <f:repeatableProperty field="jsonParameters" />
+                    <f:repeatableProperty field="jsonParameters" minimum="0" />
                 </f:entry>
                 <f:entry title="">
                     <div align="right">
