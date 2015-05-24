@@ -21,7 +21,7 @@
                 <f:entry field="synchronous" title="Synchronous" help="/plugin/aws-lambda/help-synchronous.html">
                     <f:checkbox value="true" default="true" />
                 </f:entry>
-                <f:entry field="successOnly" title="Success only" help="/plugin/aws-lambda/help-synchronous.html">
+                <f:entry field="successOnly" title="Success only" help="/plugin/aws-lambda/help-successOnly.html">
                     <f:checkbox value="true" default="true" />
                 </f:entry>
                 <f:entry title="Json Parameters">
