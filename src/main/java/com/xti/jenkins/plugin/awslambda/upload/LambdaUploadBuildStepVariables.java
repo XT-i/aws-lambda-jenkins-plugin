@@ -26,12 +26,12 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -195,7 +195,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static class DescriptorImpl extends Descriptor<LambdaUploadBuildStepVariables> {
+    public static class DescriptorImpl extends AWSLambdaDescriptor<LambdaUploadBuildStepVariables> {
 
         /* TODO: conditionally check based on UpdateMode
         public FormValidation doCheckTimeout(@QueryParameter String value) {

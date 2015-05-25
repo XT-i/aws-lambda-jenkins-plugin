@@ -6,7 +6,9 @@ import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.lambda.model.LogType;
 import com.amazonaws.util.Base64;
+import com.xti.jenkins.plugin.awslambda.exception.LambdaInvokeException;
 import com.xti.jenkins.plugin.awslambda.invoke.InvokeConfig;
+import org.apache.commons.lang.StringUtils;
 
 import java.nio.charset.Charset;
 
@@ -49,6 +51,10 @@ public class LambdaInvokeService {
 
         if(invokeResult.getLogResult() != null){
             logger.log("Log:%n%s%n", new String(Base64.decode(invokeResult.getLogResult()), Charset.forName("UTF-8")));
+        }
+
+        if(StringUtils.isNotEmpty(invokeResult.getFunctionError())){
+            throw new LambdaInvokeException("Function returned error of type: " + invokeResult.getFunctionError());
         }
 
         return payload;

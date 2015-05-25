@@ -33,7 +33,6 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -207,7 +206,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static class DescriptorImpl extends Descriptor<LambdaVariables> {
+    public static class DescriptorImpl extends AWSLambdaDescriptor<LambdaVariables> {
 
         /* TODO: conditionally check based on UpdateMode
         public FormValidation doCheckTimeout(@QueryParameter String value) {

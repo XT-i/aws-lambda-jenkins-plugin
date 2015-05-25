@@ -26,12 +26,12 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -146,7 +146,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static class DescriptorImpl extends Descriptor<LambdaInvokeBuildStepVariables> {
+    public static class DescriptorImpl extends AWSLambdaDescriptor<LambdaInvokeBuildStepVariables> {
 
         /**
          * This human readable name is used in the configuration screen.
