@@ -47,6 +47,9 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
     private boolean synchronous;
     private List<JsonParameterVariables> jsonParameters;
 
+    public LambdaInvokeBuildStepVariables() {
+    }
+
     @DataBoundConstructor
     public LambdaInvokeBuildStepVariables(String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, List<JsonParameterVariables> jsonParameters) {
         this.awsAccessKeyId = awsAccessKeyId;
