@@ -10,6 +10,8 @@ public class JenkinsLogger {
     }
 
     public void log(String mask, Object... args) {
-        logStream.println(String.format(mask, args));
+        if(mask != null) {
+            logStream.println(String.format(mask, args));
+        }
     }
 }

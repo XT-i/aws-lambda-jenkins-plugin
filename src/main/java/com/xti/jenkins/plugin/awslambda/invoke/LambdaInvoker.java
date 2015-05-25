@@ -26,37 +26,38 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.exception.LambdaInvokeException;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.JsonPathParser;
-import com.xti.jenkins.plugin.awslambda.service.LambdaClientConfig;
-import com.xti.jenkins.plugin.awslambda.service.LambdaService;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
+import com.xti.jenkins.plugin.awslambda.service.LambdaInvokeService;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class LambdaInvoker {
-    private JenkinsLogger logger;
-    private InvokeConfig config;
-    private LambdaService lambda;
-    private JsonPathParser jsonPathParser;
 
-    public LambdaInvoker(InvokeConfig config, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
-        this.config = config;
-        logger = new JenkinsLogger(listener.getLogger());
-        LambdaClientConfig lambdaClientConfig = new LambdaClientConfig(config.getAwsAccessKeyId(), config.getAwsSecretKey(), config.getAwsRegion());
-        lambda = new LambdaService(lambdaClientConfig.getClient(), logger);
-        jsonPathParser = new JsonPathParser(config.getJsonParameters());
+    private LambdaInvokeService lambda;
+    private JenkinsLogger logger;
+
+    public LambdaInvoker(LambdaInvokeService lambda, JenkinsLogger logger) {
+        this.lambda = lambda;
+        this.logger = logger;
     }
 
-    public LambdaInvocationResult invoke() throws IOException, InterruptedException {
-        logger.log("%nStarting lambda invocation procedure");
+    public LambdaInvocationResult invoke(InvokeConfig config) throws IOException, InterruptedException {
+        JsonPathParser jsonPathParser = new JsonPathParser(config.getJsonParameters(), logger);
+        logger.log("%nStarting lambda invocation.");
+        String output = null;
+        try {
+            output = lambda.invokeLambdaFunction(config);
+            Map<String, String> injectables = jsonPathParser.parse(output);
 
-        String output = lambda.invokeLambdaFunction(config);
+            return new LambdaInvocationResult(true, injectables);
+        } catch (LambdaInvokeException e) {
+            logger.log(e.getMessage());
+            return new LambdaInvocationResult(false, new HashMap<String, String>());
+        }
 
-        Map<String, String> injectables = jsonPathParser.parse(output);
-
-        return new LambdaInvocationResult(true, injectables);
     }
 }

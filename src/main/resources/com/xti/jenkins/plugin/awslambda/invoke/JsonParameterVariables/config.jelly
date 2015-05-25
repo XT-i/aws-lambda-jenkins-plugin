@@ -2,7 +2,7 @@
     <f:entry field="envVarName" title="Name" help="/plugin/aws-lambda/help-envVarName.html">
         <f:textbox />
     </f:entry>
-    <f:entry field="jsonPath" title="Json Path" help="/plugin/aws-lambda/help-envVarName.html">
+    <f:entry field="jsonPath" title="Json Path" help="/plugin/aws-lambda/help-jsonPath.html">
         <f:textbox />
     </f:entry>
     <f:entry>

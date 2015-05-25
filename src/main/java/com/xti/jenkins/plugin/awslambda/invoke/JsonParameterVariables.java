@@ -29,7 +29,10 @@ package com.xti.jenkins.plugin.awslambda.invoke;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import hudson.util.FormValidation;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 public class JsonParameterVariables extends AbstractDescribableImpl<JsonParameterVariables> {
     private String envVarName;
@@ -71,6 +74,33 @@ public class JsonParameterVariables extends AbstractDescribableImpl<JsonParamete
             return "Environment Variable";
         }
 
+        //envVarName field
+        public FormValidation doCheckEnvVarName(@QueryParameter String value) {
+            if(StringUtils.isEmpty(value)){
+                return FormValidation.error("Please fill in name of environment variable.");
+            } else {
+                return FormValidation.ok();
+            }
+        }
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JsonParameterVariables that = (JsonParameterVariables) o;
+
+        if (envVarName != null ? !envVarName.equals(that.envVarName) : that.envVarName != null) return false;
+        return !(jsonPath != null ? !jsonPath.equals(that.jsonPath) : that.jsonPath != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = envVarName != null ? envVarName.hashCode() : 0;
+        result = 31 * result + (jsonPath != null ? jsonPath.hashCode() : 0);
+        return result;
     }
 }

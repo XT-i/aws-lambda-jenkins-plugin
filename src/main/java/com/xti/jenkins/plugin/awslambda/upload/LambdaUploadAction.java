@@ -42,11 +42,11 @@ public class LambdaUploadAction implements ProminentProjectAction {
         if(success){
             iconFileName = "/plugin/aws-lambda/images/Lambda_24.png";
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48.png";
-            displayName = "Uploaded Lambda: " + functionName;
+            displayName = "Deployed Lambda: " + functionName;
         }else {
             iconFileName = "/plugin/aws-lambda/images/Lambda_24_grey.png";
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48_grey.png";
-            displayName = "Lambda Failure: " + functionName;
+            displayName = "Lambda deployment failure: " + functionName;
         }
     }
 

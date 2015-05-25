@@ -24,6 +24,7 @@
   #L%
   -->
 <div>
-    <p>AWS Region (eu-west-1, us-east-1, ...)</p>
-    <p><a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html" target="_blank">http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html</a></p>
+    <p>JsonPath expression used to parse AWS Lambda response payload. Leave empty to get full payload.</p>
+    <p><a href="https://github.com/jayway/JsonPath" target="_blank">https://github.com/jayway/JsonPath</a></p>
+    <p>Example: $.output.key1 for {"output" : {"key1":"value1"}} returns value1</p>
 </div>

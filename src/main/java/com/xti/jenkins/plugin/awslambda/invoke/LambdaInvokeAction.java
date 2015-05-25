@@ -46,7 +46,7 @@ public class LambdaInvokeAction implements ProminentProjectAction {
         }else {
             iconFileName = "/plugin/aws-lambda/images/Lambda_24_grey.png";
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48_grey.png";
-            displayName = "Lambda Invocation Failure: " + functionName;
+            displayName = "Lambda invocation failure: " + functionName;
         }
     }
 

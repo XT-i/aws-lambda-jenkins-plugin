@@ -26,9 +26,13 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
+import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
+import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadAction;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploader;
-import com.xti.jenkins.plugin.awslambda.upload.UploadConfig;
+import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
+import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -68,8 +72,10 @@ public class AWSLambdaPublisher extends Notifier{
                            BuildListener listener) {
         boolean returnValue = true;
 
-        for (LambdaVariables lambdaVariables : lambdaVariablesList) {
-            returnValue = returnValue && perform(lambdaVariables, build, launcher, listener);
+        if (lambdaVariablesList != null){
+            for (LambdaVariables lambdaVariables : lambdaVariablesList) {
+                returnValue = returnValue && perform(lambdaVariables, build, launcher, listener);
+            }
         }
 
         return returnValue;
@@ -86,11 +92,15 @@ public class AWSLambdaPublisher extends Notifier{
         try {
             LambdaVariables executionVariables = lambdaVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
-            UploadConfig uploadConfig = executionVariables.getUploadConfig();
+            DeployConfig deployConfig = executionVariables.getUploadConfig();
+            LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
+            JenkinsLogger logger = new JenkinsLogger(listener.getLogger());
+            LambdaDeployService service = new LambdaDeployService(clientConfig.getClient(), logger);
+            WorkSpaceZipper workSpaceZipper = new WorkSpaceZipper(build.getWorkspace(), logger);
 
-            LambdaUploader lambdaUploader = new LambdaUploader(uploadConfig, build, listener);
+            LambdaUploader lambdaUploader = new LambdaUploader(service, workSpaceZipper, logger);
 
-            Boolean lambdaSuccess = lambdaUploader.upload();
+            Boolean lambdaSuccess = lambdaUploader.upload(deployConfig);
             if(!lambdaSuccess){
                 build.setResult(Result.FAILURE);
             }

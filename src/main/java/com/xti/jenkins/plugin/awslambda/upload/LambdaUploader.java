@@ -27,55 +27,27 @@ package com.xti.jenkins.plugin.awslambda.upload;
  */
 
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
-import com.xti.jenkins.plugin.awslambda.service.LambdaClientConfig;
-import com.xti.jenkins.plugin.awslambda.service.LambdaService;
-import hudson.FilePath;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
-import org.apache.commons.lang.StringUtils;
+import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
+import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class LambdaUploader {
+    private LambdaDeployService lambda;
+    private WorkSpaceZipper zipper;
     private JenkinsLogger logger;
-    private UploadConfig config;
-    private LambdaService lambda;
-    private FilePath artifactLocation = null;
 
-    public LambdaUploader(UploadConfig config, AbstractBuild<?, ?> build, BuildListener listener) throws IOException, InterruptedException {
-        this.config = config;
-        logger = new JenkinsLogger(listener.getLogger());
-        LambdaClientConfig lambdaClientConfig = new LambdaClientConfig(config.getAwsAccessKeyId(), config.getAwsSecretKey(), config.getAwsRegion());
-        lambda = new LambdaService(lambdaClientConfig.getClient(), logger);
-        if(StringUtils.isNotEmpty(config.getArtifactLocation())) {
-            artifactLocation = new FilePath(build.getWorkspace(), config.getArtifactLocation());
-        }
+    public LambdaUploader(LambdaDeployService lambda, WorkSpaceZipper zipper, JenkinsLogger logger) throws IOException, InterruptedException {
+        this.lambda = lambda;
+        this.zipper = zipper;
+        this.logger = logger;
     }
 
-    public Boolean upload() throws IOException, InterruptedException {
-        logger.log("%nStarting lambda upload procedure");
-        File zipFile = null;
-        if(artifactLocation != null){
-            zipFile = getArtifactFile(artifactLocation);
-        }
-        return lambda.processLambdaDeployment(config, zipFile, UpdateModeValue.fromString(config.getUpdateMode()));
+    public Boolean upload(DeployConfig config) throws IOException, InterruptedException {
+        logger.log("%nStarting lambda deployment procedure");
+
+        File zipFile = zipper.getZip(config.getArtifactLocation());
+        return lambda.deployLambda(config, zipFile, UpdateModeValue.fromString(config.getUpdateMode()));
     }
-
-    private File getArtifactFile(FilePath artifactLocation) throws IOException, InterruptedException {
-        File resultFile = File.createTempFile("awslambda-", ".zip");
-
-        if (!artifactLocation.isDirectory()) {
-            logger.log("Copying zip file");
-            artifactLocation.copyTo(new FileOutputStream(resultFile));
-        } else {
-            logger.log("Zipping folder ..., copying zip file");
-            artifactLocation.zip(new FileOutputStream(resultFile));
-        }
-
-        logger.log("File Name: %s%nAbsolute Path: %s%nFile Size: %d", resultFile.getName(), resultFile.getAbsolutePath(), resultFile.length());
-        return resultFile;
-    }
-
 }

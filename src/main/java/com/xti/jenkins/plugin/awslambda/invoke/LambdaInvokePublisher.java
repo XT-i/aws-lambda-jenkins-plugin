@@ -26,6 +26,9 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
+import com.xti.jenkins.plugin.awslambda.service.LambdaInvokeService;
+import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -66,8 +69,10 @@ public class LambdaInvokePublisher extends Notifier{
                            BuildListener listener) {
         boolean returnValue = true;
 
-        for (LambdaInvokeVariables lambdaInvokeVariables : lambdaInvokeVariablesList) {
-            returnValue = returnValue && perform(lambdaInvokeVariables, build, launcher, listener);
+        if(lambdaInvokeVariablesList != null) {
+            for (LambdaInvokeVariables lambdaInvokeVariables : lambdaInvokeVariablesList) {
+                returnValue = returnValue && perform(lambdaInvokeVariables, build, launcher, listener);
+            }
         }
 
         return returnValue;
@@ -84,11 +89,14 @@ public class LambdaInvokePublisher extends Notifier{
         try {
             LambdaInvokeVariables executionVariables = lambdaInvokeVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
+            JenkinsLogger logger = new JenkinsLogger(listener.getLogger());
+            LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
             InvokeConfig invokeConfig = executionVariables.getInvokeConfig();
+            LambdaInvokeService service = new LambdaInvokeService(clientConfig.getClient(), logger);
 
-            LambdaInvoker lambdaInvoker = new LambdaInvoker(invokeConfig, build, listener);
+            LambdaInvoker lambdaInvoker = new LambdaInvoker(service, logger);
 
-            LambdaInvocationResult invocationResult = lambdaInvoker.invoke();
+            LambdaInvocationResult invocationResult = lambdaInvoker.invoke(invokeConfig);
 
             if(!invocationResult.isSuccess()){
                 build.setResult(Result.FAILURE);
@@ -153,5 +161,21 @@ public class LambdaInvokePublisher extends Notifier{
 
             return super.configure(req,formData);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LambdaInvokePublisher that = (LambdaInvokePublisher) o;
+
+        return !(lambdaInvokeVariablesList != null ? !lambdaInvokeVariablesList.equals(that.lambdaInvokeVariablesList) : that.lambdaInvokeVariablesList != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return lambdaInvokeVariablesList != null ? lambdaInvokeVariablesList.hashCode() : 0;
     }
 }

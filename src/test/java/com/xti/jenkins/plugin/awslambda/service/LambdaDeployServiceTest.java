@@ -1,0 +1,287 @@
+package com.xti.jenkins.plugin.awslambda.service;
+
+import com.amazonaws.services.lambda.AWSLambdaClient;
+import com.amazonaws.services.lambda.model.*;
+import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
+import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
+import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.ByteBuffer;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class LambdaDeployServiceTest {
+    private final String description = "description";
+    private final String functionName = "function";
+    private final String handler = "function.handler";
+    private final Integer memory = 1024;
+    private final String role = "role";
+    private final String runtime = "nodejs";
+    private final Integer timeout = 30;
+
+    @Mock
+    private AWSLambdaClient awsLambdaClient;
+
+    @Mock
+    private JenkinsLogger jenkinsLogger;
+
+    private LambdaDeployService lambdaDeployService;
+
+    @Before
+    public void setUp() throws Exception {
+        lambdaDeployService = new LambdaDeployService(awsLambdaClient, jenkinsLogger);
+        when(awsLambdaClient.updateFunctionConfiguration(any(UpdateFunctionConfigurationRequest.class)))
+                .thenReturn(new UpdateFunctionConfigurationResult());
+        when(awsLambdaClient.updateFunctionCode(any(UpdateFunctionCodeRequest.class)))
+                .thenReturn(new UpdateFunctionCodeResult());
+        when(awsLambdaClient.createFunction(any(CreateFunctionRequest.class)))
+                .thenReturn(new CreateFunctionResult());
+    }
+
+    @Test
+    public void testExistsNoZipFull() throws Exception {
+        setFunctionFound(true);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testExistsNoZipCode() throws Exception {
+        setFunctionFound(true);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Code);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testExistsNoZipConfig() throws Exception {
+        setFunctionFound(true);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Config);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(true);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testExistsZipFull() throws Exception {
+        setFunctionFound(true);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getZipFile(), UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledUpdateCode(true);
+        calledUpdateConfiguration(true);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testExistsZipCode() throws Exception {
+        setFunctionFound(true);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getZipFile(), UpdateModeValue.Code);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledUpdateCode(true);
+        calledUpdateConfiguration(false);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testExistsZipConfig() throws Exception {
+        setFunctionFound(true);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getZipFile(), UpdateModeValue.Config);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(true);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testNewNoZipFull() throws Exception {
+        setFunctionFound(false);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testNewNoZipCode() throws Exception {
+        setFunctionFound(false);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Code);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testNewNoZipConfig() throws Exception {
+        setFunctionFound(false);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Config);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testNewZipFull() throws Exception {
+        setFunctionFound(false);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getZipFile(), UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(true);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testNewZipCode() throws Exception {
+        setFunctionFound(false);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getZipFile(), UpdateModeValue.Code);
+
+        calledGetFunction();
+        calledCreateFunction(true);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testNewZipConfig() throws Exception {
+        setFunctionFound(false);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getZipFile(), UpdateModeValue.Config);
+
+        calledGetFunction();
+        calledCreateFunction(true);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertTrue(result);
+    }
+
+    private void calledGetFunction(){
+        verify(awsLambdaClient, times(1)).getFunction(any(GetFunctionRequest.class));
+    }
+
+    private void calledUpdateCode(Boolean called){
+        if(called){
+            ArgumentCaptor<UpdateFunctionCodeRequest> args = ArgumentCaptor.forClass(UpdateFunctionCodeRequest.class);
+            verify(awsLambdaClient, times(1)).updateFunctionCode(args.capture());
+            UpdateFunctionCodeRequest expected = null;
+            try {
+                expected = new UpdateFunctionCodeRequest()
+                        .withFunctionName(functionName)
+                        .withZipFile(ByteBuffer.wrap(FileUtils.readFileToByteArray(getZipFile())));
+            } catch (IOException e) {
+                fail("Couldn't process echo.zip");
+            }
+            assertEquals(expected, args.getValue());
+
+        } else {
+            verify(awsLambdaClient, never()).updateFunctionCode(any(UpdateFunctionCodeRequest.class));
+        }
+    }
+
+    private void calledUpdateConfiguration(Boolean called){
+        if(called){
+            ArgumentCaptor<UpdateFunctionConfigurationRequest> args = ArgumentCaptor.forClass(UpdateFunctionConfigurationRequest.class);
+            verify(awsLambdaClient, times(1)).updateFunctionConfiguration(args.capture());
+            UpdateFunctionConfigurationRequest expected = new UpdateFunctionConfigurationRequest()
+                    .withDescription(description)
+                    .withFunctionName(functionName)
+                    .withHandler(handler)
+                    .withMemorySize(memory)
+                    .withRole(role)
+                    .withTimeout(timeout);
+            assertEquals(expected, args.getValue());
+
+        } else {
+            verify(awsLambdaClient, never()).updateFunctionConfiguration(any(UpdateFunctionConfigurationRequest.class));
+        }
+    }
+
+    private void calledCreateFunction(Boolean called) {
+        if (called) {
+            ArgumentCaptor<CreateFunctionRequest> args = ArgumentCaptor.forClass(CreateFunctionRequest.class);
+            verify(awsLambdaClient, times(1)).createFunction(args.capture());
+            try {
+                CreateFunctionRequest expected = new CreateFunctionRequest()
+                        .withDescription(description)
+                        .withFunctionName(functionName)
+                        .withHandler(handler)
+                        .withMemorySize(memory)
+                        .withRole(role)
+                        .withTimeout(timeout)
+                        .withRuntime(runtime)
+                        .withCode(new FunctionCode().withZipFile(ByteBuffer.wrap(FileUtils.readFileToByteArray(getZipFile()))));
+                assertEquals(expected, args.getValue());
+
+            } catch (IOException e) {
+                fail("Couldn't process echo.zip");
+            }
+        } else {
+            verify(awsLambdaClient, never()).createFunction(any(CreateFunctionRequest.class));
+        }
+    }
+
+    private DeployConfig getDeployConfig(){
+        return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null);
+    }
+
+    private File getZipFile(){
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL resource = classLoader.getResource("echo.zip");
+        if(resource != null){
+            return new File(resource.getFile());
+        } else {
+            throw new IllegalStateException("Could not load echo.zip");
+        }
+    }
+
+    private void setFunctionFound(Boolean found){
+        if(found) {
+            when(awsLambdaClient.getFunction(any(GetFunctionRequest.class)))
+                    .thenReturn(new GetFunctionResult());
+        } else {
+            when(awsLambdaClient.getFunction(any(GetFunctionRequest.class)))
+                    .thenThrow(new ResourceNotFoundException(""));
+        }
+    }
+
+
+}

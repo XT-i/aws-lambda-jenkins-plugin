@@ -26,11 +26,13 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
+import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Descriptor;
+import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.ArrayList;
@@ -38,15 +40,18 @@ import java.util.List;
 
 public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<LambdaInvokeBuildStepVariables> {
     private String awsAccessKeyId;
-    private String awsSecretKey;
+    private Secret awsSecretKey;
     private String awsRegion;
     private String functionName;
     private String payload;
     private boolean synchronous;
     private List<JsonParameterVariables> jsonParameters;
 
+    public LambdaInvokeBuildStepVariables() {
+    }
+
     @DataBoundConstructor
-    public LambdaInvokeBuildStepVariables(String awsAccessKeyId, String awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, List<JsonParameterVariables> jsonParameters) {
+    public LambdaInvokeBuildStepVariables(String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, List<JsonParameterVariables> jsonParameters) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
@@ -60,7 +65,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         return awsAccessKeyId;
     }
 
-    public String getAwsSecretKey() {
+    public Secret getAwsSecretKey() {
         return awsSecretKey;
     }
 
@@ -92,7 +97,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         this.awsAccessKeyId = awsAccessKeyId;
     }
 
-    public void setAwsSecretKey(String awsSecretKey) {
+    public void setAwsSecretKey(Secret awsSecretKey) {
         this.awsSecretKey = awsSecretKey;
     }
 
@@ -118,7 +123,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
 
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
-        awsSecretKey = expand(awsSecretKey, env);
+        awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
         awsRegion = expand(awsRegion, env);
         functionName = expand(functionName, env);
     }
@@ -136,11 +141,15 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         for (JsonParameterVariables jsonParameterVariables : getJsonParameters()) {
             jsonParameters.add(jsonParameterVariables.getJsonParameter());
         }
-        return new InvokeConfig(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, false,jsonParameters);
+        return new InvokeConfig(functionName, payload, synchronous, jsonParameters);
+    }
+
+    public LambdaClientConfig getLambdaClientConfig(){
+        return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static class DescriptorImpl extends Descriptor<LambdaInvokeBuildStepVariables> {
+    public static class DescriptorImpl extends AWSLambdaDescriptor<LambdaInvokeBuildStepVariables> {
 
         /**
          * This human readable name is used in the configuration screen.
@@ -149,6 +158,37 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
             return "Invoke Lambda function";
         }
 
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LambdaInvokeBuildStepVariables variables = (LambdaInvokeBuildStepVariables) o;
+
+        if (synchronous != variables.synchronous) return false;
+        if (awsAccessKeyId != null ? !awsAccessKeyId.equals(variables.awsAccessKeyId) : variables.awsAccessKeyId != null)
+            return false;
+        if (awsSecretKey != null ? !awsSecretKey.equals(variables.awsSecretKey) : variables.awsSecretKey != null)
+            return false;
+        if (awsRegion != null ? !awsRegion.equals(variables.awsRegion) : variables.awsRegion != null) return false;
+        if (functionName != null ? !functionName.equals(variables.functionName) : variables.functionName != null)
+            return false;
+        if (payload != null ? !payload.equals(variables.payload) : variables.payload != null) return false;
+        return !(jsonParameters != null ? !jsonParameters.equals(variables.jsonParameters) : variables.jsonParameters != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = awsAccessKeyId != null ? awsAccessKeyId.hashCode() : 0;
+        result = 31 * result + (awsSecretKey != null ? awsSecretKey.hashCode() : 0);
+        result = 31 * result + (awsRegion != null ? awsRegion.hashCode() : 0);
+        result = 31 * result + (functionName != null ? functionName.hashCode() : 0);
+        result = 31 * result + (payload != null ? payload.hashCode() : 0);
+        result = 31 * result + (synchronous ? 1 : 0);
+        result = 31 * result + (jsonParameters != null ? jsonParameters.hashCode() : 0);
+        return result;
     }
 }
