@@ -45,7 +45,8 @@ public class LambdaUploader {
     }
 
     public Boolean upload(DeployConfig config) throws IOException, InterruptedException {
-        logger.log("%nStarting lambda upload procedure");
+        logger.log("%nStarting lambda deployment procedure");
+
         File zipFile = zipper.getZip(config.getArtifactLocation());
         return lambda.deployLambda(config, zipFile, UpdateModeValue.fromString(config.getUpdateMode()));
     }

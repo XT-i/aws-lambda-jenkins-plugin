@@ -27,7 +27,7 @@ public class LambdaInvokeService {
      * @param invokeConfig AWS Lambda invocation configuration
      * @return response payload
      */
-    public String invokeLambdaFunction(InvokeConfig invokeConfig){
+    public String invokeLambdaFunction(InvokeConfig invokeConfig) throws LambdaInvokeException {
         InvokeRequest invokeRequest = new InvokeRequest()
                 .withFunctionName(invokeConfig.getFunctionName())
                 .withPayload(invokeConfig.getPayload());

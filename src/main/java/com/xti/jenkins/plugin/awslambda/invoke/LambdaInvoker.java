@@ -26,11 +26,13 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.exception.LambdaInvokeException;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.JsonPathParser;
 import com.xti.jenkins.plugin.awslambda.service.LambdaInvokeService;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class LambdaInvoker {
@@ -46,9 +48,16 @@ public class LambdaInvoker {
     public LambdaInvocationResult invoke(InvokeConfig config) throws IOException, InterruptedException {
         JsonPathParser jsonPathParser = new JsonPathParser(config.getJsonParameters(), logger);
         logger.log("%nStarting lambda invocation.");
-        String output = lambda.invokeLambdaFunction(config);
-        Map<String, String> injectables = jsonPathParser.parse(output);
+        String output = null;
+        try {
+            output = lambda.invokeLambdaFunction(config);
+            Map<String, String> injectables = jsonPathParser.parse(output);
 
-        return new LambdaInvocationResult(true, injectables);
+            return new LambdaInvocationResult(true, injectables);
+        } catch (LambdaInvokeException e) {
+            logger.log(e.getMessage());
+            return new LambdaInvocationResult(false, new HashMap<String, String>());
+        }
+
     }
 }
