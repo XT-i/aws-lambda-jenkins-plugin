@@ -1,6 +1,7 @@
 package com.xti.jenkins.plugin.awslambda.service;
 
 import hudson.FilePath;
+import hudson.util.DirScanner;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class WorkSpaceZipper {
             artifactLocation.copyTo(new FileOutputStream(resultFile));
         } else {
             logger.log("Zipping folder ..., copying zip file");
-            artifactLocation.zip(new FileOutputStream(resultFile));
+            artifactLocation.zip(new FileOutputStream(resultFile), new DirScanner.Glob("**", null, false));
         }
 
         logger.log("File Name: %s%nAbsolute Path: %s%nFile Size: %d", resultFile.getName(), resultFile.getAbsolutePath(), resultFile.length());
