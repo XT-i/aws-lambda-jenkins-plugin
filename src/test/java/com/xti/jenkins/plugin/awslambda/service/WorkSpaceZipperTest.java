@@ -1,5 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.service;
 
+import com.xti.jenkins.plugin.awslambda.TestUtil;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
@@ -13,17 +14,16 @@ import org.jvnet.hudson.test.TestBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.util.zip.ZipFile;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class WorkSpaceZipperTest {
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
+
+    private TestUtil testUtil = new TestUtil();
 
     @Test
     public void testGetZipWithZip() throws Exception {
@@ -33,7 +33,7 @@ public class WorkSpaceZipperTest {
         p.getBuildersList().add(new TestBuilder() {
             public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
                                    BuildListener listener) throws InterruptedException, IOException {
-                build.getWorkspace().child("echo.zip").copyFrom(new FileInputStream(getResource("echo.zip")));
+                build.getWorkspace().child("echo.zip").copyFrom(new FileInputStream(testUtil.getResource("echo.zip")));
                 buildEnded.signal();
                 return true;
             }
@@ -62,7 +62,7 @@ public class WorkSpaceZipperTest {
         p.getBuildersList().add(new TestBuilder() {
             public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
                                    BuildListener listener) throws InterruptedException, IOException {
-                build.getWorkspace().child("echo").child("index.js").copyFrom(new FileInputStream(getResource("echo/index.js")));
+                build.getWorkspace().child("echo").child("index.js").copyFrom(new FileInputStream(testUtil.getResource("echo/index.js")));
                 buildEnded.signal();
                 return true;
             }
@@ -81,15 +81,5 @@ public class WorkSpaceZipperTest {
         ZipFile zipFile = new ZipFile(zip);
         assertNotNull(zipFile);
         assertNotNull(zipFile.getEntry("index.js"));
-    }
-
-    private File getResource(String resourcePath){
-        ClassLoader classLoader = getClass().getClassLoader();
-        URL resource = classLoader.getResource(resourcePath);
-        if(resource != null){
-            return new File(resource.getFile());
-        } else {
-            throw new IllegalStateException("Could not load " + resourcePath);
-        }
     }
 }
