@@ -1,5 +1,7 @@
 # aws-lambda-jenkins-plugin
 
+[![Build Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/aws-lambda-plugin)](https://jenkins.ci.cloudbees.com/job/plugins/job/aws-lambda-plugin/)
+
 This plugins adds a post build step that uploads a file or folder to AWS Lambda.
 
 - Create AWS IAM user for use with this plugin. Must have permissions to upload a Lambda deployment package.
