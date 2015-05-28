@@ -133,6 +133,10 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
         awsRegion = expand(awsRegion, env);
         functionName = expand(functionName, env);
+        payload = expand(payload, env);
+        for (JsonParameterVariables jsonParameter : jsonParameters) {
+            jsonParameter.expandVariables(env);
+        }
     }
 
     public LambdaInvokeVariables getClone(){
