@@ -126,6 +126,10 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
         awsRegion = expand(awsRegion, env);
         functionName = expand(functionName, env);
+        payload = expand(payload, env);
+        for (JsonParameterVariables jsonParameter : jsonParameters) {
+            jsonParameter.expandVariables(env);
+        }
     }
 
     public LambdaInvokeBuildStepVariables getClone(){
