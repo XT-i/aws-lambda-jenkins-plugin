@@ -3,6 +3,7 @@ package com.xti.jenkins.plugin.awslambda.service;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.*;
+import com.xti.jenkins.plugin.awslambda.exception.LambdaDeployException;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.util.LogUtils;
@@ -29,18 +30,18 @@ public class LambdaDeployService {
      * - No function found:
      *   - Always call createFunction regardless of UpdateMode value
      * @param config configuration to be updated or added
-     * @param zipFile zipfile containing code to be updated or added
+     * @param functionCode FunctionCode containing either zipfile or s3 location.
      * @param updateModeValue Full, Code or Config, only used if function does not already exists.
      * @return true if successful, false in case of failure.
      */
-    public Boolean deployLambda(DeployConfig config, File zipFile, UpdateModeValue updateModeValue){
+    public Boolean deployLambda(DeployConfig config, FunctionCode functionCode, UpdateModeValue updateModeValue){
         if(functionExists(config.getFunctionName())){
 
             //update code
             if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Code.equals(updateModeValue)){
-                if(zipFile != null) {
+                if(functionCode != null) {
                     try {
-                        updateCodeOnly(config.getFunctionName(), zipFile);
+                        updateCodeOnly(config.getFunctionName(), functionCode);
                     } catch (IOException e) {
                         logger.log(LogUtils.getStackTrace(e));
                         return false;
@@ -66,9 +67,9 @@ public class LambdaDeployService {
             return true;
 
         }else {
-            if(zipFile != null) {
+            if(functionCode != null) {
                 try {
-                    createLambdaFunction(config, zipFile);
+                    createLambdaFunction(config, functionCode);
                     return true;
                 } catch (IOException e) {
                     logger.log(LogUtils.getStackTrace(e));
@@ -87,12 +88,10 @@ public class LambdaDeployService {
     /**
      * This method calls the AWS Lambda createFunction method based on the given configuration and file.
      * @param config configuration to setup the createFunction call
-     * @param zipFile zipfile that will be uploaded
+     * @param functionCode FunctionCode containing either zipfile or s3 location.
      * @throws IOException
      */
-    private void createLambdaFunction(DeployConfig config, File zipFile) throws IOException {
-
-        FunctionCode functionCode = new FunctionCode().withZipFile(getFunctionZip(zipFile));
+    private void createLambdaFunction(DeployConfig config, FunctionCode functionCode) throws IOException {
 
         CreateFunctionRequest createFunctionRequest = new CreateFunctionRequest()
                 .withDescription(config.getDescription())
@@ -112,15 +111,17 @@ public class LambdaDeployService {
     /**
      * This method calls the AWS Lambda updateFunctionCode method based for the given file.
      * @param functionName name of the function to update code for
-     * @param zipFile zipfile that will be uploaded
+     * @param functionCode FunctionCode containing either zipfile or s3 location.
      * @throws IOException
      */
-    private void updateCodeOnly(String functionName, File zipFile) throws IOException {
-        ByteBuffer functionCode = getFunctionZip(zipFile);
+    private void updateCodeOnly(String functionName, FunctionCode functionCode) throws IOException {
 
         UpdateFunctionCodeRequest updateFunctionCodeRequest = new UpdateFunctionCodeRequest()
                 .withFunctionName(functionName)
-                .withZipFile(functionCode);
+                .withZipFile(functionCode.getZipFile())
+                .withS3Bucket(functionCode.getS3Bucket())
+                .withS3Key(functionCode.getS3Key())
+                .withS3ObjectVersion(functionCode.getS3ObjectVersion());
 
         logger.log("Lambda update code request:%n%s%n", updateFunctionCodeRequest.toString());
 
@@ -162,6 +163,45 @@ public class LambdaDeployService {
         } catch (ResourceNotFoundException rnfe) {
             logger.log("Lambda function does not exist.");
             return false;
+        }
+    }
+
+    public FunctionCode getFunctionCode(String artifactLocation, WorkSpaceZipper workSpaceZipper){
+        if(artifactLocation.startsWith("s3://")){
+            String bucket = null;
+            String key = null;
+            String versionId = null;
+
+            String s3String = artifactLocation.substring(5);
+            int versionIndex = s3String.indexOf("?versionId=");
+            if(versionIndex != -1){
+                versionId = s3String.substring(versionIndex + 11);
+                s3String = s3String.substring(0, versionIndex);
+            }
+            int separatorIndex = s3String.indexOf("/");
+            if(separatorIndex != -1){
+                bucket = s3String.substring(0, separatorIndex);
+                if(s3String.length() > separatorIndex + 1) {
+                    key = s3String.substring(separatorIndex + 1);
+                }
+            }
+
+            return new FunctionCode()
+                    .withS3Bucket(bucket)
+                    .withS3Key(key)
+                    .withS3ObjectVersion(versionId);
+
+        } else {
+            try {
+                File zipFile = workSpaceZipper.getZip(artifactLocation);
+                return new FunctionCode()
+                        .withZipFile(getFunctionZip(zipFile));
+            } catch (IOException ioe){
+                throw new LambdaDeployException("Error processing zip file.", ioe);
+            } catch (InterruptedException ie){
+                throw new LambdaDeployException("Error processing zip file.", ie);
+            }
+
         }
     }
 
