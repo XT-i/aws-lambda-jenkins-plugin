@@ -26,11 +26,11 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
+import com.amazonaws.services.lambda.model.FunctionCode;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
 import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
 
-import java.io.File;
 import java.io.IOException;
 
 public class LambdaUploader {
@@ -47,7 +47,7 @@ public class LambdaUploader {
     public Boolean upload(DeployConfig config) throws IOException, InterruptedException {
         logger.log("%nStarting lambda deployment procedure");
 
-        File zipFile = zipper.getZip(config.getArtifactLocation());
-        return lambda.deployLambda(config, zipFile, UpdateModeValue.fromString(config.getUpdateMode()));
+        FunctionCode functionCode = lambda.getFunctionCode(config.getArtifactLocation(), zipper);
+        return lambda.deployLambda(config, functionCode, UpdateModeValue.fromString(config.getUpdateMode()));
     }
 }

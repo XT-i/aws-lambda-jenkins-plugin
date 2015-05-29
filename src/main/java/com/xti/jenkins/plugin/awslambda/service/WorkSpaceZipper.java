@@ -1,5 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.service;
 
+import com.xti.jenkins.plugin.awslambda.exception.LambdaDeployException;
 import hudson.FilePath;
 import hudson.util.DirScanner;
 import org.apache.commons.lang.StringUtils;
@@ -35,8 +36,12 @@ public class WorkSpaceZipper {
         File resultFile = File.createTempFile("awslambda-", ".zip");
 
         if (!artifactLocation.isDirectory()) {
-            logger.log("Copying zip file");
-            artifactLocation.copyTo(new FileOutputStream(resultFile));
+            if(artifactLocation.exists()) {
+                logger.log("Copying zip file");
+                artifactLocation.copyTo(new FileOutputStream(resultFile));
+            } else {
+                throw new LambdaDeployException("Could not find zipfile or folder.");
+            }
         } else {
             logger.log("Zipping folder ..., copying zip file");
             artifactLocation.zip(new FileOutputStream(resultFile), new DirScanner.Glob("**", null, false));
