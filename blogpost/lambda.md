@@ -3,7 +3,7 @@
 Ever since the release of AWS Lambda in preview mode we were passionate to use aws lambda to process event based flows.  For one our latest larger projects we at Cronos (Xplore Group and Cloudar) immediately saw the need for asynchronous handling of files, isolated from the main api.  Our challenge was that the api could quickly respond to any client.
 This is how we did it.
 
-Instead of processing files for several seconds, blocking our users calls and reducing throughput, we decided to put the file on S3 and let AWS Lambda process it asynchronously. Coupled with the AWS Lambda retry mechanism we have a robust asynchronous.
+Instead of processing files for several seconds, blocking our users calls and reducing throughput, we decided to put the file on S3 and let AWS Lambda process it asynchronously. Coupled with the AWS Lambda retry mechanism we have a robust system.
 
 After building and testing the Lambda function we wanted to integrate the function deployment into our continuous integration and deployment system using Jenkins. Command line tools including the AWS cli and Kappa were available but we wanted to limit the dependencies of our build servers.
 That's why we decided to develop a Jenkins plugin for AWS Lambda that would allow us to deploy functions without further dependencies.
@@ -53,7 +53,7 @@ You'll also need access to iam:PassRole to attach a role to the Lambda function.
         ]
     }
 
-For invocation you only need InvokeFunction:
+For invocation you only need access to InvokeFunction.
 
     {
         "Version": "2012-10-17",
@@ -73,20 +73,22 @@ For invocation you only need InvokeFunction:
 
 ##AWS Lambda function deployment
 
-After creating a job you can add a build step or post build action to deploy an AWS Lambda function
+After creating a job you can add a build step or post build action to deploy an AWS Lambda function.
 
 ![Jenkins Build Step menu](build-step.jpg)
 
 Due to the fact that AWS Lambda is still a rapid changing service we decided not to have select boxes for input.
-The AWS Access Key Id, AWS Secret Key, region and function name is always required. All other fields depend on the update mode.
+The AWS Access Key Id, AWS Secret Key, region and function name are always required. All other fields depend on the update mode.
 
 If the update mode is Code you also need to add the location of a zipfile or folder.
-Folders are automatically zipped according to the [AWS Lambda documentation](http://docs.aws.amazon.com/lambda/latest/dg/walkthrough-s3-events-adminuser-create-test-function-create-function.html)  
-For the Configuration update mode you need the role, handler and if you want to diverge from the defaults the memory and timeout values.  
-When choosing the Both update mode, both UpdateFunctionCode and UpdateFunctionConfiguration is updated.
+Folders are automatically zipped according to the [AWS Lambda documentation](http://docs.aws.amazon.com/lambda/latest/dg/walkthrough-s3-events-adminuser-create-test-function-create-function.html)
+
+For the Configuration update mode you need the role and handler. If you want to diverge from the defaults add the memory and timeout values.
+
+When choosing the Both update mode, both UpdateFunctionCode and UpdateFunctionConfiguration are performed.
 
 If the function has not been created before the plugin will try to do a CreateFunction call, which needs all fields previously mentioned in addition to the runtime value.
-The update mode value is ignored if the function does not exists, but it will take effect for future builds if the function still exists.
+The update mode value is ignored if the function does not exists yet, but it will take effect in future builds.
 
 ![AWS Lambda Jenkins plugin deployment configuration](deploy.jpg)
 
@@ -96,14 +98,15 @@ To invoke a function once again open up the add build step or post build action 
 
 ![Jenkins Post Build Action menu](post-build.jpg)
 
-Again you need to add the AWS Access Key Id, AWS Secret key, region and function name. Optionally you can add a payload that your function expects.
+You need to add the AWS Access Key Id, AWS Secret key, region and function name. Optionally you can add a payload that your function expects.
 
 If you enable the Synchronous checkbox you will receive the response payload that can be parsed using the Json Parameters.
-You will also get the log output from Lambda into your Jenkins console output. 
+You will also get the logs from Lambda into your Jenkins console output. 
 
 ![AWS Lambda Jenkins plugin invocation configuration](invoke.jpg)
 
-The json parameters allow you parse the output from the lambda function if the json format is used. The parsed value will then be injected into the Jenkins environment using the chosen name.
+The json parameters allow you to parse the output from the lambda function. The parsed value will then be injected into the Jenkins environment using the chosen name.
+An empty jsonPath field allows you to inject the whole response into the specified environment variable.
 
 ![AWS Lambda Jenkins plugin invocation json parameters](invoke-json-parameters.jpg)
 
