@@ -93,7 +93,7 @@ When choosing the Both update mode, both UpdateFunctionCode and UpdateFunctionCo
 If the function has not been created before the plugin will try to do a CreateFunction call, which needs all fields previously mentioned in addition to the runtime value.
 The update mode value is ignored if the function does not exists yet, but it will take effect in future builds.
 
-![AWS Lambda Jenkins plugin deployment configuration](deploy.jpg)
+![AWS Lambda Jenkins plugin deployment configuration](blogpost/deploy.jpg)
 
 ##AWS Lambda function invocation
 
