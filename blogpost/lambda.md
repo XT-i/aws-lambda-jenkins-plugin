@@ -81,7 +81,10 @@ Due to the fact that AWS Lambda is still a rapid changing service we decided not
 The AWS Access Key Id, AWS Secret Key, region and function name are always required. All other fields depend on the update mode.
 
 If the update mode is Code you also need to add the location of a zipfile or folder.
-Folders are automatically zipped according to the [AWS Lambda documentation](http://docs.aws.amazon.com/lambda/latest/dg/walkthrough-s3-events-adminuser-create-test-function-create-function.html)
+Folders are automatically zipped according to the [AWS Lambda documentation](http://docs.aws.amazon.com/lambda/latest/dg/walkthrough-s3-events-adminuser-create-test-function-create-function.html)  
+You can also choose to deploy a function already on S3, if the bucket is in the same region as the Lambda function.
+
+    s3://bucket/key or s3://bucket/key?versionId=ABCDEF123
 
 For the Configuration update mode you need the role and handler. If you want to diverge from the defaults add the memory and timeout values.
 
