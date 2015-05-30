@@ -22,7 +22,7 @@
                     <f:entry title="Role" field="role" help="/plugin/aws-lambda/help-role.html">
                         <f:textbox />
                     </f:entry>
-                    <f:entry title="Artifact Location (Zip file or directory)" field="artifactLocation" help="/plugin/aws-lambda/help-artifactLocation.html">
+                    <f:entry title="Artifact Location (zip, directory, s3)" field="artifactLocation" help="/plugin/aws-lambda/help-artifactLocation.html">
                         <f:textbox />
                     </f:entry>
                     <f:entry title="Handler Name" field="handler" help="/plugin/aws-lambda/help-handler.html">
