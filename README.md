@@ -1,14 +1,8 @@
 #AWS Lambda Jenkins plugin
 
-Ever since the release of AWS Lambda in preview mode we were passionate to use aws lambda to process event based flows.  For one our latest larger projects we at Cronos (Xplore Group and Cloudar) immediately saw the need for asynchronous handling of files, isolated from the main api.  Our challenge was that the api could quickly respond to any client.
-This is how we did it.
+[![Build Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/aws-lambda-plugin)](https://jenkins.ci.cloudbees.com/job/plugins/job/aws-lambda-plugin/)
 
-Instead of processing files for several seconds, blocking our users calls and reducing throughput, we decided to put the file on S3 and let AWS Lambda process it asynchronously. Coupled with the AWS Lambda retry mechanism we have a robust system.
-
-After building and testing the Lambda function we wanted to integrate the function deployment into our continuous integration and deployment system using Jenkins. Command line tools including the AWS cli and Kappa were available but we wanted to limit the dependencies of our build servers.
-That's why we decided to develop a Jenkins plugin for AWS Lambda that would allow us to deploy functions without further dependencies.
-
-Currently the plugin can deploy and invoke functions as a build step and post build action. When invoking a function it is possible to inject the output as Jenkins environment variables.
+This plugin can deploy and invoke functions as a build step and post build action. When invoking a function it is possible to inject the output as Jenkins environment variables.
 
 Github link: [https://github.com/XT-i/aws-lambda-jenkins-plugin](https://github.com/XT-i/aws-lambda-jenkins-plugin)  
 Jenkins wiki link: [https://wiki.jenkins-ci.org/display/JENKINS/AWS+Lambda+Plugin](https://wiki.jenkins-ci.org/display/JENKINS/AWS+Lambda+Plugin)
@@ -141,6 +135,3 @@ These environment variables can be used as parameters in further build steps and
 On the job build result page you'll get a summary of all deployed and invoked functions and their success state.
 
 ![AWS Lambda Jenkins plugin job build result](blogpost/result.jpg)
-
-We hope this blog post is an inspiration for all of you to get more out of the AWS Lambda and continuous integration and deployment.
-At Cronos we’re sure that in the future more challenges will cross our path and we look forward to share them with you.
