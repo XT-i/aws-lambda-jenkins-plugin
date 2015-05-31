@@ -135,6 +135,3 @@ These environment variables can be used as parameters in further build steps and
 On the job build result page you'll get a summary of all deployed and invoked functions and their success state.
 
 ![AWS Lambda Jenkins plugin job build result](blogpost/result.jpg)
-
-We hope this blog post is an inspiration for all of you to get more out of the AWS Lambda and continuous integration and deployment.
-At Cronos we’re sure that in the future more challenges will cross our path and we look forward to share them with you.
