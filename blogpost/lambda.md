@@ -1,6 +1,6 @@
 #AWS Lambda Jenkins plugin
 
-Ever since the release of AWS Lambda in preview mode we were passionate to use aws lambda to process event based flows.  For one our latest larger projects we at Cronos (Xplore Group and Cloudar) immediately saw the need for asynchronous handling of files, isolated from the main api.  Our challenge was that the api could quickly respond to any client.
+Ever since the release of AWS Lambda in preview mode we were passionate to use AWS Lambda to process event based flows.  For one our latest larger projects we at Cloudar immediately saw the need for asynchronous handling of files, isolated from the main api.  Our challenge was that the api could quickly respond to any client.
 This is how we did it.
 
 Instead of processing files for several seconds, blocking our users calls and reducing throughput, we decided to put the file on S3 and let AWS Lambda process it asynchronously. Coupled with the AWS Lambda retry mechanism we have a robust system.
@@ -143,4 +143,7 @@ On the job build result page you'll get a summary of all deployed and invoked fu
 ![AWS Lambda Jenkins plugin job build result](result.jpg)
 
 We hope this blog post is an inspiration for all of you to get more out of the AWS Lambda and continuous integration and deployment.
-At Cronos we’re sure that in the future more challenges will cross our path and we look forward to share them with you.
+At Cloudar we’re sure that in the future more challenges will cross our path and we look forward to share them with you.
+
+By Michael Willemse  
+Senior Cloud Consultant @ Cloudar
