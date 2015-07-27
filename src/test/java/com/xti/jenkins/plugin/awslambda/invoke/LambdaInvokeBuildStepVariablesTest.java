@@ -17,7 +17,7 @@ public class LambdaInvokeBuildStepVariablesTest {
     public void testCloneExpandVariables() throws Exception {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<JsonParameterVariables>();
         jsonParameterVariables.add(new JsonParameterVariables("ENV_$ENV_ENV_NAME", "$.$ENV_JSON_PATH"));
-        LambdaInvokeBuildStepVariables variables = new LambdaInvokeBuildStepVariables("${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FUNCTION}", "${\"payload\":\"${ENV_PAYLOAD}\"", true, jsonParameterVariables);
+        LambdaInvokeBuildStepVariables variables = new LambdaInvokeBuildStepVariables("${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FUNCTION}", "{\"payload\":\"v${ENV_PAYLOAD}\"}", true, jsonParameterVariables);
         LambdaInvokeBuildStepVariables clone = variables.getClone();
 
         EnvVars envVars = new EnvVars();
@@ -33,7 +33,7 @@ public class LambdaInvokeBuildStepVariablesTest {
 
         List<JsonParameterVariables> jsonParameterVariablesExpected = new ArrayList<JsonParameterVariables>();
         jsonParameterVariablesExpected.add(new JsonParameterVariables("ENV_NAME", "$.path"));
-        LambdaInvokeBuildStepVariables expected = new LambdaInvokeBuildStepVariables("ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "${\"payload\":\"hello\"", true, jsonParameterVariablesExpected);
+        LambdaInvokeBuildStepVariables expected = new LambdaInvokeBuildStepVariables("ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "{\"payload\":\"vhello\"}", true, jsonParameterVariablesExpected);
 
         assertEquals(expected.getAwsAccessKeyId(), clone.getAwsAccessKeyId());
         assertEquals(expected.getAwsSecretKey(), clone.getAwsSecretKey());
@@ -43,6 +43,32 @@ public class LambdaInvokeBuildStepVariablesTest {
         assertEquals(expected.getSynchronous(), clone.getSynchronous());
         assertEquals(expected.getJsonParameters().get(0).getEnvVarName(), clone.getJsonParameters().get(0).getEnvVarName());
         assertEquals(expected.getJsonParameters().get(0).getJsonPath(), clone.getJsonParameters().get(0).getJsonPath());
+    }
+
+    @Test
+    public void testCloneExpandVariablesNoJsonParameters() throws Exception {
+        LambdaInvokeBuildStepVariables variables = new LambdaInvokeBuildStepVariables("${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FUNCTION}", "{\"payload\":\"v${ENV_PAYLOAD}\"}", true, null);
+        LambdaInvokeBuildStepVariables clone = variables.getClone();
+
+        EnvVars envVars = new EnvVars();
+        envVars.put("ENV_ID", "ID");
+        envVars.put("ENV_SECRET", "SECRET");
+        envVars.put("ENV_REGION", "eu-west-1");
+        envVars.put("ENV_FUNCTION", "FUNCTION");
+        envVars.put("ENV_PAYLOAD", "hello");
+        envVars.put("ENV_ENV_NAME", "NAME");
+        envVars.put("ENV_JSON_PATH", "path");
+        envVars.put(".", "bad");
+        clone.expandVariables(envVars);
+
+        LambdaInvokeBuildStepVariables expected = new LambdaInvokeBuildStepVariables("ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "{\"payload\":\"vhello\"}", true, null);
+
+        assertEquals(expected.getAwsAccessKeyId(), clone.getAwsAccessKeyId());
+        assertEquals(expected.getAwsSecretKey(), clone.getAwsSecretKey());
+        assertEquals(expected.getAwsRegion(), clone.getAwsRegion());
+        assertEquals(expected.getFunctionName(), clone.getFunctionName());
+        assertEquals(expected.getPayload(), clone.getPayload());
+        assertEquals(expected.getSynchronous(), clone.getSynchronous());
     }
 
     @Test

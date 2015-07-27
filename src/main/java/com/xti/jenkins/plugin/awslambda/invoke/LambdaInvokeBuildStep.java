@@ -46,7 +46,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import java.util.Map;
 
 public class LambdaInvokeBuildStep extends Builder implements BuildStep{
-
     private LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables;
 
     @DataBoundConstructor
