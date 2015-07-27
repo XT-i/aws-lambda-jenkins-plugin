@@ -127,8 +127,10 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         awsRegion = expand(awsRegion, env);
         functionName = expand(functionName, env);
         payload = expand(payload, env);
-        for (JsonParameterVariables jsonParameter : jsonParameters) {
-            jsonParameter.expandVariables(env);
+        if(jsonParameters != null) {
+            for (JsonParameterVariables jsonParameter : jsonParameters) {
+                jsonParameter.expandVariables(env);
+            }
         }
     }
 
