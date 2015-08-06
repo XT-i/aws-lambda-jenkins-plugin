@@ -3,6 +3,9 @@
         <f:nested>
             <div style="padding-left:1em">
                 <table width="100%">
+                    <f:entry title="Use instance credentials" help="/plugin/aws-lambda/help-useInstanceCredentials.html">
+                        <f:checkbox field="useInstanceCredentials" value="true" default="false" />
+                    </f:entry>
                     <f:entry title="AWS Access Key Id" help="/plugin/aws-lambda/help-awsAccessKeyId.html">
                         <f:textbox name="awsAccessKeyId" field="awsAccessKeyId" />
                     </f:entry>
