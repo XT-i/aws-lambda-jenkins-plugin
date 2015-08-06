@@ -17,7 +17,7 @@ public class LambdaInvokeVariablesTest {
     public void testCloneExpandVariables() throws Exception {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<JsonParameterVariables>();
         jsonParameterVariables.add(new JsonParameterVariables("ENV_$ENV_ENV_NAME", "$.$ENV_JSON_PATH"));
-        LambdaInvokeVariables variables = new LambdaInvokeVariables("${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FUNCTION}", "${\"payload\":\"${ENV_PAYLOAD}\"", true, true, jsonParameterVariables);
+        LambdaInvokeVariables variables = new LambdaInvokeVariables(false, "${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FUNCTION}", "${\"payload\":\"${ENV_PAYLOAD}\"", true, true, jsonParameterVariables);
         LambdaInvokeVariables clone = variables.getClone();
 
         EnvVars envVars = new EnvVars();
@@ -33,7 +33,7 @@ public class LambdaInvokeVariablesTest {
 
         List<JsonParameterVariables> jsonParameterVariablesExpected = new ArrayList<JsonParameterVariables>();
         jsonParameterVariablesExpected.add(new JsonParameterVariables("ENV_NAME", "$.path"));
-        LambdaInvokeVariables expected = new LambdaInvokeVariables("ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "${\"payload\":\"hello\"", true, true, jsonParameterVariablesExpected);
+        LambdaInvokeVariables expected = new LambdaInvokeVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "${\"payload\":\"hello\"", true, true, jsonParameterVariablesExpected);
 
         assertEquals(expected.getAwsAccessKeyId(), clone.getAwsAccessKeyId());
         assertEquals(expected.getAwsSecretKey(), clone.getAwsSecretKey());
@@ -50,7 +50,7 @@ public class LambdaInvokeVariablesTest {
     public void testGetInvokeConfig() throws Exception {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<JsonParameterVariables>();
         jsonParameterVariables.add(new JsonParameterVariables("ENV_NAME", "$.path"));
-        LambdaInvokeVariables variables = new LambdaInvokeVariables("ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "${\"payload\":\"hello\"", true, true, jsonParameterVariables);
+        LambdaInvokeVariables variables = new LambdaInvokeVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "${\"payload\":\"hello\"", true, true, jsonParameterVariables);
         InvokeConfig invokeConfig = variables.getInvokeConfig();
 
         assertEquals(variables.getFunctionName(), invokeConfig.getFunctionName());
@@ -64,7 +64,7 @@ public class LambdaInvokeVariablesTest {
     public void testGetLambdaClientConfig() throws Exception {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<JsonParameterVariables>();
         jsonParameterVariables.add(new JsonParameterVariables("ENV_NAME", "$.path"));
-        LambdaInvokeVariables variables = new LambdaInvokeVariables("ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "${\"payload\":\"hello\"", true, true, jsonParameterVariables);
+        LambdaInvokeVariables variables = new LambdaInvokeVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "${\"payload\":\"hello\"", true, true, jsonParameterVariables);
 
         LambdaClientConfig clientConfig = variables.getLambdaClientConfig();
         assertNotNull(clientConfig);

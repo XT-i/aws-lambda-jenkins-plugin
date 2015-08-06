@@ -42,6 +42,7 @@ import org.kohsuke.stapler.QueryParameter;
  * Describable containing Lambda post build action config, checking feasability of migrating it to upload package.
  */
 public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
+    private boolean useInstanceCredentials;
     private String awsAccessKeyId;
     private Secret awsSecretKey;
     private String awsRegion;
@@ -57,7 +58,8 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     private String updateMode;
 
     @DataBoundConstructor
-    public LambdaVariables(String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, boolean successOnly, String updateMode) {
+    public LambdaVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, boolean successOnly, String updateMode) {
+        this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
@@ -71,6 +73,10 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         this.timeout = timeout;
         this.successOnly = successOnly;
         this.updateMode = updateMode;
+    }
+
+    public boolean getUseInstanceCredentials() {
+        return useInstanceCredentials;
     }
 
     public String getAwsAccessKeyId() {
@@ -123,6 +129,10 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
 
     public boolean getSuccessOnly(){
         return successOnly;
+    }
+
+    public void setUseInstanceCredentials(boolean useInstanceCredentials) {
+        this.useInstanceCredentials = useInstanceCredentials;
     }
 
     public void setAwsAccessKeyId(String awsAccessKeyId) {
@@ -190,7 +200,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     public LambdaVariables getClone(){
-        return new LambdaVariables(awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, updateMode);
+        return new LambdaVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, updateMode);
     }
 
     public DeployConfig getUploadConfig(){
@@ -198,7 +208,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     public LambdaClientConfig getLambdaClientConfig(){
-        return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
+        if(useInstanceCredentials){
+            return new LambdaClientConfig(awsRegion);
+        } else {
+            return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
+        }
     }
 
     private String expand(String value, EnvVars env) {

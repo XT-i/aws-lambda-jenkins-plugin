@@ -5,7 +5,9 @@
             <div style="padding-left:1em">
                 <f:repeatable field="lambdaVariablesList" header="Lambda deployment" add="Deploy AWS Lambda">
                     <table width="100%">
-
+                        <f:entry title="Use instance credentials" help="/plugin/aws-lambda/help-useInstanceCredentials.html">
+                            <f:checkbox field="useInstanceCredentials" value="true" default="false" />
+                        </f:entry>
                         <f:entry title="AWS Access Key Id" field="awsAccessKeyId" help="/plugin/aws-lambda/help-awsAccessKeyId.html">
                             <f:textbox />
                         </f:entry>

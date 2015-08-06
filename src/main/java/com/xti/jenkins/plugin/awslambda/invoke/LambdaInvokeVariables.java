@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeVariables> {
+    private boolean useInstanceCredentials;
     private String awsAccessKeyId;
     private Secret awsSecretKey;
     private String awsRegion;
@@ -49,7 +50,8 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     private List<JsonParameterVariables> jsonParameters = new ArrayList<JsonParameterVariables>();
 
     @DataBoundConstructor
-    public LambdaInvokeVariables(String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
+    public LambdaInvokeVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
+        this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
         this.awsRegion = awsRegion;
@@ -58,6 +60,10 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         this.synchronous = synchronous;
         this.successOnly = successOnly;
         this.jsonParameters = jsonParameters;
+    }
+
+    public boolean getUseInstanceCredentials() {
+        return useInstanceCredentials;
     }
 
     public String getAwsAccessKeyId() {
@@ -94,6 +100,10 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         } else {
             return jsonParameters;
         }
+    }
+
+    public void setUseInstanceCredentials(boolean useInstanceCredentials) {
+        this.useInstanceCredentials = useInstanceCredentials;
     }
 
     public void setAwsAccessKeyId(String awsAccessKeyId) {
@@ -140,7 +150,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     }
 
     public LambdaInvokeVariables getClone(){
-        return new LambdaInvokeVariables(awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, successOnly, jsonParameters);
+        return new LambdaInvokeVariables(useInstanceCredentials,awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, successOnly, jsonParameters);
     }
 
     private String expand(String value, EnvVars env) {
@@ -156,7 +166,11 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     }
 
     public LambdaClientConfig getLambdaClientConfig(){
-        return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
+        if(useInstanceCredentials){
+            return new LambdaClientConfig(awsRegion);
+        } else {
+            return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
+        }
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
@@ -178,28 +192,33 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
 
         LambdaInvokeVariables that = (LambdaInvokeVariables) o;
 
-        if (synchronous != that.synchronous) return false;
-        if (successOnly != that.successOnly) return false;
-        if (awsAccessKeyId != null ? !awsAccessKeyId.equals(that.awsAccessKeyId) : that.awsAccessKeyId != null)
+        if (getUseInstanceCredentials() != that.getUseInstanceCredentials()) return false;
+        if (getSynchronous() != that.getSynchronous()) return false;
+        if (getSuccessOnly() != that.getSuccessOnly()) return false;
+        if (getAwsAccessKeyId() != null ? !getAwsAccessKeyId().equals(that.getAwsAccessKeyId()) : that.getAwsAccessKeyId() != null)
             return false;
-        if (awsSecretKey != null ? !awsSecretKey.equals(that.awsSecretKey) : that.awsSecretKey != null) return false;
-        if (awsRegion != null ? !awsRegion.equals(that.awsRegion) : that.awsRegion != null) return false;
-        if (functionName != null ? !functionName.equals(that.functionName) : that.functionName != null) return false;
-        if (payload != null ? !payload.equals(that.payload) : that.payload != null) return false;
-        return !(jsonParameters != null ? !jsonParameters.equals(that.jsonParameters) : that.jsonParameters != null);
+        if (getAwsSecretKey() != null ? !getAwsSecretKey().equals(that.getAwsSecretKey()) : that.getAwsSecretKey() != null)
+            return false;
+        if (getAwsRegion() != null ? !getAwsRegion().equals(that.getAwsRegion()) : that.getAwsRegion() != null)
+            return false;
+        if (getFunctionName() != null ? !getFunctionName().equals(that.getFunctionName()) : that.getFunctionName() != null)
+            return false;
+        if (getPayload() != null ? !getPayload().equals(that.getPayload()) : that.getPayload() != null) return false;
+        return !(getJsonParameters() != null ? !getJsonParameters().equals(that.getJsonParameters()) : that.getJsonParameters() != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = awsAccessKeyId != null ? awsAccessKeyId.hashCode() : 0;
-        result = 31 * result + (awsSecretKey != null ? awsSecretKey.hashCode() : 0);
-        result = 31 * result + (awsRegion != null ? awsRegion.hashCode() : 0);
-        result = 31 * result + (functionName != null ? functionName.hashCode() : 0);
-        result = 31 * result + (payload != null ? payload.hashCode() : 0);
-        result = 31 * result + (synchronous ? 1 : 0);
-        result = 31 * result + (successOnly ? 1 : 0);
-        result = 31 * result + (jsonParameters != null ? jsonParameters.hashCode() : 0);
+        int result = (getUseInstanceCredentials() ? 1 : 0);
+        result = 31 * result + (getAwsAccessKeyId() != null ? getAwsAccessKeyId().hashCode() : 0);
+        result = 31 * result + (getAwsSecretKey() != null ? getAwsSecretKey().hashCode() : 0);
+        result = 31 * result + (getAwsRegion() != null ? getAwsRegion().hashCode() : 0);
+        result = 31 * result + (getFunctionName() != null ? getFunctionName().hashCode() : 0);
+        result = 31 * result + (getPayload() != null ? getPayload().hashCode() : 0);
+        result = 31 * result + (getSynchronous() ? 1 : 0);
+        result = 31 * result + (getSuccessOnly() ? 1 : 0);
+        result = 31 * result + (getJsonParameters() != null ? getJsonParameters().hashCode() : 0);
         return result;
     }
 }
