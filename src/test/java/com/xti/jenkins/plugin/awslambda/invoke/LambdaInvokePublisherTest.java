@@ -9,6 +9,7 @@ import hudson.Launcher;
 import hudson.model.*;
 import hudson.util.LogTaskListener;
 import hudson.util.Secret;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +45,7 @@ public class LambdaInvokePublisherTest {
     public JenkinsRule j = new JenkinsRule();
 
     @Test
+    @Ignore
     public void testHtml() throws Exception {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "value"));
@@ -63,6 +65,7 @@ public class LambdaInvokePublisherTest {
     }
 
     @Test
+    @Ignore
     public void testHtmlInstanceRole() throws Exception {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "value"));
