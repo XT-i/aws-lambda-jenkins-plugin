@@ -47,6 +47,25 @@ You'll also need access to iam:PassRole to attach a role to the Lambda function.
         ]
     }
 
+If you upload your code directly from a zip file (and not to s3 first), you need to have the following S3 policy too.
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "Stmt1432812345673",
+                "Effect": "Allow",
+                "Action": [
+                    "s3:PutObject"
+                ],
+                "Resource": [
+                    "*"
+                ]
+            }
+        ]
+    }
+
+If the s3:resources "*" is not satisfactory, make sure to upload your lambda function to a bucket that you control first.
+
 For invocation you only need access to InvokeFunction.
 
     {
