@@ -32,6 +32,7 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -49,14 +50,14 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     private String description;
     private String functionName;
     private String handler;
-    private Integer memorySize;
+    private String memorySize;
     private String role;
     private String runtime;
-    private Integer timeout;
+    private String timeout;
     private String updateMode;
 
     @DataBoundConstructor
-    public LambdaUploadBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode) {
+    public LambdaUploadBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, String updateMode) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
@@ -104,7 +105,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         return handler;
     }
 
-    public Integer getMemorySize() {
+    public String getMemorySize() {
         return memorySize;
     }
 
@@ -116,7 +117,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         return runtime;
     }
 
-    public Integer getTimeout() {
+    public String getTimeout() {
         return timeout;
     }
 
@@ -156,7 +157,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         this.handler = handler;
     }
 
-    public void setMemorySize(Integer memorySize) {
+    public void setMemorySize(String memorySize) {
         this.memorySize = memorySize;
     }
 
@@ -168,7 +169,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         this.runtime = runtime;
     }
 
-    public void setTimeout(Integer timeout) {
+    public void setTimeout(String timeout) {
         this.timeout = timeout;
     }
 
@@ -186,6 +187,8 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         handler = expand(handler, env);
         role = expand(role, env);
         runtime = expand(runtime, env);
+        timeout = expand(timeout, env);
+        memorySize = expand(memorySize, env);
     }
 
     public LambdaUploadBuildStepVariables getClone(){
@@ -193,7 +196,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode);
+        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode);
     }
 
     public LambdaClientConfig getLambdaClientConfig(){
@@ -211,27 +214,34 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static class DescriptorImpl extends AWSLambdaDescriptor<LambdaUploadBuildStepVariables> {
 
-        /* TODO: conditionally check based on UpdateMode
-        public FormValidation doCheckTimeout(@QueryParameter String value) {
-            try {
-                Integer.parseInt(value);
-                return FormValidation.ok();
-            } catch (NumberFormatException e) {
-                return FormValidation.error("Not a number");
-            }
-        }
-        */
+        public FormValidation doCheckTimeout(@QueryParameter String value, @QueryParameter String updateMode) {
+            UpdateModeValue updateModeValue = UpdateModeValue.fromString(updateMode);
+            if(updateModeValue == UpdateModeValue.Full || updateModeValue == UpdateModeValue.Config) {
 
-        /* TODO: conditionally check based on UpdateMode
-        public FormValidation doCheckMemorySize(@QueryParameter String value) {
-            try {
-                Integer.parseInt(value);
+                try {
+                    Integer.parseInt(value);
+                    return FormValidation.ok();
+                } catch (NumberFormatException e) {
+                    return FormValidation.warning("Not a number, might evaluate to number as environment variable.");
+                }
+            } else {
                 return FormValidation.ok();
-            } catch (NumberFormatException e) {
-                return FormValidation.error("Not a number");
             }
         }
-        */
+
+        public FormValidation doCheckMemorySize(@QueryParameter String value, @QueryParameter String updateMode) {
+            UpdateModeValue updateModeValue = UpdateModeValue.fromString(updateMode);
+            if(updateModeValue == UpdateModeValue.Full || updateModeValue == UpdateModeValue.Config) {
+                try {
+                    Integer.parseInt(value);
+                    return FormValidation.ok();
+                } catch (NumberFormatException e) {
+                    return FormValidation.warning("Not a number, might evaluate to number as environment variable.");
+                }
+            } else {
+                return FormValidation.ok();
+            }
+        }
 
         public ListBoxModel doFillUpdateModeItems(@QueryParameter String updateMode) {
             ListBoxModel items = new ListBoxModel();

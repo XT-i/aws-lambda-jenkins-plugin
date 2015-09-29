@@ -13,7 +13,7 @@ public class LambdaUploadBuildStepVariablesTest {
 
     @Test
     public void testCloneExpandVariables() throws Exception {
-        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FILE}", "description ${ENV_DESCRIPTION}", "${ENV_FUNCTION}", "${ENV_HANDLER}", 1024, "${ENV_ROLE}", "$ENV_RUNTIME", 30, "full");
+        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FILE}", "description ${ENV_DESCRIPTION}", "${ENV_FUNCTION}", "${ENV_HANDLER}", "${ENV_MEMORY_SIZE}", "${ENV_ROLE}", "$ENV_RUNTIME", "${ENV_TIMEOUT}", "full");
         LambdaUploadBuildStepVariables clone = variables.getClone();
 
         EnvVars envVars = new EnvVars();
@@ -26,9 +26,11 @@ public class LambdaUploadBuildStepVariablesTest {
         envVars.put("ENV_HANDLER", "HANDLER");
         envVars.put("ENV_ROLE", "ROLE");
         envVars.put("ENV_RUNTIME", "RUNTIME");
+        envVars.put("ENV_MEMORY_SIZE", "1024");
+        envVars.put("ENV_TIMEOUT", "30");
         clone.expandVariables(envVars);
 
-        LambdaUploadBuildStepVariables expected = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", 1024, "ROLE", "RUNTIME", 30, "full");
+        LambdaUploadBuildStepVariables expected = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full");
 
         assertEquals(expected.getAwsAccessKeyId(), clone.getAwsAccessKeyId());
         assertEquals(expected.getAwsSecretKey(), clone.getAwsSecretKey());
@@ -45,13 +47,13 @@ public class LambdaUploadBuildStepVariablesTest {
 
     @Test
     public void testGetUploadConfig() throws Exception {
-        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", 1024, "ROLE", "RUNTIME", 30, "full");
+        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full");
         DeployConfig uploadConfig = variables.getUploadConfig();
 
         assertEquals(variables.getArtifactLocation(), uploadConfig.getArtifactLocation());
         assertEquals(variables.getDescription(), uploadConfig.getDescription());
-        assertEquals(variables.getMemorySize(), uploadConfig.getMemorySize());
-        assertEquals(variables.getTimeout(), uploadConfig.getTimeout());
+        assertEquals(Integer.valueOf(variables.getMemorySize()), uploadConfig.getMemorySize());
+        assertEquals(Integer.valueOf(variables.getTimeout()), uploadConfig.getTimeout());
         assertEquals(variables.getHandler(), uploadConfig.getHandler());
         assertEquals(variables.getRuntime(), uploadConfig.getRuntime());
         assertEquals(variables.getFunctionName(), uploadConfig.getFunctionName());
@@ -61,7 +63,7 @@ public class LambdaUploadBuildStepVariablesTest {
 
     @Test
     public void testGetLambdaClientConfig() throws Exception {
-        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", 1024, "ROLE", "RUNTIME", 30, "full");
+        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full");
         LambdaClientConfig lambdaClientConfig = variables.getLambdaClientConfig();
 
         AWSLambda lambda = lambdaClientConfig.getClient();
