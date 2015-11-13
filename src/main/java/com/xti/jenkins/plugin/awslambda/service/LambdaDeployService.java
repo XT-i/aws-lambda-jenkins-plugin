@@ -41,7 +41,7 @@ public class LambdaDeployService {
             if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Code.equals(updateModeValue)){
                 if(functionCode != null) {
                     try {
-                        updateCodeOnly(config.getFunctionName(), functionCode);
+                        updateCodeOnly(config.getFunctionName(), functionCode, config.getPublish());
                     } catch (IOException e) {
                         logger.log(LogUtils.getStackTrace(e));
                         return false;
@@ -98,6 +98,7 @@ public class LambdaDeployService {
                 .withFunctionName(config.getFunctionName())
                 .withHandler(config.getHandler())
                 .withMemorySize(config.getMemorySize())
+                .withPublish(config.getPublish())
                 .withTimeout(config.getTimeout())
                 .withRole(config.getRole())
                 .withRuntime(config.getRuntime())
@@ -109,24 +110,36 @@ public class LambdaDeployService {
     }
 
     /**
-     * This method calls the AWS Lambda updateFunctionCode method based for the given file.
+     * This method includes the Publish flag when there is a need to create a new version of the service
+     *
      * @param functionName name of the function to update code for
      * @param functionCode FunctionCode containing either zipfile or s3 location.
+     * @param publish True to publish a new version of the function
      * @throws IOException
      */
-    private void updateCodeOnly(String functionName, FunctionCode functionCode) throws IOException {
-
+    private void updateCodeOnly(String functionName, FunctionCode functionCode, Boolean publish) throws IOException  {
         UpdateFunctionCodeRequest updateFunctionCodeRequest = new UpdateFunctionCodeRequest()
                 .withFunctionName(functionName)
                 .withZipFile(functionCode.getZipFile())
                 .withS3Bucket(functionCode.getS3Bucket())
                 .withS3Key(functionCode.getS3Key())
+                .withPublish(publish)
                 .withS3ObjectVersion(functionCode.getS3ObjectVersion());
 
         logger.log("Lambda update code request:%n%s%n", updateFunctionCodeRequest.toString());
 
         UpdateFunctionCodeResult updateFunctionCodeResult = client.updateFunctionCode(updateFunctionCodeRequest);
         logger.log("Lambda update code response:%n%s%n", updateFunctionCodeResult.toString());
+
+    }
+    /**
+     * This method calls the AWS Lambda updateFunctionCode method based for the given file.
+     * @param functionName name of the function to update code for
+     * @param functionCode FunctionCode containing either zipfile or s3 location.
+     * @throws IOException
+     */
+    private void updateCodeOnly(String functionName, FunctionCode functionCode) throws IOException {
+        updateCodeOnly(functionName, functionCode, Boolean.FALSE);
     }
 
     /**

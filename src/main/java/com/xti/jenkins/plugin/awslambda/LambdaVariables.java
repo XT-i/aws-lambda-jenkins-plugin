@@ -56,10 +56,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     private String runtime;
     private String timeout;
     private boolean successOnly;
+    private boolean publish;
     private String updateMode;
 
     @DataBoundConstructor
-    public LambdaVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, boolean successOnly, String updateMode) {
+    public LambdaVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, boolean successOnly, boolean publish, String updateMode) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
@@ -73,6 +74,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         this.runtime = runtime;
         this.timeout = timeout;
         this.successOnly = successOnly;
+        this.publish = publish;
         this.updateMode = updateMode;
     }
 
@@ -132,6 +134,8 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return successOnly;
     }
 
+    public boolean getPublish() { return publish; }
+
     public void setUseInstanceCredentials(boolean useInstanceCredentials) {
         this.useInstanceCredentials = useInstanceCredentials;
     }
@@ -188,6 +192,8 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         this.successOnly = successOnly;
     }
 
+    public void setPublish(boolean publish) { this.publish = publish; }
+
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
         awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
@@ -203,11 +209,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     public LambdaVariables getClone(){
-        return new LambdaVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, updateMode);
+        return new LambdaVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, publish, updateMode);
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode);
+        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode, publish);
     }
 
     public LambdaClientConfig getLambdaClientConfig(){

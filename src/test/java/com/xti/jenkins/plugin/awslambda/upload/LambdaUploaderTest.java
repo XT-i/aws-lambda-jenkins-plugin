@@ -31,7 +31,7 @@ public class LambdaUploaderTest {
 
     @Test
     public void testUploadSuccess() throws Exception {
-        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full");
+        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full", false);
         File file = new File("path");
 
         when(zipper.getZip(any(String.class))).thenReturn(file);
@@ -48,7 +48,7 @@ public class LambdaUploaderTest {
 
     @Test
     public void testUploadFailure() throws Exception {
-        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full");
+        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full", false);
         File file = new File("path");
 
         when(zipper.getZip(any(String.class))).thenReturn(file);
@@ -65,7 +65,7 @@ public class LambdaUploaderTest {
 
     @Test
     public void testUploadNoArtifact() throws Exception {
-        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full");
+        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full", false);
 
         when(zipper.getZip(any(String.class))).thenReturn(null);
         when(service.deployLambda(any(DeployConfig.class), any(FunctionCode.class), any(UpdateModeValue.class)))

@@ -30,6 +30,7 @@ public class LambdaDeployServiceTest {
     private final Integer memory = 1024;
     private final String role = "role";
     private final String runtime = "nodejs";
+    private final Boolean publish = Boolean.FALSE;
     private final Integer timeout = 30;
 
     @Mock
@@ -287,6 +288,7 @@ public class LambdaDeployServiceTest {
             try {
                 expected = new UpdateFunctionCodeRequest()
                         .withFunctionName(functionName)
+                        .withPublish(Boolean.FALSE)
                         .withZipFile(ByteBuffer.wrap(FileUtils.readFileToByteArray(getZipFile())));
             } catch (IOException e) {
                 fail("Couldn't process echo.zip");
@@ -328,6 +330,7 @@ public class LambdaDeployServiceTest {
                         .withMemorySize(memory)
                         .withRole(role)
                         .withTimeout(timeout)
+                        .withPublish(publish)
                         .withRuntime(runtime)
                         .withCode(new FunctionCode().withZipFile(ByteBuffer.wrap(FileUtils.readFileToByteArray(getZipFile()))));
                 assertEquals(expected, args.getValue());
@@ -341,7 +344,7 @@ public class LambdaDeployServiceTest {
     }
 
     private DeployConfig getDeployConfig(){
-        return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null);
+        return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null, false);
     }
 
     private File getZipFile(){

@@ -6,12 +6,13 @@ public class DeployConfig {
     private String functionName;
     private String handler;
     private Integer memorySize;
+    private Boolean publish;
     private String role;
     private String runtime;
     private Integer timeout;
     private String updateMode;
 
-    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode) {
+    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode, boolean publish) {
         this.artifactLocation = artifactLocation;
         this.description = description;
         this.functionName = functionName;
@@ -21,6 +22,7 @@ public class DeployConfig {
         this.runtime = runtime;
         this.timeout = timeout;
         this.updateMode = updateMode;
+        this.publish = Boolean.valueOf(publish);
     }
 
     public String getArtifactLocation() {
@@ -62,6 +64,10 @@ public class DeployConfig {
     public void setMemorySize(Integer memorySize) {
         this.memorySize = memorySize;
     }
+
+    public Boolean getPublish() { return publish; }
+
+    public void setPublish(Boolean publish) { this.publish = publish; }
 
     public String getRole() {
         return role;
