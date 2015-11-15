@@ -42,7 +42,7 @@ public class AWSLambdaPublisherTest {
     @Test
     @Ignore
     public void testHtml() throws Exception {
-        LambdaVariables variables = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "ziplocation", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full");
+        LambdaVariables variables = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "ziplocation", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full", false, null, null);
         List<LambdaVariables> variablesList = new ArrayList<>();
         variablesList.add(variables);
 
@@ -77,7 +77,7 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformFolderSuccess() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full");
+        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full", false, null, null);
 
         LambdaVariables spy = Mockito.spy(clone);
 
@@ -109,7 +109,7 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformFolderFailure() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full");
+        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full", false, null, null);
 
         LambdaVariables spy = Mockito.spy(clone);
 
@@ -151,7 +151,7 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformZipBuildSuccess() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full");
+        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full", false, null, null);
 
         LambdaVariables spy = Mockito.spy(clone);
 
@@ -184,7 +184,7 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformZipBuildUnstableNotSuccessOnly() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", false, "full");
+        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", false, "full", false, null, null);
 
         LambdaVariables spy = Mockito.spy(clone);
 
@@ -219,7 +219,7 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformZipBuildUnstableSuccessOnly() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full");
+        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full", false, null, null);
 
         LambdaVariables spy = Mockito.spy(clone);
 
@@ -254,7 +254,7 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformZipBuildFailure() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full");
+        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, "full", false, null, null);
 
         LambdaVariables spy = Mockito.spy(clone);
 

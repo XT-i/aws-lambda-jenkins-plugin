@@ -43,6 +43,20 @@
                     <f:entry field="updateMode" title="Update Mode" help="/plugin/aws-lambda/help-updateMode.html">
                         <f:select />
                     </f:entry>
+                    <f:optionalBlock title="Publish version and create alias" field="publishVersion" checked="${instance.publishVersion}" inline="true">
+                        <f:entry title="Publish version description" help="/plugin/aws-lambda/help-publishDescription.html">
+                            <f:textbox name="publishDescription" field="publishDescription" />
+                        </f:entry>
+                        <f:optionalBlock title="Create Alias" field="createAlias" checked="${instance.createAlias}" inline="true">
+                            <f:entry title="Alias Name" help="/plugin/aws-lambda/help-aliasName.html">
+                                <f:textbox name="aliasName" field="aliasName" />
+                            </f:entry>
+                            <f:entry title="Alias description" help="/plugin/aws-lambda/help-aliasDescription.html">
+                                <f:textbox name="aliasDescription" field="aliasDescription" />
+                            </f:entry>
+                        </f:optionalBlock>
+                    </f:optionalBlock>
+
                 </table>
             </div>
         </f:nested>
