@@ -26,6 +26,7 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.service.DeployResult;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
 import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
@@ -78,11 +79,11 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
 
             LambdaUploader lambdaUploader = new LambdaUploader(service, workSpaceZipper, logger);
 
-            Boolean lambdaSuccess = lambdaUploader.upload(deployConfig);
-            if(!lambdaSuccess){
+            DeployResult deployResult = lambdaUploader.upload(deployConfig);
+            if(!deployResult.isSuccess()){
                 build.setResult(Result.FAILURE);
             }
-            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), lambdaSuccess));
+            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), deployResult.isSuccess()));
             return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);

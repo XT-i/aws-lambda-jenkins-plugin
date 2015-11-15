@@ -55,9 +55,12 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     private String runtime;
     private String timeout;
     private String updateMode;
+    private boolean createAlias;
+    private String aliasName;
+    private String aliasDescription;
 
     @DataBoundConstructor
-    public LambdaUploadBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, String updateMode) {
+    public LambdaUploadBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, String updateMode, boolean createAlias, String aliasName, String aliasDescription) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
@@ -71,6 +74,9 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         this.runtime = runtime;
         this.timeout = timeout;
         this.updateMode = updateMode;
+        this.createAlias = createAlias;
+        this.aliasName = aliasName;
+        this.aliasDescription = aliasDescription;
     }
 
     public boolean getUseInstanceCredentials() {
@@ -192,7 +198,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     public LambdaUploadBuildStepVariables getClone(){
-        return new LambdaUploadBuildStepVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode);
+        return new LambdaUploadBuildStepVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode, createAlias, aliasName, aliasDescription);
     }
 
     public DeployConfig getUploadConfig(){

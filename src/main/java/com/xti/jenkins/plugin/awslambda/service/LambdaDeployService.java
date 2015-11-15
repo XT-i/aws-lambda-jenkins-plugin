@@ -4,8 +4,9 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.*;
 import com.xti.jenkins.plugin.awslambda.exception.LambdaDeployException;
-import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
+import com.xti.jenkins.plugin.awslambda.upload.AliasConfig;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
+import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import com.xti.jenkins.plugin.awslambda.util.LogUtils;
 import org.apache.commons.io.FileUtils;
 
@@ -34,53 +35,33 @@ public class LambdaDeployService {
      * @param updateModeValue Full, Code or Config, only used if function does not already exists.
      * @return true if successful, false in case of failure.
      */
-    public Boolean deployLambda(DeployConfig config, FunctionCode functionCode, UpdateModeValue updateModeValue){
+    public DeployResult deployLambda(DeployConfig config, FunctionCode functionCode, UpdateModeValue updateModeValue){
         if(functionExists(config.getFunctionName())){
 
+            DeployResult lastDeployResult = null;
             //update code
             if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Code.equals(updateModeValue)){
                 if(functionCode != null) {
-                    try {
-                        updateCodeOnly(config.getFunctionName(), functionCode);
-                    } catch (IOException e) {
-                        logger.log(LogUtils.getStackTrace(e));
-                        return false;
-                    } catch (AmazonClientException ace){
-                        logger.log(LogUtils.getStackTrace(ace));
-                        return false;
-                    }
+                    lastDeployResult = updateCodeOnly(config.getFunctionName(), functionCode);
                 }else {
                     logger.log("Could not find file to upload.");
-                    return false;
+                    return new DeployResult(false, config.getFunctionName(), null);
                 }
             }
 
             //update configuration
             if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Config.equals(updateModeValue)){
-                try {
-                    updateConfigurationOnly(config);
-                } catch (AmazonClientException ace){
-                    logger.log(LogUtils.getStackTrace(ace));
-                    return false;
-                }
+                lastDeployResult = updateConfigurationOnly(config);
             }
-            return true;
+
+            return lastDeployResult;
 
         }else {
             if(functionCode != null) {
-                try {
-                    createLambdaFunction(config, functionCode);
-                    return true;
-                } catch (IOException e) {
-                    logger.log(LogUtils.getStackTrace(e));
-                    return false;
-                } catch (AmazonClientException ace){
-                    logger.log(LogUtils.getStackTrace(ace));
-                    return false;
-                }
+                return createLambdaFunction(config, functionCode);
             } else {
                 logger.log("Could not find file to upload.");
-                return false;
+                return new DeployResult(false, config.getFunctionName(), null);
             }
         }
     }
@@ -91,7 +72,7 @@ public class LambdaDeployService {
      * @param functionCode FunctionCode containing either zipfile or s3 location.
      * @throws IOException
      */
-    private void createLambdaFunction(DeployConfig config, FunctionCode functionCode) throws IOException {
+    private DeployResult createLambdaFunction(DeployConfig config, FunctionCode functionCode) {
 
         CreateFunctionRequest createFunctionRequest = new CreateFunctionRequest()
                 .withDescription(config.getDescription())
@@ -104,17 +85,22 @@ public class LambdaDeployService {
                 .withCode(functionCode);
         logger.log("Lambda create function request:%n%s%n", createFunctionRequest.toString());
 
-        CreateFunctionResult uploadFunctionResult = client.createFunction(createFunctionRequest);
-        logger.log("Lambda create response:%n%s%n", uploadFunctionResult.toString());
+        try {
+            CreateFunctionResult uploadFunctionResult = client.createFunction(createFunctionRequest);
+            logger.log("Lambda create response:%n%s%n", uploadFunctionResult.toString());
+            return new DeployResult(true, uploadFunctionResult.getFunctionName(), uploadFunctionResult.getVersion());
+        } catch (AmazonClientException ace){
+            logger.log(LogUtils.getStackTrace(ace));
+            return new DeployResult(false, config.getFunctionName(), null);
+        }
     }
 
     /**
      * This method calls the AWS Lambda updateFunctionCode method based for the given file.
      * @param functionName name of the function to update code for
      * @param functionCode FunctionCode containing either zipfile or s3 location.
-     * @throws IOException
      */
-    private void updateCodeOnly(String functionName, FunctionCode functionCode) throws IOException {
+    private DeployResult updateCodeOnly(String functionName, FunctionCode functionCode)  {
 
         UpdateFunctionCodeRequest updateFunctionCodeRequest = new UpdateFunctionCodeRequest()
                 .withFunctionName(functionName)
@@ -125,15 +111,21 @@ public class LambdaDeployService {
 
         logger.log("Lambda update code request:%n%s%n", updateFunctionCodeRequest.toString());
 
-        UpdateFunctionCodeResult updateFunctionCodeResult = client.updateFunctionCode(updateFunctionCodeRequest);
-        logger.log("Lambda update code response:%n%s%n", updateFunctionCodeResult.toString());
+        try{
+            UpdateFunctionCodeResult updateFunctionCodeResult = client.updateFunctionCode(updateFunctionCodeRequest);
+            logger.log("Lambda update code response:%n%s%n", updateFunctionCodeResult.toString());
+            return new DeployResult(true, updateFunctionCodeResult.getFunctionName(), updateFunctionCodeResult.getVersion());
+        } catch (AmazonClientException ace){
+            logger.log(LogUtils.getStackTrace(ace));
+            return new DeployResult(false, functionName, null);
+        }
     }
 
     /**
      * This method calls the AWS Lambda updateFunctionConfiguration method based on the given config.
      * @param config new configuration for the function
      */
-    private void updateConfigurationOnly(DeployConfig config){
+    private DeployResult updateConfigurationOnly(DeployConfig config){
         UpdateFunctionConfigurationRequest updateFunctionConfigurationRequest = new UpdateFunctionConfigurationRequest()
                 .withFunctionName(config.getFunctionName())
                 .withDescription(config.getDescription())
@@ -143,8 +135,31 @@ public class LambdaDeployService {
                 .withRole(config.getRole());
         logger.log("Lambda update configuration request:%n%s%n", updateFunctionConfigurationRequest.toString());
 
-        UpdateFunctionConfigurationResult updateFunctionConfigurationResult = client.updateFunctionConfiguration(updateFunctionConfigurationRequest);
-        logger.log("Lambda update configuration response:%n%s%n", updateFunctionConfigurationResult.toString());
+        try {
+            UpdateFunctionConfigurationResult updateFunctionConfigurationResult = client.updateFunctionConfiguration(updateFunctionConfigurationRequest);
+            logger.log("Lambda update configuration response:%n%s%n", updateFunctionConfigurationResult.toString());
+            return new DeployResult(true, updateFunctionConfigurationResult.getFunctionName(), updateFunctionConfigurationResult.getVersion());
+        } catch (AmazonClientException ace){
+            logger.log(LogUtils.getStackTrace(ace));
+            return new DeployResult(false, config.getFunctionName(), null);
+        }
+    }
+
+    public AliasResult createAlias(AliasConfig aliasConfig){
+        CreateAliasRequest createAliasRequest = new CreateAliasRequest()
+                .withName(aliasConfig.getAliasName())
+                .withDescription(aliasConfig.getAliasDescription())
+                .withFunctionName(aliasConfig.getFunctionName())
+                .withFunctionVersion(aliasConfig.getFunctionVersion());
+
+        try {
+            CreateAliasResult createAliasResult = client.createAlias(createAliasRequest);
+            logger.log("Lambda create alias response:%n%s%n", createAliasResult.toString());
+            return new AliasResult(true, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), createAliasResult.getName());
+        } catch (AmazonClientException ace){
+            logger.log(LogUtils.getStackTrace(ace));
+            return new AliasResult(false, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), aliasConfig.getAliasName());
+        }
     }
 
     /**

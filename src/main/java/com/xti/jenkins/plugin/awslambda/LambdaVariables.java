@@ -26,6 +26,7 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.upload.AliasConfig;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
@@ -40,7 +41,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 /**
- * Describable containing Lambda post build action config, checking feasability of migrating it to upload package.
+ * Describable containing Lambda post build action config, checking feasibility of migrating it to upload package.
  */
 public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     private boolean useInstanceCredentials;
@@ -57,9 +58,12 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     private String timeout;
     private boolean successOnly;
     private String updateMode;
+    private boolean createAlias;
+    private String aliasName;
+    private String aliasDescription;
 
     @DataBoundConstructor
-    public LambdaVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, boolean successOnly, String updateMode) {
+    public LambdaVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, boolean successOnly, String updateMode, boolean createAlias, String aliasName, String aliasDescription) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
@@ -74,6 +78,9 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         this.timeout = timeout;
         this.successOnly = successOnly;
         this.updateMode = updateMode;
+        this.createAlias = createAlias;
+        this.aliasName = aliasName;
+        this.aliasDescription = aliasDescription;
     }
 
     public boolean getUseInstanceCredentials() {
@@ -200,14 +207,19 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         runtime = expand(runtime, env);
         memorySize = expand(memorySize, env);
         timeout = expand(timeout, env);
+        aliasName = expand(aliasName, env);
     }
 
     public LambdaVariables getClone(){
-        return new LambdaVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, updateMode);
+        return new LambdaVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, updateMode, createAlias, aliasName, aliasDescription);
     }
 
     public DeployConfig getUploadConfig(){
         return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode);
+    }
+
+    public AliasConfig getAliasConfig(String functionVersion) {
+        return new AliasConfig(createAlias, aliasName, aliasDescription, functionName, functionVersion);
     }
 
     public LambdaClientConfig getLambdaClientConfig(){
@@ -219,7 +231,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     private String expand(String value, EnvVars env) {
-        return Util.replaceMacro(value.trim(), env);
+        if(value != null) {
+            return Util.replaceMacro(value.trim(), env);
+        } else {
+            return null;
+        }
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.

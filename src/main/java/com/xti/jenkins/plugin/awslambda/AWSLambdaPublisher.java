@@ -26,9 +26,11 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.service.DeployResult;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
 import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
+import com.xti.jenkins.plugin.awslambda.upload.AliasConfig;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadAction;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploader;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
@@ -93,6 +95,7 @@ public class AWSLambdaPublisher extends Notifier{
             LambdaVariables executionVariables = lambdaVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
             DeployConfig deployConfig = executionVariables.getUploadConfig();
+
             LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
             JenkinsLogger logger = new JenkinsLogger(listener.getLogger());
             LambdaDeployService service = new LambdaDeployService(clientConfig.getClient(), logger);
@@ -100,11 +103,17 @@ public class AWSLambdaPublisher extends Notifier{
 
             LambdaUploader lambdaUploader = new LambdaUploader(service, workSpaceZipper, logger);
 
-            Boolean lambdaSuccess = lambdaUploader.upload(deployConfig);
-            if(!lambdaSuccess){
+            DeployResult deployResult = lambdaUploader.upload(deployConfig);
+            if(!deployResult.isSuccess()){
                 build.setResult(Result.FAILURE);
+            } else {
+                boolean success = deployResult.isSuccess();
+                AliasConfig aliasConfig = executionVariables.getAliasConfig(deployResult.getFunctionVersion());
+                if(aliasConfig.isCreateAlias()) {
+                    lambdaUploader.createAlias(aliasConfig);
+                }
             }
-            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), lambdaSuccess));
+            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), deployResult.isSuccess()));
             return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);

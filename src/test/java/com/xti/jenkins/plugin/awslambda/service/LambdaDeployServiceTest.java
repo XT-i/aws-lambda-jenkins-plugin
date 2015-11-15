@@ -59,145 +59,145 @@ public class LambdaDeployServiceTest {
     @Test
     public void testExistsNoZipFull() throws Exception {
         setFunctionFound(true);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Full);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Full);
 
         calledGetFunction();
         calledCreateFunction(false);
         calledUpdateCode(false);
         calledUpdateConfiguration(false);
-        assertFalse(result);
+        assertFalse(result.isSuccess());
     }
 
     @Test
     public void testExistsNoZipCode() throws Exception {
         setFunctionFound(true);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Code);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Code);
 
         calledGetFunction();
         calledCreateFunction(false);
         calledUpdateCode(false);
         calledUpdateConfiguration(false);
-        assertFalse(result);
+        assertFalse(result.isSuccess());
     }
 
     @Test
     public void testExistsNoZipConfig() throws Exception {
         setFunctionFound(true);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Config);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Config);
 
         calledGetFunction();
         calledCreateFunction(false);
         calledUpdateCode(false);
         calledUpdateConfiguration(true);
-        assertTrue(result);
+        assertTrue(result.isSuccess());
     }
 
     @Test
     public void testExistsZipFull() throws Exception {
         setFunctionFound(true);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Full);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Full);
 
         calledGetFunction();
         calledCreateFunction(false);
         calledUpdateCode(true);
         calledUpdateConfiguration(true);
-        assertTrue(result);
+        assertTrue(result.isSuccess());
     }
 
     @Test
     public void testExistsZipCode() throws Exception {
         setFunctionFound(true);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Code);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Code);
 
         calledGetFunction();
         calledCreateFunction(false);
         calledUpdateCode(true);
         calledUpdateConfiguration(false);
-        assertTrue(result);
+        assertTrue(result.isSuccess());
     }
 
     @Test
     public void testExistsZipConfig() throws Exception {
         setFunctionFound(true);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Config);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Config);
 
         calledGetFunction();
         calledCreateFunction(false);
         calledUpdateCode(false);
         calledUpdateConfiguration(true);
-        assertTrue(result);
+        assertTrue(result.isSuccess());
     }
 
     @Test
     public void testNewNoZipFull() throws Exception {
         setFunctionFound(false);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Full);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Full);
 
         calledGetFunction();
         calledCreateFunction(false);
         calledUpdateCode(false);
         calledUpdateConfiguration(false);
-        assertFalse(result);
+        assertFalse(result.isSuccess());
     }
 
     @Test
     public void testNewNoZipCode() throws Exception {
         setFunctionFound(false);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Code);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Code);
 
         calledGetFunction();
         calledCreateFunction(false);
         calledUpdateCode(false);
         calledUpdateConfiguration(false);
-        assertFalse(result);
+        assertFalse(result.isSuccess());
     }
 
     @Test
     public void testNewNoZipConfig() throws Exception {
         setFunctionFound(false);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Config);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), null, UpdateModeValue.Config);
 
         calledGetFunction();
         calledCreateFunction(false);
         calledUpdateCode(false);
         calledUpdateConfiguration(false);
-        assertFalse(result);
+        assertFalse(result.isSuccess());
     }
 
     @Test
     public void testNewZipFull() throws Exception {
         setFunctionFound(false);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Full);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Full);
 
         calledGetFunction();
         calledCreateFunction(true);
         calledUpdateCode(false);
         calledUpdateConfiguration(false);
-        assertTrue(result);
+        assertTrue(result.isSuccess());
     }
 
     @Test
     public void testNewZipCode() throws Exception {
         setFunctionFound(false);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Code);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Code);
 
         calledGetFunction();
         calledCreateFunction(true);
         calledUpdateCode(false);
         calledUpdateConfiguration(false);
-        assertTrue(result);
+        assertTrue(result.isSuccess());
     }
 
     @Test
     public void testNewZipConfig() throws Exception {
         setFunctionFound(false);
-        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Config);
+        DeployResult result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Config);
 
         calledGetFunction();
         calledCreateFunction(true);
         calledUpdateCode(false);
         calledUpdateConfiguration(false);
-        assertTrue(result);
+        assertTrue(result.isSuccess());
     }
 
     @Test
