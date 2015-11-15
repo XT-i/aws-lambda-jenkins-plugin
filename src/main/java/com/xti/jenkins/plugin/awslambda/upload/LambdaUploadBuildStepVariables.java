@@ -187,6 +187,22 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         this.updateMode = updateMode;
     }
 
+    public boolean getPublishVersion() {
+        return publishVersion;
+    }
+
+    public void setPublishVersion(boolean publishVersion) {
+        this.publishVersion = publishVersion;
+    }
+
+    public String getPublishDescription() {
+        return publishDescription;
+    }
+
+    public void setPublishDescription(String publishDescription) {
+        this.publishDescription = publishDescription;
+    }
+
     public boolean getCreateAlias() {
         return createAlias;
     }
@@ -223,6 +239,9 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         runtime = expand(runtime, env);
         timeout = expand(timeout, env);
         memorySize = expand(memorySize, env);
+        publishDescription = expand(publishDescription, env);
+        aliasName = expand(aliasName, env);
+        aliasDescription = expand(aliasDescription, env);
     }
 
     public LambdaUploadBuildStepVariables getClone(){

@@ -200,6 +200,22 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         this.updateMode = updateMode;
     }
 
+    public boolean getPublishVersion() {
+        return publishVersion;
+    }
+
+    public void setPublishVersion(boolean publishVersion) {
+        this.publishVersion = publishVersion;
+    }
+
+    public String getPublishDescription() {
+        return publishDescription;
+    }
+
+    public void setPublishDescription(String publishDescription) {
+        this.publishDescription = publishDescription;
+    }
+
     public boolean getCreateAlias() {
         return createAlias;
     }
@@ -236,7 +252,9 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         runtime = expand(runtime, env);
         memorySize = expand(memorySize, env);
         timeout = expand(timeout, env);
+        publishDescription = expand(publishDescription, env);
         aliasName = expand(aliasName, env);
+        aliasDescription = expand(aliasDescription, env);
     }
 
     public LambdaVariables getClone(){

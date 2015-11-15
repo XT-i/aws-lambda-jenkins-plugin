@@ -78,22 +78,22 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
 
             DeployResult deployResult = lambdaUploader.upload(deployConfig);
             boolean success = deployResult.isSuccess();
-            if(!success){
-                build.setResult(Result.FAILURE);
-            } else {
-                PublishConfig publishConfig = executionVariables.getPublishConfig();
-                if(publishConfig.isPublishVersion()){
-                    PublishResult publishResult = lambdaUploader.publishVersion(publishConfig);
-                    success = publishResult.isSuccess();
-                    AliasConfig aliasConfig = executionVariables.getAliasConfig(publishResult.getFunctionVersion());
-                    if(aliasConfig.isCreateAlias()) {
-                        AliasResult aliasResult = lambdaUploader.createAlias(aliasConfig);
-                        success = aliasResult.isSuccess();
-                    }
+            PublishConfig publishConfig = executionVariables.getPublishConfig();
+            if(success && publishConfig.isPublishVersion()){
+                PublishResult publishResult = lambdaUploader.publishVersion(publishConfig);
+                success = publishResult.isSuccess();
+                AliasConfig aliasConfig = executionVariables.getAliasConfig(publishResult.getFunctionVersion());
+                if( success && aliasConfig.isCreateAlias()) {
+                    AliasResult aliasResult = lambdaUploader.createAlias(aliasConfig);
+                    success = aliasResult.isSuccess();
                 }
             }
+
+            if(!success){
+                build.setResult(Result.FAILURE);
+            }
             build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), success));
-            return true;
+            return success;
         } catch (Exception exc) {
             throw new RuntimeException(exc);
         }

@@ -147,20 +147,43 @@ public class LambdaDeployService {
     }
 
     public AliasResult createAlias(AliasConfig aliasConfig){
-        CreateAliasRequest createAliasRequest = new CreateAliasRequest()
-                .withName(aliasConfig.getAliasName())
-                .withDescription(aliasConfig.getAliasDescription())
+        GetAliasRequest getAliasRequest = new GetAliasRequest()
                 .withFunctionName(aliasConfig.getFunctionName())
-                .withFunctionVersion(aliasConfig.getFunctionVersion());
-
+                .withName(aliasConfig.getAliasName());
         try {
-            CreateAliasResult createAliasResult = client.createAlias(createAliasRequest);
-            logger.log("Lambda create alias response:%n%s%n", createAliasResult.toString());
-            return new AliasResult(true, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), createAliasResult.getName());
-        } catch (AmazonClientException ace){
-            logger.log(LogUtils.getStackTrace(ace));
-            return new AliasResult(false, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), aliasConfig.getAliasName());
+            client.getAlias(getAliasRequest);
+            UpdateAliasRequest updateAliasRequest = new UpdateAliasRequest()
+                    .withName(aliasConfig.getAliasName())
+                    .withDescription(aliasConfig.getAliasDescription())
+                    .withFunctionName(aliasConfig.getFunctionName())
+                    .withFunctionVersion(aliasConfig.getFunctionVersion());
+            try {
+                UpdateAliasResult updateAliasResult = client.updateAlias(updateAliasRequest);
+                logger.log("Lambda update alias response:%n%s%n", updateAliasResult.toString());
+                return new AliasResult(true, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), updateAliasResult.getName());
+            } catch (AmazonClientException ace){
+                logger.log(LogUtils.getStackTrace(ace));
+                return new AliasResult(false, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), aliasConfig.getAliasName());
+            }
+
+        } catch (ResourceNotFoundException e){
+            CreateAliasRequest createAliasRequest = new CreateAliasRequest()
+                    .withName(aliasConfig.getAliasName())
+                    .withDescription(aliasConfig.getAliasDescription())
+                    .withFunctionName(aliasConfig.getFunctionName())
+                    .withFunctionVersion(aliasConfig.getFunctionVersion());
+
+            try {
+                CreateAliasResult createAliasResult = client.createAlias(createAliasRequest);
+                logger.log("Lambda create alias response:%n%s%n", createAliasResult.toString());
+                return new AliasResult(true, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), createAliasResult.getName());
+            } catch (AmazonClientException ace){
+                logger.log(LogUtils.getStackTrace(ace));
+                return new AliasResult(false, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), aliasConfig.getAliasName());
+            }
         }
+
+
     }
 
     public PublishResult publishVersion(PublishConfig publishConfig) {
