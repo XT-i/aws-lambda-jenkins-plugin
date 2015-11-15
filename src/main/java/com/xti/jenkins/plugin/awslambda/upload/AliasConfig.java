@@ -9,11 +9,11 @@ public class AliasConfig {
         this.functionVersion = functionVersion;
     }
 
-    boolean createAlias;
-    String aliasName;
-    String aliasDescription;
-    String functionName;
-    String functionVersion;
+    private boolean createAlias;
+    private String aliasName;
+    private String aliasDescription;
+    private String functionName;
+    private String functionVersion;
 
     public boolean isCreateAlias() {
         return createAlias;

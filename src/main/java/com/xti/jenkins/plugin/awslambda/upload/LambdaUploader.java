@@ -49,6 +49,11 @@ public class LambdaUploader {
         return lambda.deployLambda(config, functionCode, UpdateModeValue.fromString(config.getUpdateMode()));
     }
 
+    public PublishResult publishVersion(PublishConfig publishConfig){
+        logger.log("%nStarting lambda publish version procedure");
+        return lambda.publishVersion(publishConfig);
+    }
+
     public AliasResult createAlias(AliasConfig aliasConfig) {
         logger.log("%nStarting lambda create alias procedure");
         return lambda.createAlias(aliasConfig);

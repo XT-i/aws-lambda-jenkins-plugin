@@ -6,6 +6,7 @@ import com.amazonaws.services.lambda.model.*;
 import com.xti.jenkins.plugin.awslambda.exception.LambdaDeployException;
 import com.xti.jenkins.plugin.awslambda.upload.AliasConfig;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
+import com.xti.jenkins.plugin.awslambda.upload.PublishConfig;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import com.xti.jenkins.plugin.awslambda.util.LogUtils;
 import org.apache.commons.io.FileUtils;
@@ -159,6 +160,21 @@ public class LambdaDeployService {
         } catch (AmazonClientException ace){
             logger.log(LogUtils.getStackTrace(ace));
             return new AliasResult(false, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), aliasConfig.getAliasName());
+        }
+    }
+
+    public PublishResult publishVersion(PublishConfig publishConfig) {
+        PublishVersionRequest publishVersionRequest = new PublishVersionRequest()
+                .withDescription(publishConfig.getPublishDescription())
+                .withFunctionName(publishConfig.getFunctionName());
+
+        try {
+            PublishVersionResult publishVersionResult = client.publishVersion(publishVersionRequest);
+            logger.log("Lambda publish version response:%n%s%n", publishVersionResult.toString());
+            return new PublishResult(true, publishVersionResult.getFunctionName(), publishVersionResult.getVersion());
+        } catch (AmazonClientException ace){
+            logger.log(LogUtils.getStackTrace(ace));
+            return new PublishResult(false, publishConfig.getFunctionName(), null);
         }
     }
 
