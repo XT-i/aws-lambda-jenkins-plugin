@@ -39,7 +39,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 /**
- * Describable containing Lambda post build action config, checking feasability of migrating it to upload package.
+ * Describable containing Lambda post build action config, checking feasibility of migrating it to upload package.
  */
 public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<LambdaUploadBuildStepVariables> {
     private boolean useInstanceCredentials;
@@ -56,9 +56,11 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     private String timeout;
     private String updateMode;
     private boolean publish;
-
+    private String alias;
+    private boolean createAlias;
+    
     @DataBoundConstructor
-    public LambdaUploadBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, String updateMode, boolean publish) {
+    public LambdaUploadBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, String updateMode, boolean publish, String alias, boolean createAlias) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
@@ -73,6 +75,8 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         this.timeout = timeout;
         this.updateMode = updateMode;
         this.publish = publish;
+        this.alias = alias;
+        this.createAlias = createAlias;
     }
 
     public boolean getUseInstanceCredentials() {
@@ -127,7 +131,17 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         return updateMode;
     }
 
-    public boolean isPublish() { return this.publish; }
+    public boolean isPublish() {
+        return this.publish;
+    }
+
+    public String getAlias() {
+        return this.alias;
+    }
+
+    public boolean getCreateAlias() {
+        return this.createAlias;
+    }
 
     public void setUseInstanceCredentials(boolean useInstanceCredentials) {
         this.useInstanceCredentials = useInstanceCredentials;
@@ -181,7 +195,17 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         this.updateMode = updateMode;
     }
 
-    public void setPublish(boolean publish) { this.publish = publish; }
+    public void setPublish(boolean publish) {
+        this.publish = publish;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public void setCreateAlias(Boolean createAlias) {
+        this.createAlias = createAlias;
+    }
 
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
@@ -198,11 +222,11 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     public LambdaUploadBuildStepVariables getClone(){
-        return new LambdaUploadBuildStepVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode, publish);
+        return new LambdaUploadBuildStepVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode, publish, alias, createAlias);
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode, publish);
+        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode, publish, alias, createAlias);
     }
 
     public LambdaClientConfig getLambdaClientConfig(){

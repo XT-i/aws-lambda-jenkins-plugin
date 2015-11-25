@@ -35,13 +35,21 @@ public class LambdaDeployService {
      * @return true if successful, false in case of failure.
      */
     public Boolean deployLambda(DeployConfig config, FunctionCode functionCode, UpdateModeValue updateModeValue){
+
         if(functionExists(config.getFunctionName())){
 
             //update code
             if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Code.equals(updateModeValue)){
                 if(functionCode != null) {
                     try {
-                        updateCodeOnly(config.getFunctionName(), functionCode, config.getPublish());
+                        String version = updateCodeOnly(config.getFunctionName(), functionCode, config.getPublish());
+                        if(config.getPublish()) {
+                            if(aliasExists(config.getAlias(), config.getFunctionName())) {
+                                updateLambdaAlias(config, version);
+                            } else {
+                                createLambdaAliasFunction(config, version);
+                            }
+                        }
                     } catch (IOException e) {
                         logger.log(LogUtils.getStackTrace(e));
                         return false;
@@ -49,11 +57,12 @@ public class LambdaDeployService {
                         logger.log(LogUtils.getStackTrace(ace));
                         return false;
                     }
-                }else {
+                } else {
                     logger.log("Could not find file to upload.");
                     return false;
                 }
             }
+
 
             //update configuration
             if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Config.equals(updateModeValue)){
@@ -66,10 +75,14 @@ public class LambdaDeployService {
             }
             return true;
 
-        }else {
+        } else {
             if(functionCode != null) {
                 try {
-                    createLambdaFunction(config, functionCode);
+                    String functionVersion = createLambdaFunction(config, functionCode);
+
+                    if(config.getCreateAlias()) {
+                        createLambdaAliasFunction(config, functionVersion);
+                    }
                     return true;
                 } catch (IOException e) {
                     logger.log(LogUtils.getStackTrace(e));
@@ -83,15 +96,18 @@ public class LambdaDeployService {
                 return false;
             }
         }
+
+
     }
 
     /**
      * This method calls the AWS Lambda createFunction method based on the given configuration and file.
      * @param config configuration to setup the createFunction call
      * @param functionCode FunctionCode containing either zipfile or s3 location.
+     * @return Returns the version of the published function
      * @throws IOException
      */
-    private void createLambdaFunction(DeployConfig config, FunctionCode functionCode) throws IOException {
+    private String createLambdaFunction(DeployConfig config, FunctionCode functionCode) throws IOException {
 
         CreateFunctionRequest createFunctionRequest = new CreateFunctionRequest()
                 .withDescription(config.getDescription())
@@ -107,6 +123,30 @@ public class LambdaDeployService {
 
         CreateFunctionResult uploadFunctionResult = client.createFunction(createFunctionRequest);
         logger.log("Lambda create response:%n%s%n", uploadFunctionResult.toString());
+
+        return uploadFunctionResult.getVersion();
+    }
+
+    private void createLambdaAliasFunction(DeployConfig config, String functionVersion) throws IOException {
+        CreateAliasRequest createAliasRequest = new CreateAliasRequest()
+                .withFunctionName(config.getFunctionName())
+                .withName(config.getAlias())
+                .withFunctionVersion(functionVersion);
+
+        logger.log("Lambda create alias request:%n%s%n", createAliasRequest.toString());
+        CreateAliasResult createAliasResponse = client.createAlias(createAliasRequest);
+        logger.log("Lambda create alias response:%n%s%n", createAliasResponse.toString());
+    }
+
+    private void updateLambdaAlias(DeployConfig config, String functionVersion) throws IOException {
+        UpdateAliasRequest updateAliasRequest = new UpdateAliasRequest()
+                .withFunctionName(config.getFunctionName())
+                .withName(config.getAlias())
+                .withFunctionVersion(functionVersion);
+
+        logger.log("Lambda update alias request:%n%s%n", updateAliasRequest.toString());
+        UpdateAliasResult updateAliasResult = client.updateAlias(updateAliasRequest);
+        logger.log("Lambda update alias result:%n%s%n", updateAliasResult.toString());
     }
 
     /**
@@ -115,9 +155,10 @@ public class LambdaDeployService {
      * @param functionName name of the function to update code for
      * @param functionCode FunctionCode containing either zipfile or s3 location.
      * @param publish True to publish a new version of the function
+     * @return the new version of the function
      * @throws IOException
      */
-    private void updateCodeOnly(String functionName, FunctionCode functionCode, Boolean publish) throws IOException  {
+    private String updateCodeOnly(String functionName, FunctionCode functionCode, Boolean publish) throws IOException  {
         UpdateFunctionCodeRequest updateFunctionCodeRequest = new UpdateFunctionCodeRequest()
                 .withFunctionName(functionName)
                 .withZipFile(functionCode.getZipFile())
@@ -130,7 +171,7 @@ public class LambdaDeployService {
 
         UpdateFunctionCodeResult updateFunctionCodeResult = client.updateFunctionCode(updateFunctionCodeRequest);
         logger.log("Lambda update code response:%n%s%n", updateFunctionCodeResult.toString());
-
+        return updateFunctionCodeResult.getVersion();
     }
     /**
      * This method calls the AWS Lambda updateFunctionCode method based for the given file.
@@ -138,15 +179,16 @@ public class LambdaDeployService {
      * @param functionCode FunctionCode containing either zipfile or s3 location.
      * @throws IOException
      */
-    private void updateCodeOnly(String functionName, FunctionCode functionCode) throws IOException {
-        updateCodeOnly(functionName, functionCode, Boolean.FALSE);
+    private String updateCodeOnly(String functionName, FunctionCode functionCode) throws IOException {
+        return updateCodeOnly(functionName, functionCode, Boolean.FALSE);
     }
 
     /**
      * This method calls the AWS Lambda updateFunctionConfiguration method based on the given config.
      * @param config new configuration for the function
+     * @return The new version of the function
      */
-    private void updateConfigurationOnly(DeployConfig config){
+    private String updateConfigurationOnly(DeployConfig config){
         UpdateFunctionConfigurationRequest updateFunctionConfigurationRequest = new UpdateFunctionConfigurationRequest()
                 .withFunctionName(config.getFunctionName())
                 .withDescription(config.getDescription())
@@ -158,6 +200,7 @@ public class LambdaDeployService {
 
         UpdateFunctionConfigurationResult updateFunctionConfigurationResult = client.updateFunctionConfiguration(updateFunctionConfigurationRequest);
         logger.log("Lambda update configuration response:%n%s%n", updateFunctionConfigurationResult.toString());
+        return updateFunctionConfigurationResult.getVersion();
     }
 
     /**
@@ -175,6 +218,27 @@ public class LambdaDeployService {
             return true;
         } catch (ResourceNotFoundException rnfe) {
             logger.log("Lambda function does not exist.");
+            return false;
+        }
+    }
+
+    /**
+     * Checks whether the function alias already exists on the users' account using the getAlias request
+     * @param alias name of the alias to be checked
+     * @param functionName name of the function the alias should be attached to
+     * @return true if it exists, false if not.
+     */
+    private Boolean aliasExists(String alias, String functionName) {
+        GetAliasRequest getAliasRequest = new GetAliasRequest()
+                .withName(alias)
+                .withFunctionName(functionName);
+        logger.log("Lambda function alias existence check:%n%s%n%s%n", functionName, alias);
+        try {
+            GetAliasResult functionResult = client.getAlias(getAliasRequest);
+            logger.log("Lambda function alias exists:%n%s%n", functionResult.toString());
+            return true;
+        } catch (ResourceNotFoundException rnfe) {
+            logger.log("Lambda alias does not exist for function.");
             return false;
         }
     }

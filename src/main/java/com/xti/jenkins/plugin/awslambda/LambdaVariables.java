@@ -213,7 +213,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode, publish);
+        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode);
     }
 
     public LambdaClientConfig getLambdaClientConfig(){

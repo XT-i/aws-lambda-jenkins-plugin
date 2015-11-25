@@ -37,6 +37,12 @@
                     <f:entry title="Publish new version" help="/plugin/aws-lambda/help-publishNewVersion.html">
                         <f:checkbox field="publish" value="true" default="false" />
                     </f:entry>
+                    <f:entry title="Assign alias" help="/plugin/aws-lambda/help-assignAlias.html">
+                        <f:checkbox field="createAlias" value="true" default="false" />
+                    </f:entry>
+                    <f:entry title="Function Alias" help="/plugin/aws-lambda/help-functionAlias.html">
+                        <f:textbox name="alias" field="alias" />
+                    </f:entry>
                     <f:entry title="Timeout" help="/plugin/aws-lambda/help-timeout.html">
                         <f:textbox name="timeout" field="timeout" />
                     </f:entry>

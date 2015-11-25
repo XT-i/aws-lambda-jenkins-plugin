@@ -11,8 +11,26 @@ public class DeployConfig {
     private String runtime;
     private Integer timeout;
     private String updateMode;
+    private String alias;
+    private Boolean createAlias;
 
-    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode, boolean publish) {
+
+    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode) {
+        this.artifactLocation = artifactLocation;
+        this.description = description;
+        this.functionName = functionName;
+        this.handler = handler;
+        this.memorySize = memorySize;
+        this.role = role;
+        this.runtime = runtime;
+        this.timeout = timeout;
+        this.updateMode = updateMode;
+        this.publish = false;
+        this.alias = null;
+        this.createAlias = false;
+    }
+
+    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode, boolean publish, String alias, boolean createAlias) {
         this.artifactLocation = artifactLocation;
         this.description = description;
         this.functionName = functionName;
@@ -23,6 +41,8 @@ public class DeployConfig {
         this.timeout = timeout;
         this.updateMode = updateMode;
         this.publish = Boolean.valueOf(publish);
+        this.alias = alias;
+        this.createAlias = createAlias;
     }
 
     public String getArtifactLocation() {
@@ -99,5 +119,21 @@ public class DeployConfig {
 
     public void setUpdateMode(String updateMode) {
         this.updateMode = updateMode;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public Boolean getCreateAlias() {
+        return createAlias;
+    }
+
+    public void setCreateAlias(Boolean createAlias) {
+        this.createAlias = createAlias;
     }
 }
