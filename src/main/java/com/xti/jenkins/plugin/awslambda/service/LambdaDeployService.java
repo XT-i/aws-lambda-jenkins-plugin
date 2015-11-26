@@ -3,6 +3,7 @@ package com.xti.jenkins.plugin.awslambda.service;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.*;
+import com.xti.jenkins.plugin.awslambda.eventsource.EventSourceConfig;
 import com.xti.jenkins.plugin.awslambda.exception.LambdaDeployException;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
@@ -101,6 +102,43 @@ public class LambdaDeployService {
     }
 
     /**
+     *
+     * @param config configuration to setup the createEventSourceMapping call
+     * @return true if successful, false if not
+     */
+    public Boolean deployEventSource(EventSourceConfig config) {
+        if(functionExists(config.getFunctionName(), config.getFunctionAlias())) {
+            try {
+                String functionArn = getFunctionArn(config.getFunctionName());
+                createEventSourceMapping(config, functionArn);
+                return true;
+            }  catch(Exception e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Locates the function ARN
+     * @param functionName The name of the function to look up
+     * @return The fully qualified ARN of the function
+     */
+    public String getFunctionArn(String functionName) {
+        GetFunctionRequest getFunctionRequest = new GetFunctionRequest()
+                .withFunctionName(functionName);
+        try {
+            GetFunctionResult functionResult = client.getFunction(getFunctionRequest);
+            logger.log("Lambda function exists:%n%s%n", functionResult.toString());
+            return functionResult.getConfiguration().getFunctionArn();
+        } catch(ResourceNotFoundException rnfe) {
+            logger.log("Lambda function does not exist");
+            throw new RuntimeException("Lambda function does not exist", rnfe);
+        }
+    }
+
+
+    /**
      * This method calls the AWS Lambda createFunction method based on the given configuration and file.
      * @param config configuration to setup the createFunction call
      * @param functionCode FunctionCode containing either zipfile or s3 location.
@@ -147,6 +185,17 @@ public class LambdaDeployService {
         logger.log("Lambda update alias request:%n%s%n", updateAliasRequest.toString());
         UpdateAliasResult updateAliasResult = client.updateAlias(updateAliasRequest);
         logger.log("Lambda update alias result:%n%s%n", updateAliasResult.toString());
+    }
+
+    public void createEventSourceMapping(EventSourceConfig config, String functionArn) {
+        CreateEventSourceMappingRequest eventSourceMappingRequest = new CreateEventSourceMappingRequest()
+                .withEventSourceArn(config.getEventSourceArn())
+                .withFunctionName(functionArn +  ":" + config.getFunctionAlias())
+                .withEnabled(true);
+
+        logger.log("EventSource mapping request:%n%s%n", eventSourceMappingRequest.toString());
+        CreateEventSourceMappingResult eventSourceMappingResult = client.createEventSourceMapping(eventSourceMappingRequest);
+        logger.log("EventSource mapping response:%n%s%n", eventSourceMappingResult.toString());
     }
 
     /**
@@ -209,15 +258,32 @@ public class LambdaDeployService {
      * @return true if exists, false if not.
      */
     private Boolean functionExists(String functionName){
+        return functionExists(functionName, null);
+    }
+
+    /**
+     * Checks whether the function with the given alias exists on the user's account using the getFunction request.
+     * @param functionName name of the function to be checked
+     * @param functionAlias name of the alias to match to the query
+     * @return true if exists, false if not
+     */
+    private Boolean functionExists(String functionName, String functionAlias) {
         GetFunctionRequest getFunctionRequest = new GetFunctionRequest()
                 .withFunctionName(functionName);
-        logger.log("Lambda function existence check:%n%s%n", getFunctionRequest.toString());
+
+        if(functionAlias != null) {
+            getFunctionRequest.withQualifier(functionAlias);
+            logger.log("Lambda function existence with alias request:%n%s%n", getFunctionRequest.toString());
+        } else {
+            logger.log("Lambda function existence check:%n%s%n", getFunctionRequest.toString());
+        }
+
         try {
             GetFunctionResult functionResult = client.getFunction(getFunctionRequest);
             logger.log("Lambda function exists:%n%s%n", functionResult.toString());
             return true;
-        } catch (ResourceNotFoundException rnfe) {
-            logger.log("Lambda function does not exist.");
+        } catch(ResourceNotFoundException rnfe) {
+            logger.log("Lambda function does not exist");
             return false;
         }
     }
