@@ -1,11 +1,14 @@
 package com.xti.jenkins.plugin.awslambda.eventsource;
 
+import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
 import com.xti.jenkins.plugin.awslambda.invoke.JsonParameterVariables;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
+import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.util.Secret;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * Created by anthonyikeda on 25/11/2015.
@@ -20,6 +23,7 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
     private String eventSourceArn;
     private boolean successOnly;
 
+    @DataBoundConstructor
     public LambdaEventSourceVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String functionAlias, String eventSourceArn) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
@@ -122,5 +126,12 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
 
     public LambdaEventSourceVariables getClone() {
         return new LambdaEventSourceVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, functionName, functionAlias, eventSourceArn);
+    }
+
+    @Extension
+    public static class DescriptorImpl extends AWSLambdaDescriptor<LambdaEventSourceVariables> {
+        public String getDisplayName() {
+            return "Add Event Source Mapping";
+        }
     }
 }
