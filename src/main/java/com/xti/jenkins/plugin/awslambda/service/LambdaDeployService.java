@@ -1,18 +1,36 @@
 package com.xti.jenkins.plugin.awslambda.service;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.services.lambda.AWSLambdaClient;
-import com.amazonaws.services.lambda.model.*;
-import com.xti.jenkins.plugin.awslambda.eventsource.EventSourceConfig;
-import com.xti.jenkins.plugin.awslambda.exception.LambdaDeployException;
-import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
-import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
-import com.xti.jenkins.plugin.awslambda.util.LogUtils;
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+
+import org.apache.commons.io.FileUtils;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.services.lambda.AWSLambdaClient;
+import com.amazonaws.services.lambda.model.CreateAliasRequest;
+import com.amazonaws.services.lambda.model.CreateAliasResult;
+import com.amazonaws.services.lambda.model.CreateEventSourceMappingRequest;
+import com.amazonaws.services.lambda.model.CreateEventSourceMappingResult;
+import com.amazonaws.services.lambda.model.CreateFunctionRequest;
+import com.amazonaws.services.lambda.model.CreateFunctionResult;
+import com.amazonaws.services.lambda.model.FunctionCode;
+import com.amazonaws.services.lambda.model.GetAliasRequest;
+import com.amazonaws.services.lambda.model.GetAliasResult;
+import com.amazonaws.services.lambda.model.GetFunctionRequest;
+import com.amazonaws.services.lambda.model.GetFunctionResult;
+import com.amazonaws.services.lambda.model.ResourceNotFoundException;
+import com.amazonaws.services.lambda.model.UpdateAliasRequest;
+import com.amazonaws.services.lambda.model.UpdateAliasResult;
+import com.amazonaws.services.lambda.model.UpdateFunctionCodeRequest;
+import com.amazonaws.services.lambda.model.UpdateFunctionCodeResult;
+import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationRequest;
+import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationResult;
+import com.xti.jenkins.plugin.awslambda.eventsource.EventSourceConfig;
+import com.xti.jenkins.plugin.awslambda.exception.LambdaDeployException;
+import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
+import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
+import com.xti.jenkins.plugin.awslambda.util.LogUtils;
 
 public class LambdaDeployService {
     private AWSLambdaClient client;
@@ -113,6 +131,7 @@ public class LambdaDeployService {
                 createEventSourceMapping(config, functionArn);
                 return true;
             }  catch(Exception e) {
+                logger.log(LogUtils.getStackTrace(e));
                 return false;
             }
         }
@@ -191,6 +210,7 @@ public class LambdaDeployService {
         CreateEventSourceMappingRequest eventSourceMappingRequest = new CreateEventSourceMappingRequest()
                 .withEventSourceArn(config.getEventSourceArn())
                 .withFunctionName(functionArn +  ":" + config.getFunctionAlias())
+                .withStartingPosition(config.getStartingPosition())
                 .withEnabled(true);
 
         logger.log("EventSource mapping request:%n%s%n", eventSourceMappingRequest.toString());

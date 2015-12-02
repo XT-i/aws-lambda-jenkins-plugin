@@ -9,11 +9,13 @@ public class EventSourceConfig {
     private String functionName;
     private String functionAlias;
     private String eventSourceArn;
+    private String startingPosition;
 
     public EventSourceConfig(String functionName, String functionAlias, String eventSourceArn) {
         this.functionName = functionName;
         this.functionAlias = functionAlias;
         this.eventSourceArn = eventSourceArn;
+        this.startingPosition = "LATEST";
     }
 
     public String getEventSourceArn() {
@@ -38,6 +40,14 @@ public class EventSourceConfig {
 
     public void setFunctionName(String functionName) {
         this.functionName = functionName;
+    }
+
+    public String getStartingPosition() {
+        return startingPosition;
+    }
+
+    public void setStartingPosition(String startingPosition) {
+        this.startingPosition = startingPosition;
     }
 
 }
