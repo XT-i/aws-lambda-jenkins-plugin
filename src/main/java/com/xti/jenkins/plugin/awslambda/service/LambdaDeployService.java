@@ -19,6 +19,8 @@ import com.amazonaws.services.lambda.model.GetAliasRequest;
 import com.amazonaws.services.lambda.model.GetAliasResult;
 import com.amazonaws.services.lambda.model.GetFunctionRequest;
 import com.amazonaws.services.lambda.model.GetFunctionResult;
+import com.amazonaws.services.lambda.model.ListEventSourceMappingsRequest;
+import com.amazonaws.services.lambda.model.ListEventSourceMappingsResult;
 import com.amazonaws.services.lambda.model.ResourceNotFoundException;
 import com.amazonaws.services.lambda.model.UpdateAliasRequest;
 import com.amazonaws.services.lambda.model.UpdateAliasResult;
@@ -213,9 +215,20 @@ public class LambdaDeployService {
                 .withStartingPosition(config.getStartingPosition())
                 .withEnabled(true);
 
-        logger.log("EventSource mapping request:%n%s%n", eventSourceMappingRequest.toString());
-        CreateEventSourceMappingResult eventSourceMappingResult = client.createEventSourceMapping(eventSourceMappingRequest);
-        logger.log("EventSource mapping response:%n%s%n", eventSourceMappingResult.toString());
+        
+        // check for mapping first
+        ListEventSourceMappingsRequest listMappingsRequest = new ListEventSourceMappingsRequest()
+                .withEventSourceArn(eventSourceMappingRequest.getEventSourceArn())
+                .withFunctionName(eventSourceMappingRequest.getFunctionName());
+       
+        ListEventSourceMappingsResult listMappingsResult = client.listEventSourceMappings(listMappingsRequest);
+        if (listMappingsResult.getEventSourceMappings().isEmpty()) {
+            logger.log("EventSource mapping request:%n%s%n", eventSourceMappingRequest.toString());
+            CreateEventSourceMappingResult eventSourceMappingResult = client.createEventSourceMapping(eventSourceMappingRequest);
+            logger.log("EventSource mapping response:%n%s%n", eventSourceMappingResult.toString());            
+        } else {
+            logger.log("Skipping EventSource mapping (already exists): " + config.getEventSourceArn());
+        }
     }
 
     /**
