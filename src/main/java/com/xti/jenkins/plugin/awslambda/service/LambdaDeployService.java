@@ -1,19 +1,38 @@
 package com.xti.jenkins.plugin.awslambda.service;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.services.lambda.AWSLambdaClient;
-import com.amazonaws.services.lambda.model.*;
-import com.xti.jenkins.plugin.awslambda.exception.LambdaDeployException;
-import com.xti.jenkins.plugin.awslambda.upload.AliasConfig;
-import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
-import com.xti.jenkins.plugin.awslambda.upload.PublishConfig;
-import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
-import com.xti.jenkins.plugin.awslambda.util.LogUtils;
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+
+import org.apache.commons.io.FileUtils;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.services.lambda.AWSLambdaClient;
+import com.amazonaws.services.lambda.model.CreateAliasRequest;
+import com.amazonaws.services.lambda.model.CreateAliasResult;
+import com.amazonaws.services.lambda.model.CreateEventSourceMappingRequest;
+import com.amazonaws.services.lambda.model.CreateEventSourceMappingResult;
+import com.amazonaws.services.lambda.model.CreateFunctionRequest;
+import com.amazonaws.services.lambda.model.CreateFunctionResult;
+import com.amazonaws.services.lambda.model.FunctionCode;
+import com.amazonaws.services.lambda.model.GetAliasRequest;
+import com.amazonaws.services.lambda.model.GetAliasResult;
+import com.amazonaws.services.lambda.model.GetFunctionRequest;
+import com.amazonaws.services.lambda.model.GetFunctionResult;
+import com.amazonaws.services.lambda.model.ListEventSourceMappingsRequest;
+import com.amazonaws.services.lambda.model.ListEventSourceMappingsResult;
+import com.amazonaws.services.lambda.model.ResourceNotFoundException;
+import com.amazonaws.services.lambda.model.UpdateAliasRequest;
+import com.amazonaws.services.lambda.model.UpdateAliasResult;
+import com.amazonaws.services.lambda.model.UpdateFunctionCodeRequest;
+import com.amazonaws.services.lambda.model.UpdateFunctionCodeResult;
+import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationRequest;
+import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationResult;
+import com.xti.jenkins.plugin.awslambda.eventsource.EventSourceConfig;
+import com.xti.jenkins.plugin.awslambda.exception.LambdaDeployException;
+import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
+import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
+import com.xti.jenkins.plugin.awslambda.util.LogUtils;
 
 public class LambdaDeployService {
     private AWSLambdaClient client;
@@ -36,97 +55,222 @@ public class LambdaDeployService {
      * @param updateModeValue Full, Code or Config, only used if function does not already exists.
      * @return true if successful, false in case of failure.
      */
-    public DeployResult deployLambda(DeployConfig config, FunctionCode functionCode, UpdateModeValue updateModeValue){
+    public Boolean deployLambda(DeployConfig config, FunctionCode functionCode, UpdateModeValue updateModeValue){
+
         if(functionExists(config.getFunctionName())){
 
-            DeployResult lastDeployResult = null;
             //update code
             if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Code.equals(updateModeValue)){
                 if(functionCode != null) {
-                    lastDeployResult = updateCodeOnly(config.getFunctionName(), functionCode);
-                }else {
+                    try {
+                        String version = updateCodeOnly(config.getFunctionName(), functionCode, config.getPublish());
+                        if(config.getPublish()) {
+                            if(aliasExists(config.getAlias(), config.getFunctionName())) {
+                                updateLambdaAlias(config, version);
+                            } else {
+                                createLambdaAliasFunction(config, version);
+                            }
+                        }
+                    } catch (IOException e) {
+                        logger.log(LogUtils.getStackTrace(e));
+                        return false;
+                    } catch (AmazonClientException ace){
+                        logger.log(LogUtils.getStackTrace(ace));
+                        return false;
+                    }
+                } else {
                     logger.log("Could not find file to upload.");
-                    return new DeployResult(false, config.getFunctionName(), null);
+                    return false;
                 }
             }
 
+
             //update configuration
             if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Config.equals(updateModeValue)){
-                lastDeployResult = updateConfigurationOnly(config);
+                try {
+                    updateConfigurationOnly(config);
+                } catch (AmazonClientException ace){
+                    logger.log(LogUtils.getStackTrace(ace));
+                    return false;
+                }
             }
+            return true;
 
-            return lastDeployResult;
-
-        }else {
+        } else {
             if(functionCode != null) {
-                return createLambdaFunction(config, functionCode);
+                try {
+                    String functionVersion = createLambdaFunction(config, functionCode);
+
+                    if(config.getCreateAlias()) {
+                        createLambdaAliasFunction(config, functionVersion);
+                    }
+                    return true;
+                } catch (IOException e) {
+                    logger.log(LogUtils.getStackTrace(e));
+                    return false;
+                } catch (AmazonClientException ace){
+                    logger.log(LogUtils.getStackTrace(ace));
+                    return false;
+                }
             } else {
                 logger.log("Could not find file to upload.");
-                return new DeployResult(false, config.getFunctionName(), null);
+                return false;
             }
         }
+
+
     }
+
+    /**
+     *
+     * @param config configuration to setup the createEventSourceMapping call
+     * @return true if successful, false if not
+     */
+    public Boolean deployEventSource(EventSourceConfig config) {
+        if(functionExists(config.getFunctionName(), config.getFunctionAlias())) {
+            try {
+                String functionArn = getFunctionArn(config.getFunctionName());
+                createEventSourceMapping(config, functionArn);
+                return true;
+            }  catch(Exception e) {
+                logger.log(LogUtils.getStackTrace(e));
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Locates the function ARN
+     * @param functionName The name of the function to look up
+     * @return The fully qualified ARN of the function
+     */
+    public String getFunctionArn(String functionName) {
+        GetFunctionRequest getFunctionRequest = new GetFunctionRequest()
+                .withFunctionName(functionName);
+        try {
+            GetFunctionResult functionResult = client.getFunction(getFunctionRequest);
+            logger.log("Lambda function exists:%n%s%n", functionResult.toString());
+            return functionResult.getConfiguration().getFunctionArn();
+        } catch(ResourceNotFoundException rnfe) {
+            logger.log("Lambda function does not exist");
+            throw new RuntimeException("Lambda function does not exist", rnfe);
+        }
+    }
+
 
     /**
      * This method calls the AWS Lambda createFunction method based on the given configuration and file.
      * @param config configuration to setup the createFunction call
      * @param functionCode FunctionCode containing either zipfile or s3 location.
+     * @return Returns the version of the published function
      * @throws IOException
      */
-    private DeployResult createLambdaFunction(DeployConfig config, FunctionCode functionCode) {
+    private String createLambdaFunction(DeployConfig config, FunctionCode functionCode) throws IOException {
 
         CreateFunctionRequest createFunctionRequest = new CreateFunctionRequest()
                 .withDescription(config.getDescription())
                 .withFunctionName(config.getFunctionName())
                 .withHandler(config.getHandler())
                 .withMemorySize(config.getMemorySize())
+                .withPublish(config.getPublish())
                 .withTimeout(config.getTimeout())
                 .withRole(config.getRole())
                 .withRuntime(config.getRuntime())
                 .withCode(functionCode);
         logger.log("Lambda create function request:%n%s%n", createFunctionRequest.toString());
 
-        try {
-            CreateFunctionResult uploadFunctionResult = client.createFunction(createFunctionRequest);
-            logger.log("Lambda create response:%n%s%n", uploadFunctionResult.toString());
-            return new DeployResult(true, uploadFunctionResult.getFunctionName(), uploadFunctionResult.getVersion());
-        } catch (AmazonClientException ace){
-            logger.log(LogUtils.getStackTrace(ace));
-            return new DeployResult(false, config.getFunctionName(), null);
+        CreateFunctionResult uploadFunctionResult = client.createFunction(createFunctionRequest);
+        logger.log("Lambda create response:%n%s%n", uploadFunctionResult.toString());
+
+        return uploadFunctionResult.getVersion();
+    }
+
+    private void createLambdaAliasFunction(DeployConfig config, String functionVersion) throws IOException {
+        CreateAliasRequest createAliasRequest = new CreateAliasRequest()
+                .withFunctionName(config.getFunctionName())
+                .withName(config.getAlias())
+                .withFunctionVersion(functionVersion);
+
+        logger.log("Lambda create alias request:%n%s%n", createAliasRequest.toString());
+        CreateAliasResult createAliasResponse = client.createAlias(createAliasRequest);
+        logger.log("Lambda create alias response:%n%s%n", createAliasResponse.toString());
+    }
+
+    private void updateLambdaAlias(DeployConfig config, String functionVersion) throws IOException {
+        UpdateAliasRequest updateAliasRequest = new UpdateAliasRequest()
+                .withFunctionName(config.getFunctionName())
+                .withName(config.getAlias())
+                .withFunctionVersion(functionVersion);
+
+        logger.log("Lambda update alias request:%n%s%n", updateAliasRequest.toString());
+        UpdateAliasResult updateAliasResult = client.updateAlias(updateAliasRequest);
+        logger.log("Lambda update alias result:%n%s%n", updateAliasResult.toString());
+    }
+
+    public void createEventSourceMapping(EventSourceConfig config, String functionArn) {
+        CreateEventSourceMappingRequest eventSourceMappingRequest = new CreateEventSourceMappingRequest()
+                .withEventSourceArn(config.getEventSourceArn())
+                .withFunctionName(functionArn +  ":" + config.getFunctionAlias())
+                .withStartingPosition(config.getStartingPosition())
+                .withEnabled(true);
+
+        
+        // check for mapping first
+        ListEventSourceMappingsRequest listMappingsRequest = new ListEventSourceMappingsRequest()
+                .withEventSourceArn(eventSourceMappingRequest.getEventSourceArn())
+                .withFunctionName(eventSourceMappingRequest.getFunctionName());
+       
+        ListEventSourceMappingsResult listMappingsResult = client.listEventSourceMappings(listMappingsRequest);
+        if (listMappingsResult.getEventSourceMappings().isEmpty()) {
+            logger.log("EventSource mapping request:%n%s%n", eventSourceMappingRequest.toString());
+            CreateEventSourceMappingResult eventSourceMappingResult = client.createEventSourceMapping(eventSourceMappingRequest);
+            logger.log("EventSource mapping response:%n%s%n", eventSourceMappingResult.toString());            
+        } else {
+            logger.log("Skipping EventSource mapping (already exists): " + config.getEventSourceArn());
         }
     }
 
     /**
-     * This method calls the AWS Lambda updateFunctionCode method based for the given file.
+     * This method includes the Publish flag when there is a need to create a new version of the service
+     *
      * @param functionName name of the function to update code for
      * @param functionCode FunctionCode containing either zipfile or s3 location.
+     * @param publish True to publish a new version of the function
+     * @return the new version of the function
+     * @throws IOException
      */
-    private DeployResult updateCodeOnly(String functionName, FunctionCode functionCode)  {
-
+    private String updateCodeOnly(String functionName, FunctionCode functionCode, Boolean publish) throws IOException  {
         UpdateFunctionCodeRequest updateFunctionCodeRequest = new UpdateFunctionCodeRequest()
                 .withFunctionName(functionName)
                 .withZipFile(functionCode.getZipFile())
                 .withS3Bucket(functionCode.getS3Bucket())
                 .withS3Key(functionCode.getS3Key())
+                .withPublish(publish)
                 .withS3ObjectVersion(functionCode.getS3ObjectVersion());
 
         logger.log("Lambda update code request:%n%s%n", updateFunctionCodeRequest.toString());
 
-        try{
-            UpdateFunctionCodeResult updateFunctionCodeResult = client.updateFunctionCode(updateFunctionCodeRequest);
-            logger.log("Lambda update code response:%n%s%n", updateFunctionCodeResult.toString());
-            return new DeployResult(true, updateFunctionCodeResult.getFunctionName(), updateFunctionCodeResult.getVersion());
-        } catch (AmazonClientException ace){
-            logger.log(LogUtils.getStackTrace(ace));
-            return new DeployResult(false, functionName, null);
-        }
+        UpdateFunctionCodeResult updateFunctionCodeResult = client.updateFunctionCode(updateFunctionCodeRequest);
+        logger.log("Lambda update code response:%n%s%n", updateFunctionCodeResult.toString());
+        return updateFunctionCodeResult.getVersion();
+    }
+    /**
+     * This method calls the AWS Lambda updateFunctionCode method based for the given file.
+     * @param functionName name of the function to update code for
+     * @param functionCode FunctionCode containing either zipfile or s3 location.
+     * @throws IOException
+     */
+    private String updateCodeOnly(String functionName, FunctionCode functionCode) throws IOException {
+        return updateCodeOnly(functionName, functionCode, Boolean.FALSE);
     }
 
     /**
      * This method calls the AWS Lambda updateFunctionConfiguration method based on the given config.
      * @param config new configuration for the function
+     * @return The new version of the function
      */
-    private DeployResult updateConfigurationOnly(DeployConfig config){
+    private String updateConfigurationOnly(DeployConfig config){
         UpdateFunctionConfigurationRequest updateFunctionConfigurationRequest = new UpdateFunctionConfigurationRequest()
                 .withFunctionName(config.getFunctionName())
                 .withDescription(config.getDescription())
@@ -136,69 +280,9 @@ public class LambdaDeployService {
                 .withRole(config.getRole());
         logger.log("Lambda update configuration request:%n%s%n", updateFunctionConfigurationRequest.toString());
 
-        try {
-            UpdateFunctionConfigurationResult updateFunctionConfigurationResult = client.updateFunctionConfiguration(updateFunctionConfigurationRequest);
-            logger.log("Lambda update configuration response:%n%s%n", updateFunctionConfigurationResult.toString());
-            return new DeployResult(true, updateFunctionConfigurationResult.getFunctionName(), updateFunctionConfigurationResult.getVersion());
-        } catch (AmazonClientException ace){
-            logger.log(LogUtils.getStackTrace(ace));
-            return new DeployResult(false, config.getFunctionName(), null);
-        }
-    }
-
-    public AliasResult createAlias(AliasConfig aliasConfig){
-        GetAliasRequest getAliasRequest = new GetAliasRequest()
-                .withFunctionName(aliasConfig.getFunctionName())
-                .withName(aliasConfig.getAliasName());
-        try {
-            client.getAlias(getAliasRequest);
-            UpdateAliasRequest updateAliasRequest = new UpdateAliasRequest()
-                    .withName(aliasConfig.getAliasName())
-                    .withDescription(aliasConfig.getAliasDescription())
-                    .withFunctionName(aliasConfig.getFunctionName())
-                    .withFunctionVersion(aliasConfig.getFunctionVersion());
-            try {
-                UpdateAliasResult updateAliasResult = client.updateAlias(updateAliasRequest);
-                logger.log("Lambda update alias response:%n%s%n", updateAliasResult.toString());
-                return new AliasResult(true, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), updateAliasResult.getName());
-            } catch (AmazonClientException ace){
-                logger.log(LogUtils.getStackTrace(ace));
-                return new AliasResult(false, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), aliasConfig.getAliasName());
-            }
-
-        } catch (ResourceNotFoundException e){
-            CreateAliasRequest createAliasRequest = new CreateAliasRequest()
-                    .withName(aliasConfig.getAliasName())
-                    .withDescription(aliasConfig.getAliasDescription())
-                    .withFunctionName(aliasConfig.getFunctionName())
-                    .withFunctionVersion(aliasConfig.getFunctionVersion());
-
-            try {
-                CreateAliasResult createAliasResult = client.createAlias(createAliasRequest);
-                logger.log("Lambda create alias response:%n%s%n", createAliasResult.toString());
-                return new AliasResult(true, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), createAliasResult.getName());
-            } catch (AmazonClientException ace){
-                logger.log(LogUtils.getStackTrace(ace));
-                return new AliasResult(false, aliasConfig.getFunctionName(), aliasConfig.getFunctionVersion(), aliasConfig.getAliasName());
-            }
-        }
-
-
-    }
-
-    public PublishResult publishVersion(PublishConfig publishConfig) {
-        PublishVersionRequest publishVersionRequest = new PublishVersionRequest()
-                .withDescription(publishConfig.getPublishDescription())
-                .withFunctionName(publishConfig.getFunctionName());
-
-        try {
-            PublishVersionResult publishVersionResult = client.publishVersion(publishVersionRequest);
-            logger.log("Lambda publish version response:%n%s%n", publishVersionResult.toString());
-            return new PublishResult(true, publishVersionResult.getFunctionName(), publishVersionResult.getVersion());
-        } catch (AmazonClientException ace){
-            logger.log(LogUtils.getStackTrace(ace));
-            return new PublishResult(false, publishConfig.getFunctionName(), null);
-        }
+        UpdateFunctionConfigurationResult updateFunctionConfigurationResult = client.updateFunctionConfiguration(updateFunctionConfigurationRequest);
+        logger.log("Lambda update configuration response:%n%s%n", updateFunctionConfigurationResult.toString());
+        return updateFunctionConfigurationResult.getVersion();
     }
 
     /**
@@ -207,15 +291,53 @@ public class LambdaDeployService {
      * @return true if exists, false if not.
      */
     private Boolean functionExists(String functionName){
+        return functionExists(functionName, null);
+    }
+
+    /**
+     * Checks whether the function with the given alias exists on the user's account using the getFunction request.
+     * @param functionName name of the function to be checked
+     * @param functionAlias name of the alias to match to the query
+     * @return true if exists, false if not
+     */
+    private Boolean functionExists(String functionName, String functionAlias) {
         GetFunctionRequest getFunctionRequest = new GetFunctionRequest()
                 .withFunctionName(functionName);
-        logger.log("Lambda function existence check:%n%s%n", getFunctionRequest.toString());
+
+        if(functionAlias != null) {
+            getFunctionRequest.withQualifier(functionAlias);
+            logger.log("Lambda function existence with alias request:%n%s%n", getFunctionRequest.toString());
+        } else {
+            logger.log("Lambda function existence check:%n%s%n", getFunctionRequest.toString());
+        }
+
         try {
             GetFunctionResult functionResult = client.getFunction(getFunctionRequest);
             logger.log("Lambda function exists:%n%s%n", functionResult.toString());
             return true;
+        } catch(ResourceNotFoundException rnfe) {
+            logger.log("Lambda function does not exist");
+            return false;
+        }
+    }
+
+    /**
+     * Checks whether the function alias already exists on the users' account using the getAlias request
+     * @param alias name of the alias to be checked
+     * @param functionName name of the function the alias should be attached to
+     * @return true if it exists, false if not.
+     */
+    private Boolean aliasExists(String alias, String functionName) {
+        GetAliasRequest getAliasRequest = new GetAliasRequest()
+                .withName(alias)
+                .withFunctionName(functionName);
+        logger.log("Lambda function alias existence check:%n%s%n%s%n", functionName, alias);
+        try {
+            GetAliasResult functionResult = client.getAlias(getAliasRequest);
+            logger.log("Lambda function alias exists:%n%s%n", functionResult.toString());
+            return true;
         } catch (ResourceNotFoundException rnfe) {
-            logger.log("Lambda function does not exist.");
+            logger.log("Lambda alias does not exist for function.");
             return false;
         }
     }

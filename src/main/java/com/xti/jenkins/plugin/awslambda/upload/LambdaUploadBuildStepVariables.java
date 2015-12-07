@@ -39,7 +39,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 /**
- * Describable containing Lambda post build action config, checking feasability of migrating it to upload package.
+ * Describable containing Lambda post build action config, checking feasibility of migrating it to upload package.
  */
 public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<LambdaUploadBuildStepVariables> {
     private boolean useInstanceCredentials;
@@ -55,14 +55,12 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     private String runtime;
     private String timeout;
     private String updateMode;
-    private boolean publishVersion;
-    private String publishDescription;
+    private boolean publish;
+    private String alias;
     private boolean createAlias;
-    private String aliasName;
-    private String aliasDescription;
-
+    
     @DataBoundConstructor
-    public LambdaUploadBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, String updateMode, boolean publishVersion, String publishDescription, boolean createAlias, String aliasName, String aliasDescription) {
+    public LambdaUploadBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, String updateMode, boolean publish, String alias, boolean createAlias) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
@@ -76,155 +74,137 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         this.runtime = runtime;
         this.timeout = timeout;
         this.updateMode = updateMode;
-        this.publishVersion = publishVersion;
-        this.publishDescription = publishDescription;
+        this.publish = publish;
+        this.alias = alias;
         this.createAlias = createAlias;
-        this.aliasName = aliasName;
-        this.aliasDescription = aliasDescription;
     }
 
     public boolean getUseInstanceCredentials() {
         return useInstanceCredentials;
     }
 
-    public void setUseInstanceCredentials(boolean useInstanceCredentials) {
-        this.useInstanceCredentials = useInstanceCredentials;
-    }
-
     public String getAwsAccessKeyId() {
         return awsAccessKeyId;
-    }
-
-    public void setAwsAccessKeyId(String awsAccessKeyId) {
-        this.awsAccessKeyId = awsAccessKeyId;
     }
 
     public Secret getAwsSecretKey() {
         return awsSecretKey;
     }
 
-    public void setAwsSecretKey(Secret awsSecretKey) {
-        this.awsSecretKey = awsSecretKey;
-    }
-
     public String getAwsRegion() {
         return awsRegion;
-    }
-
-    public void setAwsRegion(String awsRegion) {
-        this.awsRegion = awsRegion;
     }
 
     public String getArtifactLocation() {
         return artifactLocation;
     }
 
-    public void setArtifactLocation(String artifactLocation) {
-        this.artifactLocation = artifactLocation;
-    }
-
     public String getDescription() {
         return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getFunctionName() {
         return functionName;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
-    }
-
     public String getHandler() {
         return handler;
-    }
-
-    public void setHandler(String handler) {
-        this.handler = handler;
     }
 
     public String getMemorySize() {
         return memorySize;
     }
 
-    public void setMemorySize(String memorySize) {
-        this.memorySize = memorySize;
-    }
-
     public String getRole() {
         return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
     public String getRuntime() {
         return runtime;
     }
 
-    public void setRuntime(String runtime) {
-        this.runtime = runtime;
-    }
-
     public String getTimeout() {
         return timeout;
-    }
-
-    public void setTimeout(String timeout) {
-        this.timeout = timeout;
     }
 
     public String getUpdateMode() {
         return updateMode;
     }
 
+    public boolean isPublish() {
+        return this.publish;
+    }
+
+    public String getAlias() {
+        return this.alias;
+    }
+
+    public boolean getCreateAlias() {
+        return this.createAlias;
+    }
+
+    public void setUseInstanceCredentials(boolean useInstanceCredentials) {
+        this.useInstanceCredentials = useInstanceCredentials;
+    }
+
+    public void setAwsAccessKeyId(String awsAccessKeyId) {
+        this.awsAccessKeyId = awsAccessKeyId;
+    }
+
+    public void setAwsSecretKey(Secret awsSecretKey) {
+        this.awsSecretKey = awsSecretKey;
+    }
+
+    public void setAwsRegion(String awsRegion) {
+        this.awsRegion = awsRegion;
+    }
+
+    public void setArtifactLocation(String artifactLocation) {
+        this.artifactLocation = artifactLocation;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    public void setHandler(String handler) {
+        this.handler = handler;
+    }
+
+    public void setMemorySize(String memorySize) {
+        this.memorySize = memorySize;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setRuntime(String runtime) {
+        this.runtime = runtime;
+    }
+
+    public void setTimeout(String timeout) {
+        this.timeout = timeout;
+    }
+
     public void setUpdateMode(String updateMode) {
         this.updateMode = updateMode;
     }
 
-    public boolean getPublishVersion() {
-        return publishVersion;
+    public void setPublish(boolean publish) {
+        this.publish = publish;
     }
 
-    public void setPublishVersion(boolean publishVersion) {
-        this.publishVersion = publishVersion;
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 
-    public String getPublishDescription() {
-        return publishDescription;
-    }
-
-    public void setPublishDescription(String publishDescription) {
-        this.publishDescription = publishDescription;
-    }
-
-    public boolean getCreateAlias() {
-        return createAlias;
-    }
-
-    public void setCreateAlias(boolean createAlias) {
+    public void setCreateAlias(Boolean createAlias) {
         this.createAlias = createAlias;
-    }
-
-    public String getAliasName() {
-        return aliasName;
-    }
-
-    public void setAliasName(String aliasName) {
-        this.aliasName = aliasName;
-    }
-
-    public String getAliasDescription() {
-        return aliasDescription;
-    }
-
-    public void setAliasDescription(String aliasDescription) {
-        this.aliasDescription = aliasDescription;
     }
 
     public void expandVariables(EnvVars env) {
@@ -239,25 +219,14 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         runtime = expand(runtime, env);
         timeout = expand(timeout, env);
         memorySize = expand(memorySize, env);
-        publishDescription = expand(publishDescription, env);
-        aliasName = expand(aliasName, env);
-        aliasDescription = expand(aliasDescription, env);
     }
 
     public LambdaUploadBuildStepVariables getClone(){
-        return new LambdaUploadBuildStepVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode, publishVersion, publishDescription, createAlias, aliasName, aliasDescription);
+        return new LambdaUploadBuildStepVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, updateMode, publish, alias, createAlias);
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode);
-    }
-
-    public PublishConfig getPublishConfig(){
-        return new PublishConfig(publishVersion, functionName, publishDescription);
-    }
-
-    public AliasConfig getAliasConfig(String functionVersion) {
-        return new AliasConfig(createAlias, aliasName, aliasDescription, functionName, functionVersion);
+        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode, publish, alias, createAlias);
     }
 
     public LambdaClientConfig getLambdaClientConfig(){
@@ -269,11 +238,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     private String expand(String value, EnvVars env) {
-        if(value != null) {
-            return Util.replaceMacro(value.trim(), env);
-        } else {
-            return null;
-        }
+        return Util.replaceMacro(value.trim(), env);
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.

@@ -37,7 +37,7 @@ public class LambdaUploadBuildStepTest {
     @Test
     @Ignore
     public void testHtml() throws Exception {
-        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "ziplocation", "description", "function", "handler", "1024", "role", "nodejs", "30", "full", false, null, false, null, null);
+        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "ziplocation", "description", "function", "handler", "1024", "role", "nodejs", "30", "full", false, null, false);
 
         FreeStyleProject p = j.createFreeStyleProject();
         LambdaUploadBuildStep before = new LambdaUploadBuildStep(variables);
@@ -61,7 +61,7 @@ public class LambdaUploadBuildStepTest {
 
     @Test
     public void testPerformFolderSuccess() throws IOException, ExecutionException, InterruptedException {
-        LambdaUploadBuildStepVariables clone = new LambdaUploadBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", "handler", "1024", "role", "nodejs", "30", "full", false, null, false, null, null);
+        LambdaUploadBuildStepVariables clone = new LambdaUploadBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", "handler", "1024", "role", "nodejs", "30", "full", false, null, false);
 
         LambdaUploadBuildStepVariables spy = Mockito.spy(clone);
 
@@ -93,7 +93,7 @@ public class LambdaUploadBuildStepTest {
 
     @Test
     public void testPerformFolderFailure() throws IOException, ExecutionException, InterruptedException {
-        LambdaUploadBuildStepVariables clone = new LambdaUploadBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", null, "1024", "role", "nodejs", "30", "full", false, null, false, null, null);
+        LambdaUploadBuildStepVariables clone = new LambdaUploadBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", null, "1024", "role", "nodejs", "30", "full", false, null, false);
 
         LambdaUploadBuildStepVariables spy = Mockito.spy(clone);
 
@@ -121,7 +121,7 @@ public class LambdaUploadBuildStepTest {
 
     @Test
     public void testPerformZipSuccess() throws IOException, ExecutionException, InterruptedException {
-        LambdaUploadBuildStepVariables clone = new LambdaUploadBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", "full", false, null, false, null, null);
+        LambdaUploadBuildStepVariables clone = new LambdaUploadBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", "full", false, null, false);
 
         LambdaUploadBuildStepVariables spy = Mockito.spy(clone);
 
@@ -153,7 +153,7 @@ public class LambdaUploadBuildStepTest {
 
     @Test
     public void testPerformZipFailure() throws IOException, ExecutionException, InterruptedException {
-        LambdaUploadBuildStepVariables clone = new LambdaUploadBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "c#", "30", "config", false, null, false, null, null);
+        LambdaUploadBuildStepVariables clone = new LambdaUploadBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "c#", "30", "config", false, null, false);
 
         LambdaUploadBuildStepVariables spy = Mockito.spy(clone);
 
