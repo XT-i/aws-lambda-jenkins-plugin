@@ -1,5 +1,7 @@
 #AWS Lambda Jenkins plugin
 
+[ ![Codeship Status for anthonyikeda/aws-lambda-plugin](https://codeship.com/projects/9653efe0-7b52-0133-2973-5a964525c7f4/status?branch=master)](https://codeship.com/projects/119522)
+
 [![Build Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/aws-lambda-plugin)](https://jenkins.ci.cloudbees.com/job/plugins/job/aws-lambda-plugin/)
 
 This plugin can deploy and invoke functions as a build step and post build action. When invoking a function it is possible to inject the output as Jenkins environment variables.

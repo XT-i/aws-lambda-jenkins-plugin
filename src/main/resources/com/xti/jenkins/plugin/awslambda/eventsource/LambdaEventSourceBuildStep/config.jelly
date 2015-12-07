@@ -1,0 +1,26 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:entry>
+        <f:property field="lambdaEventSourceBuildStepVariables">
+            <table width="100%">
+                <f:entry title="AWS Access Key Id" field="awsAccessKeyId" help="/plugin/aws-lambda/help-awsAccessKeyId.html">
+                    <f:textbox />
+                </f:entry>
+                <f:entry title="AWS Secret Key" field="awsSecretKey" help="/plugin/aws-lambda/help-awsSecretKey.html">
+                    <f:password />
+                </f:entry>
+                <f:entry title="AWS Region" field="awsRegion" help="/plugin/aws-lambda/help-awsRegion.html">
+                    <f:textbox />
+                </f:entry>
+                <f:entry title="Function Name" field="functionName" help="/plugin/aws-lambda/help-functionName.html">
+                    <f:textbox />
+                </f:entry>
+                <f:entry title="Function Alias" field="functionAlias" help="/plugin/aws-lambda/help-functionAlias.html">
+                    <f:textbox />
+                </f:entry>
+                <f:entry title="Event Source ARN" field="eventSourceArn" help="/plugin/aws-lambda/help-eventSourceArn.html">
+                    <f:textbox />
+                </f:entry>
+            </table>
+        </f:property>
+    </f:entry>
+</j:jelly>
