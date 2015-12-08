@@ -26,8 +26,12 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
-import com.xti.jenkins.plugin.awslambda.service.*;
-import com.xti.jenkins.plugin.awslambda.upload.*;
+import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
+import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
+import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
+import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadAction;
+import com.xti.jenkins.plugin.awslambda.upload.LambdaUploader;
+import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
 import hudson.Launcher;
@@ -89,7 +93,6 @@ public class AWSLambdaPublisher extends Notifier{
             LambdaVariables executionVariables = lambdaVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
             DeployConfig deployConfig = executionVariables.getUploadConfig();
-
             LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
             JenkinsLogger logger = new JenkinsLogger(listener.getLogger());
             LambdaDeployService service = new LambdaDeployService(clientConfig.getClient(), logger);
@@ -97,24 +100,12 @@ public class AWSLambdaPublisher extends Notifier{
 
             LambdaUploader lambdaUploader = new LambdaUploader(service, workSpaceZipper, logger);
 
-            DeployResult deployResult = lambdaUploader.upload(deployConfig);
-            boolean success = deployResult.isSuccess();
-            PublishConfig publishConfig = executionVariables.getPublishConfig();
-            if(success && publishConfig.isPublishVersion()){
-                PublishResult publishResult = lambdaUploader.publishVersion(publishConfig);
-                success = publishResult.isSuccess();
-                AliasConfig aliasConfig = executionVariables.getAliasConfig(publishResult.getFunctionVersion());
-                if( success && aliasConfig.isCreateAlias()) {
-                    AliasResult aliasResult = lambdaUploader.createAlias(aliasConfig);
-                    success = aliasResult.isSuccess();
-                }
-            }
-
-            if(!success){
+            Boolean lambdaSuccess = lambdaUploader.upload(deployConfig);
+            if(!lambdaSuccess){
                 build.setResult(Result.FAILURE);
             }
-            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), success));
-            return success;
+            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), lambdaSuccess));
+            return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);
         }

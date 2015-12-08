@@ -1,0 +1,27 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:awslambda="/com/xti/jenkins/plugin/awslambda/tags">
+    <f:entry title="Apply Event Source Mapping to Lambda Function">
+        <f:nested>
+            <div>
+                <table width="100%">
+                    <awslambda:awsLambdaOptionalBlock field="useInstanceCredentials" title="Use instance credentials" negative="true" checked="${instance.useInstanceCredentials}" default="false" inline="true" help="/plugin/aws-lambda/help-useInstanceCredentials.html">
+                        <f:entry title="AWS Access Key Id" field="awsAccessKeyId"  help="/plugin/aws-lambda/help-awsAccessKeyId.html">
+                            <f:textbox />
+                        </f:entry>
+                        <f:entry title="AWS Secret Key" field="awsSecretKey" help="/plugin/aws-lambda/help-awsSecretKey.html">
+                            <f:password />
+                        </f:entry>
+                    </awslambda:awsLambdaOptionalBlock>
+                    <f:entry title="AWS Region" help="/plugin/aws-lambda/help-awsRegion.html">
+                        <f:textbox name="awsRegion" field="awsRegion" />
+                    </f:entry>
+                    <f:entry title="Function Name" help="/plugin/aws-lambda/help-functionName.html">
+                        <f:textbox name="functionName" field="functionName" />
+                    </f:entry>
+                    <f:entry title="Function Alias" help="/plugin/aws-lambda/help-functionAlias.html">
+                        <f:textbox name="functionAlias" field="functionAlias" />
+                    </f:entry>
+                </table>
+            </div>
+        </f:nested>
+    </f:entry>
+</j:jelly>

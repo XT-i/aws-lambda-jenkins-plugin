@@ -27,7 +27,9 @@ package com.xti.jenkins.plugin.awslambda.upload;
  */
 
 import com.amazonaws.services.lambda.model.FunctionCode;
-import com.xti.jenkins.plugin.awslambda.service.*;
+import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
+import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
+import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
 
 import java.io.IOException;
 
@@ -42,20 +44,10 @@ public class LambdaUploader {
         this.logger = logger;
     }
 
-    public DeployResult upload(DeployConfig config) throws IOException, InterruptedException {
+    public Boolean upload(DeployConfig config) throws IOException, InterruptedException {
         logger.log("%nStarting lambda deployment procedure");
 
         FunctionCode functionCode = lambda.getFunctionCode(config.getArtifactLocation(), zipper);
         return lambda.deployLambda(config, functionCode, UpdateModeValue.fromString(config.getUpdateMode()));
-    }
-
-    public PublishResult publishVersion(PublishConfig publishConfig){
-        logger.log("%nStarting lambda publish version procedure");
-        return lambda.publishVersion(publishConfig);
-    }
-
-    public AliasResult createAlias(AliasConfig aliasConfig) {
-        logger.log("%nStarting lambda create alias procedure");
-        return lambda.createAlias(aliasConfig);
     }
 }
