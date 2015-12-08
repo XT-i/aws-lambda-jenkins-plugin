@@ -26,7 +26,9 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
-import com.xti.jenkins.plugin.awslambda.service.*;
+import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
+import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
+import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
 import hudson.Launcher;
@@ -76,24 +78,12 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
 
             LambdaUploader lambdaUploader = new LambdaUploader(service, workSpaceZipper, logger);
 
-            DeployResult deployResult = lambdaUploader.upload(deployConfig);
-            boolean success = deployResult.isSuccess();
-            PublishConfig publishConfig = executionVariables.getPublishConfig();
-            if(success && publishConfig.isPublishVersion()){
-                PublishResult publishResult = lambdaUploader.publishVersion(publishConfig);
-                success = publishResult.isSuccess();
-                AliasConfig aliasConfig = executionVariables.getAliasConfig(publishResult.getFunctionVersion());
-                if( success && aliasConfig.isCreateAlias()) {
-                    AliasResult aliasResult = lambdaUploader.createAlias(aliasConfig);
-                    success = aliasResult.isSuccess();
-                }
-            }
-
-            if(!success){
+            Boolean lambdaSuccess = lambdaUploader.upload(deployConfig);
+            if(!lambdaSuccess){
                 build.setResult(Result.FAILURE);
             }
-            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), success));
-            return success;
+            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), lambdaSuccess));
+            return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);
         }

@@ -1,38 +1,18 @@
 package com.xti.jenkins.plugin.awslambda.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import org.apache.commons.io.FileUtils;
-
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.lambda.AWSLambdaClient;
-import com.amazonaws.services.lambda.model.CreateAliasRequest;
-import com.amazonaws.services.lambda.model.CreateAliasResult;
-import com.amazonaws.services.lambda.model.CreateEventSourceMappingRequest;
-import com.amazonaws.services.lambda.model.CreateEventSourceMappingResult;
-import com.amazonaws.services.lambda.model.CreateFunctionRequest;
-import com.amazonaws.services.lambda.model.CreateFunctionResult;
-import com.amazonaws.services.lambda.model.FunctionCode;
-import com.amazonaws.services.lambda.model.GetAliasRequest;
-import com.amazonaws.services.lambda.model.GetAliasResult;
-import com.amazonaws.services.lambda.model.GetFunctionRequest;
-import com.amazonaws.services.lambda.model.GetFunctionResult;
-import com.amazonaws.services.lambda.model.ListEventSourceMappingsRequest;
-import com.amazonaws.services.lambda.model.ListEventSourceMappingsResult;
-import com.amazonaws.services.lambda.model.ResourceNotFoundException;
-import com.amazonaws.services.lambda.model.UpdateAliasRequest;
-import com.amazonaws.services.lambda.model.UpdateAliasResult;
-import com.amazonaws.services.lambda.model.UpdateFunctionCodeRequest;
-import com.amazonaws.services.lambda.model.UpdateFunctionCodeResult;
-import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationRequest;
-import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationResult;
+import com.amazonaws.services.lambda.model.*;
 import com.xti.jenkins.plugin.awslambda.eventsource.EventSourceConfig;
 import com.xti.jenkins.plugin.awslambda.exception.LambdaDeployException;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import com.xti.jenkins.plugin.awslambda.util.LogUtils;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class LambdaDeployService {
     private AWSLambdaClient client;
@@ -215,17 +195,17 @@ public class LambdaDeployService {
                 .withStartingPosition(config.getStartingPosition())
                 .withEnabled(true);
 
-        
+
         // check for mapping first
         ListEventSourceMappingsRequest listMappingsRequest = new ListEventSourceMappingsRequest()
                 .withEventSourceArn(eventSourceMappingRequest.getEventSourceArn())
                 .withFunctionName(eventSourceMappingRequest.getFunctionName());
-       
+
         ListEventSourceMappingsResult listMappingsResult = client.listEventSourceMappings(listMappingsRequest);
         if (listMappingsResult.getEventSourceMappings().isEmpty()) {
             logger.log("EventSource mapping request:%n%s%n", eventSourceMappingRequest.toString());
             CreateEventSourceMappingResult eventSourceMappingResult = client.createEventSourceMapping(eventSourceMappingRequest);
-            logger.log("EventSource mapping response:%n%s%n", eventSourceMappingResult.toString());            
+            logger.log("EventSource mapping response:%n%s%n", eventSourceMappingResult.toString());
         } else {
             logger.log("Skipping EventSource mapping (already exists): " + config.getEventSourceArn());
         }

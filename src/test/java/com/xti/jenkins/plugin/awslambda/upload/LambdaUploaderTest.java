@@ -1,7 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.upload;
 
 import com.amazonaws.services.lambda.model.FunctionCode;
-import com.xti.jenkins.plugin.awslambda.service.DeployResult;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
 import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
@@ -37,14 +36,14 @@ public class LambdaUploaderTest {
 
         when(zipper.getZip(any(String.class))).thenReturn(file);
         when(service.deployLambda(any(DeployConfig.class), any(FunctionCode.class), any(UpdateModeValue.class)))
-                .thenReturn(new DeployResult(true, "function", "1"));
+                .thenReturn(true);
 
         LambdaUploader uploader = new LambdaUploader(service, zipper, logger);
-        DeployResult uploaded = uploader.upload(deployConfig);
+        Boolean uploaded = uploader.upload(deployConfig);
 
         verify(logger, times(1)).log("%nStarting lambda deployment procedure");
         verify(service, times(1)).deployLambda(eq(deployConfig), any(FunctionCode.class), eq(UpdateModeValue.Full));
-        assertTrue(uploaded.isSuccess());
+        assertTrue(uploaded);
     }
 
     @Test
@@ -54,14 +53,14 @@ public class LambdaUploaderTest {
 
         when(zipper.getZip(any(String.class))).thenReturn(file);
         when(service.deployLambda(any(DeployConfig.class), any(FunctionCode.class), any(UpdateModeValue.class)))
-                .thenReturn(new DeployResult(false, "function", "1"));
+                .thenReturn(false);
 
         LambdaUploader uploader = new LambdaUploader(service, zipper, logger);
-        DeployResult uploaded = uploader.upload(deployConfig);
+        Boolean uploaded = uploader.upload(deployConfig);
 
         verify(logger, times(1)).log("%nStarting lambda deployment procedure");
         verify(service, times(1)).deployLambda(eq(deployConfig), any(FunctionCode.class), eq(UpdateModeValue.Full));
-        assertFalse(uploaded.isSuccess());
+        assertFalse(uploaded);
     }
 
     @Test
@@ -70,13 +69,13 @@ public class LambdaUploaderTest {
 
         when(zipper.getZip(any(String.class))).thenReturn(null);
         when(service.deployLambda(any(DeployConfig.class), any(FunctionCode.class), any(UpdateModeValue.class)))
-                .thenReturn(new DeployResult(true, "function", "1"));
+                .thenReturn(true);
 
         LambdaUploader uploader = new LambdaUploader(service, zipper, logger);
-        DeployResult uploaded = uploader.upload(deployConfig);
+        Boolean uploaded = uploader.upload(deployConfig);
 
         verify(logger, times(1)).log("%nStarting lambda deployment procedure");
         verify(service, times(1)).deployLambda(eq(deployConfig), any(FunctionCode.class), eq(UpdateModeValue.Full));
-        assertTrue(uploaded.isSuccess());
+        assertTrue(uploaded);
     }
 }
