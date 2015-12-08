@@ -58,9 +58,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     private boolean successOnly;
     private boolean publish;
     private String updateMode;
+    private String alias;
+    private boolean createAlias;
 
     @DataBoundConstructor
-    public LambdaVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, boolean successOnly, boolean publish, String updateMode) {
+    public LambdaVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, boolean successOnly, boolean publish, String updateMode, String alias, boolean createAlias) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
@@ -76,6 +78,8 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         this.successOnly = successOnly;
         this.publish = publish;
         this.updateMode = updateMode;
+        this.alias = alias;
+        this.createAlias = createAlias;
     }
 
     public boolean getUseInstanceCredentials() {
@@ -136,6 +140,14 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
 
     public boolean getPublish() { return publish; }
 
+    public String getAlias() {
+        return alias;
+    }
+
+    public boolean getCreateAlias() {
+        return createAlias;
+    }
+
     public void setUseInstanceCredentials(boolean useInstanceCredentials) {
         this.useInstanceCredentials = useInstanceCredentials;
     }
@@ -194,6 +206,14 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
 
     public void setPublish(boolean publish) { this.publish = publish; }
 
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public void setCreateAlias(boolean createAlias) {
+        this.createAlias = createAlias;
+    }
+
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
         awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
@@ -206,14 +226,15 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         runtime = expand(runtime, env);
         memorySize = expand(memorySize, env);
         timeout = expand(timeout, env);
+        alias = expand(alias, env);
     }
 
     public LambdaVariables getClone(){
-        return new LambdaVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, publish, updateMode);
+        return new LambdaVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, publish, updateMode, alias, createAlias);
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode);
+        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode, publish, alias, createAlias);
     }
 
     public LambdaClientConfig getLambdaClientConfig(){
@@ -225,7 +246,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     private String expand(String value, EnvVars env) {
-        return Util.replaceMacro(value.trim(), env);
+        if(value != null) {
+            return Util.replaceMacro(value.trim(), env);
+        } else {
+            return null;
+        }
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.

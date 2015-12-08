@@ -344,7 +344,7 @@ public class LambdaDeployServiceTest {
     }
 
     private DeployConfig getDeployConfig(){
-        return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null);
+        return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null, false, null, false);
     }
 
     private File getZipFile(){

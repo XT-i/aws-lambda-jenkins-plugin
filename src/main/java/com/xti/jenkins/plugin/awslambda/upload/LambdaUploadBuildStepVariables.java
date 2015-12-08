@@ -238,7 +238,11 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     private String expand(String value, EnvVars env) {
-        return Util.replaceMacro(value.trim(), env);
+        if(value != null) {
+            return Util.replaceMacro(value.trim(), env);
+        } else {
+            return null;
+        }
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.

@@ -14,22 +14,6 @@ public class DeployConfig {
     private String alias;
     private Boolean createAlias;
 
-
-    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode) {
-        this.artifactLocation = artifactLocation;
-        this.description = description;
-        this.functionName = functionName;
-        this.handler = handler;
-        this.memorySize = memorySize;
-        this.role = role;
-        this.runtime = runtime;
-        this.timeout = timeout;
-        this.updateMode = updateMode;
-        this.publish = false;
-        this.alias = null;
-        this.createAlias = false;
-    }
-
     public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode, boolean publish, String alias, boolean createAlias) {
         this.artifactLocation = artifactLocation;
         this.description = description;
@@ -40,7 +24,7 @@ public class DeployConfig {
         this.runtime = runtime;
         this.timeout = timeout;
         this.updateMode = updateMode;
-        this.publish = Boolean.valueOf(publish);
+        this.publish = publish;
         this.alias = alias;
         this.createAlias = createAlias;
     }
