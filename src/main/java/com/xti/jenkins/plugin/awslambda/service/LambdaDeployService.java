@@ -44,7 +44,7 @@ public class LambdaDeployService {
                 if(functionCode != null) {
                     try {
                         String version = updateCodeOnly(config.getFunctionName(), functionCode, config.getPublish());
-                        if(config.getPublish()) {
+                        if(config.getPublish() && config.getCreateAlias()){
                             if(aliasExists(config.getAlias(), config.getFunctionName())) {
                                 updateLambdaAlias(config, version);
                             } else {
@@ -80,8 +80,7 @@ public class LambdaDeployService {
             if(functionCode != null) {
                 try {
                     String functionVersion = createLambdaFunction(config, functionCode);
-
-                    if(config.getCreateAlias()) {
+                    if(config.getPublish() && config.getCreateAlias()) {
                         createLambdaAliasFunction(config, functionVersion);
                     }
                     return true;
@@ -191,7 +190,7 @@ public class LambdaDeployService {
     public void createEventSourceMapping(EventSourceConfig config, String functionArn) {
         CreateEventSourceMappingRequest eventSourceMappingRequest = new CreateEventSourceMappingRequest()
                 .withEventSourceArn(config.getEventSourceArn())
-                .withFunctionName(functionArn +  ":" + config.getFunctionAlias())
+                .withFunctionName(functionArn + ":" + config.getFunctionAlias())
                 .withStartingPosition(config.getStartingPosition())
                 .withEnabled(true);
 
@@ -234,15 +233,6 @@ public class LambdaDeployService {
         UpdateFunctionCodeResult updateFunctionCodeResult = client.updateFunctionCode(updateFunctionCodeRequest);
         logger.log("Lambda update code response:%n%s%n", updateFunctionCodeResult.toString());
         return updateFunctionCodeResult.getVersion();
-    }
-    /**
-     * This method calls the AWS Lambda updateFunctionCode method based for the given file.
-     * @param functionName name of the function to update code for
-     * @param functionCode FunctionCode containing either zipfile or s3 location.
-     * @throws IOException
-     */
-    private String updateCodeOnly(String functionName, FunctionCode functionCode) throws IOException {
-        return updateCodeOnly(functionName, functionCode, Boolean.FALSE);
     }
 
     /**
@@ -352,10 +342,8 @@ public class LambdaDeployService {
                 File zipFile = workSpaceZipper.getZip(artifactLocation);
                 return new FunctionCode()
                         .withZipFile(getFunctionZip(zipFile));
-            } catch (IOException ioe){
+            } catch (IOException | InterruptedException ioe){
                 throw new LambdaDeployException("Error processing zip file.", ioe);
-            } catch (InterruptedException ie){
-                throw new LambdaDeployException("Error processing zip file.", ie);
             }
 
         }

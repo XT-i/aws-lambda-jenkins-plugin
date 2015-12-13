@@ -24,14 +24,17 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LambdaDeployServiceTest {
-    private final String description = "description";
-    private final String functionName = "function";
-    private final String handler = "function.handler";
-    private final Integer memory = 1024;
-    private final String role = "role";
-    private final String runtime = "nodejs";
-    private final Boolean publish = Boolean.FALSE;
-    private final Integer timeout = 30;
+    private String description;
+    private String functionName;
+    private String handler;
+    private Integer memory;
+    private String role;
+    private String runtime;
+    private Boolean publish;
+    private String functionVersion;
+    private Boolean createAlias;
+    private String alias;
+    private Integer timeout;
 
     @Mock
     private AWSLambdaClient awsLambdaClient;
@@ -48,6 +51,17 @@ public class LambdaDeployServiceTest {
 
     @Before
     public void setUp() throws Exception {
+        description = "description";
+        functionName = "function";
+        handler = "function.handler";
+        memory = 1024;
+        role = "role";
+        runtime = "nodejs";
+        publish = Boolean.FALSE;
+        functionVersion = null;
+        createAlias = Boolean.FALSE;
+        alias = null;
+        timeout = 30;
         lambdaDeployService = new LambdaDeployService(awsLambdaClient, jenkinsLogger);
         when(awsLambdaClient.updateFunctionConfiguration(any(UpdateFunctionConfigurationRequest.class)))
                 .thenReturn(new UpdateFunctionConfigurationResult());
@@ -102,6 +116,61 @@ public class LambdaDeployServiceTest {
         calledCreateFunction(false);
         calledUpdateCode(true);
         calledUpdateConfiguration(true);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testExistZipFullPublish() throws Exception {
+        setFunctionFound(true);
+        setPublishVersion("1");
+        DeployConfig deployConfig = getDeployConfig();
+        deployConfig.setPublish(true);
+        Boolean result = lambdaDeployService.deployLambda(deployConfig, getFunctionCode(), UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledCreateAlias(false);
+        calledUpdateCode(true);
+        calledUpdateConfiguration(true);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testExistZipFullPublishNewAlias() throws Exception {
+        setFunctionFound(true);
+        setPublishVersion("1");
+        setAlias("myFunc", false);
+        DeployConfig deployConfig = getDeployConfig();
+        deployConfig.setPublish(publish);
+        deployConfig.setCreateAlias(createAlias);
+        deployConfig.setAlias(alias);
+        Boolean result = lambdaDeployService.deployLambda(deployConfig, getFunctionCode(), UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledCreateAlias(true);
+        calledUpdateCode(true);
+        calledUpdateConfiguration(true);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testExistZipFullPublishUpdateAlias() throws Exception {
+        setFunctionFound(true);
+        setPublishVersion("1");
+        setAlias("myFunc", true);
+        DeployConfig deployConfig = getDeployConfig();
+        deployConfig.setPublish(publish);
+        deployConfig.setCreateAlias(createAlias);
+        deployConfig.setAlias(alias);
+        Boolean result = lambdaDeployService.deployLambda(deployConfig, getFunctionCode(), UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledCreateAlias(false);
+        calledUpdateCode(true);
+        calledUpdateConfiguration(true);
+        calledUpdateAlias(true);
         assertTrue(result);
     }
 
@@ -172,6 +241,41 @@ public class LambdaDeployServiceTest {
 
         calledGetFunction();
         calledCreateFunction(true);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testNewZipFullPublish() throws Exception {
+        setFunctionFound(false);
+        setPublishVersion("1");
+        DeployConfig deployConfig = getDeployConfig();
+        deployConfig.setPublish(true);
+        Boolean result = lambdaDeployService.deployLambda(deployConfig, getFunctionCode(), UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(true);
+        calledCreateAlias(false);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testNewZipFullPublishNewAlias() throws Exception {
+        setFunctionFound(false);
+        setPublishVersion("1");
+        setAlias("myFunc", false);
+        DeployConfig deployConfig = getDeployConfig();
+        deployConfig.setPublish(publish);
+        deployConfig.setCreateAlias(createAlias);
+        deployConfig.setAlias(alias);
+        Boolean result = lambdaDeployService.deployLambda(deployConfig, getFunctionCode(), UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(true);
+        calledCreateAlias(true);
         calledUpdateCode(false);
         calledUpdateConfiguration(false);
         assertTrue(result);
@@ -288,7 +392,7 @@ public class LambdaDeployServiceTest {
             try {
                 expected = new UpdateFunctionCodeRequest()
                         .withFunctionName(functionName)
-                        .withPublish(Boolean.FALSE)
+                        .withPublish(publish)
                         .withZipFile(ByteBuffer.wrap(FileUtils.readFileToByteArray(getZipFile())));
             } catch (IOException e) {
                 fail("Couldn't process echo.zip");
@@ -343,6 +447,36 @@ public class LambdaDeployServiceTest {
         }
     }
 
+    private void calledCreateAlias(Boolean called){
+        if(called){
+            ArgumentCaptor<CreateAliasRequest> args = ArgumentCaptor.forClass(CreateAliasRequest.class);
+            verify(awsLambdaClient, times(1)).createAlias(args.capture());
+            CreateAliasRequest expected = new CreateAliasRequest()
+                    .withFunctionName(functionName)
+                    .withFunctionVersion(functionVersion)
+                    .withName(alias);
+
+            assertEquals(expected, args.getValue());
+        } else {
+            verify(awsLambdaClient, never()).createAlias(any(CreateAliasRequest.class));
+        }
+    }
+
+    private void calledUpdateAlias(Boolean called){
+        if(called){
+            ArgumentCaptor<UpdateAliasRequest> args = ArgumentCaptor.forClass(UpdateAliasRequest.class);
+            verify(awsLambdaClient, times(1)).updateAlias(args.capture());
+            UpdateAliasRequest expected = new UpdateAliasRequest()
+                    .withFunctionName(functionName)
+                    .withFunctionVersion(functionVersion)
+                    .withName(alias);
+
+            assertEquals(expected, args.getValue());
+        } else {
+            verify(awsLambdaClient, never()).updateAlias(any(UpdateAliasRequest.class));
+        }
+    }
+
     private DeployConfig getDeployConfig(){
         return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null, false, null, false);
     }
@@ -377,6 +511,47 @@ public class LambdaDeployServiceTest {
             when(awsLambdaClient.getFunction(any(GetFunctionRequest.class)))
                     .thenThrow(new ResourceNotFoundException(""));
         }
+    }
+
+    private void setPublishVersion(String version){
+        this.functionVersion = version;
+        this.publish = true;
+        CreateFunctionResult createFunctionResult = new CreateFunctionResult()
+                .withVersion(version);
+        when(awsLambdaClient.createFunction(any(CreateFunctionRequest.class)))
+                .thenReturn(createFunctionResult);
+        UpdateFunctionCodeResult updateFunctionCodeResult = new UpdateFunctionCodeResult()
+                .withVersion(version);
+        when(awsLambdaClient.updateFunctionCode(any(UpdateFunctionCodeRequest.class)))
+                .thenReturn(updateFunctionCodeResult);
+    }
+
+    private void setAlias(String alias, Boolean exists){
+        this.createAlias = Boolean.TRUE;
+        this.alias = alias;
+
+        GetAliasResult getAliasResult = new GetAliasResult()
+                .withName(alias)
+                .withFunctionVersion(functionVersion);
+        if(exists){
+            when(awsLambdaClient.getAlias(any(GetAliasRequest.class)))
+                    .thenReturn(getAliasResult);
+        } else {
+            when(awsLambdaClient.getAlias(any(GetAliasRequest.class)))
+                    .thenThrow(new ResourceNotFoundException(""));
+        }
+
+        CreateAliasResult createAliasResult = new CreateAliasResult()
+                .withName(alias)
+                .withFunctionVersion(functionVersion);
+        when(awsLambdaClient.createAlias(any(CreateAliasRequest.class)))
+                .thenReturn(createAliasResult);
+
+        UpdateAliasResult updateAliasResult = new UpdateAliasResult()
+                .withName(alias)
+                .withFunctionVersion(functionVersion);
+        when(awsLambdaClient.updateAlias(any(UpdateAliasRequest.class)))
+                .thenReturn(updateAliasResult);
     }
 
     private ByteBuffer getFunctionZip(File zipFile) throws IOException {
