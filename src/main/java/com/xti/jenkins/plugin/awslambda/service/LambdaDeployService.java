@@ -39,6 +39,16 @@ public class LambdaDeployService {
 
         if(functionExists(config.getFunctionName())){
 
+            //update configuration
+            if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Config.equals(updateModeValue)){
+                try {
+                    updateConfigurationOnly(config);
+                } catch (AmazonClientException ace){
+                    logger.log(LogUtils.getStackTrace(ace));
+                    return false;
+                }
+            }
+
             //update code
             if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Code.equals(updateModeValue)){
                 if(functionCode != null) {
@@ -64,16 +74,6 @@ public class LambdaDeployService {
                 }
             }
 
-
-            //update configuration
-            if(UpdateModeValue.Full.equals(updateModeValue) || UpdateModeValue.Config.equals(updateModeValue)){
-                try {
-                    updateConfigurationOnly(config);
-                } catch (AmazonClientException ace){
-                    logger.log(LogUtils.getStackTrace(ace));
-                    return false;
-                }
-            }
             return true;
 
         } else {
