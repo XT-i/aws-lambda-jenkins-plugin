@@ -79,7 +79,7 @@ public class LambdaDeployServiceTest {
         calledGetFunction();
         calledCreateFunction(false);
         calledUpdateCode(false);
-        calledUpdateConfiguration(false);
+        calledUpdateConfiguration(true);
         assertFalse(result);
     }
 
