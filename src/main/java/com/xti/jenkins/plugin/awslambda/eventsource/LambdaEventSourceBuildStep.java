@@ -1,5 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.eventsource;
 
+import com.xti.jenkins.plugin.awslambda.callable.EventSourceCallable;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
@@ -7,6 +8,7 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
@@ -43,15 +45,21 @@ public class LambdaEventSourceBuildStep extends Builder implements BuildStep {
 
     public boolean perform(LambdaEventSourceBuildStepVariables lambdaEventSourceBuildStepVariables, AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         try {
-
             LambdaEventSourceBuildStepVariables executionVariables = lambdaEventSourceBuildStepVariables.getClone();
+            executionVariables.expandVariables(build.getEnvironment(listener));
             EventSourceConfig eventSourceConfig = executionVariables.getEventSourceConfig();
             LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
-            JenkinsLogger logger = new JenkinsLogger(listener.getLogger());
-            LambdaDeployService service = new LambdaDeployService(clientConfig.getClient(), logger);
 
-            EventSourceBuilder eventSourceBuilder = new EventSourceBuilder(service, logger);
-            return eventSourceBuilder.createEventSource(eventSourceConfig);
+            EventSourceCallable eventSourceCallable = new EventSourceCallable(listener, eventSourceConfig, clientConfig);
+
+            Boolean lambdaSuccess = launcher.getChannel().call(eventSourceCallable);
+
+            if(!lambdaSuccess){
+                build.setResult(Result.FAILURE);
+            }
+
+            build.addAction(new LambdaEventSourceAction(executionVariables.getFunctionName(), lambdaSuccess));
+            return true;
         } catch(Exception exc) {
             throw new RuntimeException(exc);
         }

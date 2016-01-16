@@ -1,8 +1,9 @@
 package com.xti.jenkins.plugin.awslambda.invoke;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class InvokeConfig {
+public class InvokeConfig implements Serializable {
     private String functionName;
     private String payload;
     private boolean synchronous;
