@@ -26,11 +26,10 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
-import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
-import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
-import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
+import com.xti.jenkins.plugin.awslambda.callable.DeployCallable;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -66,28 +65,31 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
         return perform(lambdaUploadBuildStepVariables, build, launcher, listener);
     }
 
-    public boolean perform(LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+    public boolean perform(LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables, AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+
         try {
             LambdaUploadBuildStepVariables executionVariables = lambdaUploadBuildStepVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
+            FilePath localWorkspace = build.getWorkspace();
             DeployConfig deployConfig = executionVariables.getUploadConfig();
-            LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
-            JenkinsLogger logger = new JenkinsLogger(listener.getLogger());
-            LambdaDeployService service = new LambdaDeployService(clientConfig.getClient(), logger);
-            WorkSpaceZipper workSpaceZipper = new WorkSpaceZipper(build.getWorkspace(), logger);
+            LambdaClientConfig lambdaClientConfig = executionVariables.getLambdaClientConfig();
 
-            LambdaUploader lambdaUploader = new LambdaUploader(service, workSpaceZipper, logger);
+            DeployCallable deployCallable = new DeployCallable(listener, localWorkspace, deployConfig, lambdaClientConfig);
+            Boolean lambdaSuccess = launcher.getChannel().call(deployCallable);
 
-            Boolean lambdaSuccess = lambdaUploader.upload(deployConfig);
-            if(!lambdaSuccess){
+            if (!lambdaSuccess) {
                 build.setResult(Result.FAILURE);
             }
             build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), lambdaSuccess));
+
             return true;
-        } catch (Exception exc) {
-            throw new RuntimeException(exc);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
+
+
 
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.BUILD;
@@ -101,8 +103,6 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
     public BuildStepDescriptor getDescriptor() {
         return (DescriptorImpl)super.getDescriptor();
     }
-
-
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {

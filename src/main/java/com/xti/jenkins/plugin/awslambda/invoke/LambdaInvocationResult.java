@@ -1,8 +1,9 @@
 package com.xti.jenkins.plugin.awslambda.invoke;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class LambdaInvocationResult {
+public class LambdaInvocationResult implements Serializable {
     private boolean success;
     private Map<String, String> injectables;
 

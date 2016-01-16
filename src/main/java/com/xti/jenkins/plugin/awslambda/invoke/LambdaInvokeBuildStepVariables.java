@@ -93,7 +93,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
 
     public List<JsonParameterVariables> getJsonParameters() {
         if(jsonParameters == null){
-            return new ArrayList<JsonParameterVariables>();
+            return new ArrayList<>();
         } else {
             return jsonParameters;
         }
@@ -153,7 +153,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     public InvokeConfig getInvokeConfig(){
-        List<JsonParameter> jsonParameters = new ArrayList<JsonParameter>();
+        List<JsonParameter> jsonParameters = new ArrayList<>();
         for (JsonParameterVariables jsonParameterVariables : getJsonParameters()) {
             jsonParameters.add(jsonParameterVariables.getJsonParameter());
         }

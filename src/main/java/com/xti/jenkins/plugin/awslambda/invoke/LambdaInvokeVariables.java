@@ -96,7 +96,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
 
     public List<JsonParameterVariables> getJsonParameters() {
         if(jsonParameters == null){
-            return new ArrayList<JsonParameterVariables>();
+            return new ArrayList<>();
         } else {
             return jsonParameters;
         }
@@ -144,8 +144,10 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         awsRegion = expand(awsRegion, env);
         functionName = expand(functionName, env);
         payload = expand(payload, env);
-        for (JsonParameterVariables jsonParameter : jsonParameters) {
-            jsonParameter.expandVariables(env);
+        if(jsonParameters != null) {
+            for (JsonParameterVariables jsonParameter : jsonParameters) {
+                jsonParameter.expandVariables(env);
+            }
         }
     }
 

@@ -16,11 +16,11 @@ public class LambdaEventSourceAction implements ProminentProjectAction {
         if(success){
             iconFileName = "/plugin/aws-lambda/images/Lambda_24.png";
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48.png";
-            displayName = "Invoked Lambda: " + functionName;
+            displayName = "Lambda event sources created: " + functionName;
         }else {
             iconFileName = "/plugin/aws-lambda/images/Lambda_24_grey.png";
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48_grey.png";
-            displayName = "Lambda invocation failure: " + functionName;
+            displayName = "Lambda event sources creation failure: " + functionName;
         }
     }
 
