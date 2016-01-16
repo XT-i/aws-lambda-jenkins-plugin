@@ -81,10 +81,10 @@ public class LambdaInvokePublisher extends Notifier{
 
     public boolean perform(LambdaInvokeVariables lambdaInvokeVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         if (lambdaInvokeVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.SUCCESS)) {
-            listener.getLogger().println("Build not successful, not uploading Lambda function: " + lambdaInvokeVariables.getFunctionName());
+            listener.getLogger().println("Build not successful, not invoking Lambda function: " + lambdaInvokeVariables.getFunctionName());
             return true;
         } else if (!lambdaInvokeVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.UNSTABLE)) {
-            listener.getLogger().println("Build failed, not uploading Lambda function: " + lambdaInvokeVariables.getFunctionName());
+            listener.getLogger().println("Build failed, not invoking Lambda function: " + lambdaInvokeVariables.getFunctionName());
             return true;
         }
         try {

@@ -9,6 +9,7 @@ import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import com.xti.jenkins.plugin.awslambda.util.LogUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,17 +107,14 @@ public class LambdaDeployService {
      * @return true if successful, false if not
      */
     public Boolean deployEventSource(EventSourceConfig config) {
-        if(functionExists(config.getFunctionName(), config.getFunctionAlias())) {
-            try {
-                String functionArn = getFunctionArn(config.getFunctionName());
-                createEventSourceMapping(config, functionArn);
-                return true;
-            }  catch(Exception e) {
-                logger.log(LogUtils.getStackTrace(e));
-                return false;
-            }
+        try {
+            String functionArn = getFunctionArn(config.getFunctionName(), config.getFunctionAlias());
+            createEventSourceMapping(config, functionArn);
+            return true;
+        }  catch(Exception e) {
+            logger.log(LogUtils.getStackTrace(e));
+            return false;
         }
-        return false;
     }
 
     /**
@@ -124,9 +122,12 @@ public class LambdaDeployService {
      * @param functionName The name of the function to look up
      * @return The fully qualified ARN of the function
      */
-    public String getFunctionArn(String functionName) {
+    public String getFunctionArn(String functionName, String functionAlias) {
         GetFunctionRequest getFunctionRequest = new GetFunctionRequest()
                 .withFunctionName(functionName);
+        if (StringUtils.isNotEmpty(functionAlias)){
+            getFunctionRequest = getFunctionRequest.withQualifier(functionAlias);
+        }
         try {
             GetFunctionResult functionResult = client.getFunction(getFunctionRequest);
             logger.log("Lambda function exists:%n%s%n", functionResult.toString());
@@ -188,9 +189,10 @@ public class LambdaDeployService {
     }
 
     public void createEventSourceMapping(EventSourceConfig config, String functionArn) {
+        String functionName = StringUtils.isNotEmpty(config.getFunctionAlias()) ? functionArn + ":" + config.getFunctionAlias() : config.getFunctionName();
         CreateEventSourceMappingRequest eventSourceMappingRequest = new CreateEventSourceMappingRequest()
                 .withEventSourceArn(config.getEventSourceArn())
-                .withFunctionName(functionArn + ":" + config.getFunctionAlias())
+                .withFunctionName(functionName)
                 .withStartingPosition(config.getStartingPosition())
                 .withEnabled(true);
 
