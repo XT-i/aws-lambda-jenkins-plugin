@@ -18,6 +18,7 @@ public class LambdaClientConfigTest {
     public void testGetClientInvalidRegion() throws Exception {
         try {
             LambdaClientConfig lambdaClientConfig = new LambdaClientConfig("abc", "def", "ghi");
+            lambdaClientConfig.getClient();
             fail("Should have failed with IllegalArgumentException");
         } catch (IllegalArgumentException ignored){
         }

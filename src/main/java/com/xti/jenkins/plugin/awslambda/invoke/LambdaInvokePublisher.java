@@ -26,6 +26,7 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.callable.InvokeCallable;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaInvokeService;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
@@ -80,10 +81,10 @@ public class LambdaInvokePublisher extends Notifier{
 
     public boolean perform(LambdaInvokeVariables lambdaInvokeVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         if (lambdaInvokeVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.SUCCESS)) {
-            listener.getLogger().println("Build not successful, not uploading Lambda function: " + lambdaInvokeVariables.getFunctionName());
+            listener.getLogger().println("Build not successful, not invoking Lambda function: " + lambdaInvokeVariables.getFunctionName());
             return true;
         } else if (!lambdaInvokeVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.UNSTABLE)) {
-            listener.getLogger().println("Build failed, not uploading Lambda function: " + lambdaInvokeVariables.getFunctionName());
+            listener.getLogger().println("Build failed, not invoking Lambda function: " + lambdaInvokeVariables.getFunctionName());
             return true;
         }
         try {
@@ -92,11 +93,10 @@ public class LambdaInvokePublisher extends Notifier{
             JenkinsLogger logger = new JenkinsLogger(listener.getLogger());
             LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
             InvokeConfig invokeConfig = executionVariables.getInvokeConfig();
-            LambdaInvokeService service = new LambdaInvokeService(clientConfig.getClient(), logger);
 
-            LambdaInvoker lambdaInvoker = new LambdaInvoker(service, logger);
+            InvokeCallable invokeCallable = new InvokeCallable(listener, invokeConfig, clientConfig);
 
-            LambdaInvocationResult invocationResult = lambdaInvoker.invoke(invokeConfig);
+            LambdaInvocationResult invocationResult = launcher.getChannel().call(invokeCallable);
 
             if(!invocationResult.isSuccess()){
                 build.setResult(Result.FAILURE);

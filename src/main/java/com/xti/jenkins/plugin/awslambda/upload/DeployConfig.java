@@ -1,6 +1,8 @@
 package com.xti.jenkins.plugin.awslambda.upload;
 
-public class DeployConfig {
+import java.io.Serializable;
+
+public class DeployConfig implements Serializable {
     private String artifactLocation;
     private String description;
     private String functionName;

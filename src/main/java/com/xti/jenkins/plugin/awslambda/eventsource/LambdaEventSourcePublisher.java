@@ -1,5 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.eventsource;
 
+import com.xti.jenkins.plugin.awslambda.callable.EventSourceCallable;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
@@ -66,13 +67,12 @@ public class LambdaEventSourcePublisher extends Notifier {
         try {
             LambdaEventSourceVariables executionVariables = variables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
-            JenkinsLogger logger = new JenkinsLogger(listener.getLogger());
-            LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
-            LambdaDeployService service = new LambdaDeployService(clientConfig.getClient(), logger);
             EventSourceConfig eventSourceConfig = executionVariables.getEventSourceConfig();
-            EventSourceBuilder builder = new EventSourceBuilder(service, logger);
+            LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
 
-            Boolean lambdaSuccess = builder.createEventSource(eventSourceConfig);
+            EventSourceCallable eventSourceCallable = new EventSourceCallable(listener, eventSourceConfig, clientConfig);
+
+            Boolean lambdaSuccess = launcher.getChannel().call(eventSourceCallable);
 
             if(!lambdaSuccess){
                 build.setResult(Result.FAILURE);

@@ -38,6 +38,8 @@ import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
+import java.io.Serializable;
+
 /**
  * Describable containing Lambda post build action config, checking feasibility of migrating it to upload package.
  */

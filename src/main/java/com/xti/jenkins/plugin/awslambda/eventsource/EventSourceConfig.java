@@ -1,10 +1,12 @@
 package com.xti.jenkins.plugin.awslambda.eventsource;
 
+import java.io.Serializable;
+
 /**
  * Created by anthonyikeda on 25/11/2015.
  *
  */
-public class EventSourceConfig {
+public class EventSourceConfig implements Serializable {
 
     private String functionName;
     private String functionAlias;

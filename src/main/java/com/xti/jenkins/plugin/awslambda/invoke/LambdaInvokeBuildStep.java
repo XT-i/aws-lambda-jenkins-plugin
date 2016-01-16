@@ -26,6 +26,7 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.callable.InvokeCallable;
 import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaInvokeService;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
@@ -70,14 +71,12 @@ public class LambdaInvokeBuildStep extends Builder implements BuildStep{
         try {
             LambdaInvokeBuildStepVariables executionVariables = lambdaInvokeBuildStepVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
-            JenkinsLogger logger = new JenkinsLogger(listener.getLogger());
             LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
             InvokeConfig invokeConfig = executionVariables.getInvokeConfig();
-            LambdaInvokeService service = new LambdaInvokeService(clientConfig.getClient(), logger);
 
-            LambdaInvoker lambdaInvoker = new LambdaInvoker(service, logger);
+            InvokeCallable invokeCallable = new InvokeCallable(listener, invokeConfig, clientConfig);
 
-            LambdaInvocationResult invocationResult = lambdaInvoker.invoke(invokeConfig);
+            LambdaInvocationResult invocationResult = launcher.getChannel().call(invokeCallable);
             if(!invocationResult.isSuccess()){
                 build.setResult(Result.FAILURE);
             }
