@@ -158,6 +158,14 @@ public class LambdaDeployService {
                 .withRole(config.getRole())
                 .withRuntime(config.getRuntime())
                 .withCode(functionCode);
+
+        if(config.getSubnets().size() > 0 && config.getSecurityGroups().size() > 0){
+            VpcConfig vpcConfig = new VpcConfig()
+                    .withSubnetIds(config.getSubnets())
+                    .withSecurityGroupIds(config.getSecurityGroups());
+            createFunctionRequest.withVpcConfig(vpcConfig);
+        }
+
         logger.log("Lambda create function request:%n%s%n", createFunctionRequest.toString());
 
         CreateFunctionResult uploadFunctionResult = client.createFunction(createFunctionRequest);
@@ -250,6 +258,14 @@ public class LambdaDeployService {
                 .withMemorySize(config.getMemorySize())
                 .withTimeout(config.getTimeout())
                 .withRole(config.getRole());
+
+        if(config.getSubnets().size() > 0 && config.getSecurityGroups().size() > 0){
+            VpcConfig vpcConfig = new VpcConfig()
+                    .withSubnetIds(config.getSubnets())
+                    .withSecurityGroupIds(config.getSecurityGroups());
+            updateFunctionConfigurationRequest.withVpcConfig(vpcConfig);
+        }
+
         logger.log("Lambda update configuration request:%n%s%n", updateFunctionConfigurationRequest.toString());
 
         UpdateFunctionConfigurationResult updateFunctionConfigurationResult = client.updateFunctionConfiguration(updateFunctionConfigurationRequest);

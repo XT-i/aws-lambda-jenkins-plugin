@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -478,7 +479,7 @@ public class LambdaDeployServiceTest {
     }
 
     private DeployConfig getDeployConfig(){
-        return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null, false, null, false);
+        return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null, false, null, false, new ArrayList<String>(), new ArrayList<String>());
     }
 
     private File getZipFile(){
