@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -31,7 +32,7 @@ public class LambdaUploaderTest {
 
     @Test
     public void testUploadSuccess() throws Exception {
-        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full", false, null, false);
+        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full", false, null, false, new ArrayList<String>(), new ArrayList<String>());
         File file = new File("path");
 
         when(zipper.getZip(any(String.class))).thenReturn(file);
@@ -48,7 +49,7 @@ public class LambdaUploaderTest {
 
     @Test
     public void testUploadFailure() throws Exception {
-        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full", false, null, false);
+        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full", false, null, false, new ArrayList<String>(), new ArrayList<String>());
         File file = new File("path");
 
         when(zipper.getZip(any(String.class))).thenReturn(file);
@@ -65,7 +66,7 @@ public class LambdaUploaderTest {
 
     @Test
     public void testUploadNoArtifact() throws Exception {
-        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full", false, null, false);
+        DeployConfig deployConfig = new DeployConfig("location", "description", "function", "handler", 1024, "role", "runtime", 30, "full", false, null, false, new ArrayList<String>(), new ArrayList<String>());
 
         when(zipper.getZip(any(String.class))).thenReturn(null);
         when(service.deployLambda(any(DeployConfig.class), any(FunctionCode.class), any(UpdateModeValue.class)))

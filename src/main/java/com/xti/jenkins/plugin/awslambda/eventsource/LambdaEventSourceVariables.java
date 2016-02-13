@@ -24,7 +24,7 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
     private boolean successOnly;
 
     @DataBoundConstructor
-    public LambdaEventSourceVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String functionAlias, String eventSourceArn) {
+    public LambdaEventSourceVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String functionAlias, String eventSourceArn, boolean successOnly) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
@@ -32,6 +32,7 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
         this.functionName = functionName;
         this.functionAlias = functionAlias;
         this.eventSourceArn = eventSourceArn;
+        this.successOnly = successOnly;
     }
 
     public String getAwsAccessKeyId() {
@@ -74,7 +75,7 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
         this.functionName = functionName;
     }
 
-    public boolean isUseInstanceCredentials() {
+    public boolean getUseInstanceCredentials() {
         return useInstanceCredentials;
     }
 
@@ -105,7 +106,6 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
         functionName = expand(functionName, env);
         functionAlias = expand(functionAlias, env);
         eventSourceArn = expand(eventSourceArn, env);
-
     }
 
     private String expand(String value, EnvVars env) {
@@ -125,7 +125,7 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
     }
 
     public LambdaEventSourceVariables getClone() {
-        return new LambdaEventSourceVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, functionName, functionAlias, eventSourceArn);
+        return new LambdaEventSourceVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, functionName, functionAlias, eventSourceArn, successOnly);
     }
 
     @Extension

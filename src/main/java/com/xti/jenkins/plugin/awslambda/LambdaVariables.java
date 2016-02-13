@@ -29,6 +29,7 @@ package com.xti.jenkins.plugin.awslambda;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
+import com.xti.jenkins.plugin.awslambda.util.Tokenizer;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
@@ -60,9 +61,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     private String updateMode;
     private String alias;
     private boolean createAlias;
+    private String subnets;
+    private String securityGroups;
 
     @DataBoundConstructor
-    public LambdaVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, boolean successOnly, boolean publish, String updateMode, String alias, boolean createAlias) {
+    public LambdaVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, boolean successOnly, boolean publish, String updateMode, String alias, boolean createAlias, String subnets, String securityGroups) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
@@ -80,138 +83,160 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         this.updateMode = updateMode;
         this.alias = alias;
         this.createAlias = createAlias;
+        this.subnets = subnets;
+        this.securityGroups = securityGroups;
     }
 
     public boolean getUseInstanceCredentials() {
         return useInstanceCredentials;
     }
 
-    public String getAwsAccessKeyId() {
-        return awsAccessKeyId;
-    }
-
-    public Secret getAwsSecretKey() {
-        return awsSecretKey;
-    }
-
-    public String getAwsRegion() {
-        return awsRegion;
-    }
-
-    public String getArtifactLocation() {
-        return artifactLocation;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getFunctionName() {
-        return functionName;
-    }
-
-    public String getHandler() {
-        return handler;
-    }
-
-    public String getMemorySize() {
-        return memorySize;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public String getRuntime() {
-        return runtime;
-    }
-
-    public String getTimeout() {
-        return timeout;
-    }
-
-    public String getUpdateMode() {
-        return updateMode;
-    }
-
-    public boolean getSuccessOnly(){
-        return successOnly;
-    }
-
-    public boolean getPublish() { return publish; }
-
-    public String getAlias() {
-        return alias;
-    }
-
-    public boolean getCreateAlias() {
-        return createAlias;
-    }
-
     public void setUseInstanceCredentials(boolean useInstanceCredentials) {
         this.useInstanceCredentials = useInstanceCredentials;
+    }
+
+    public String getAwsAccessKeyId() {
+        return awsAccessKeyId;
     }
 
     public void setAwsAccessKeyId(String awsAccessKeyId) {
         this.awsAccessKeyId = awsAccessKeyId;
     }
 
+    public Secret getAwsSecretKey() {
+        return awsSecretKey;
+    }
+
     public void setAwsSecretKey(Secret awsSecretKey) {
         this.awsSecretKey = awsSecretKey;
+    }
+
+    public String getAwsRegion() {
+        return awsRegion;
     }
 
     public void setAwsRegion(String awsRegion) {
         this.awsRegion = awsRegion;
     }
 
+    public String getArtifactLocation() {
+        return artifactLocation;
+    }
+
     public void setArtifactLocation(String artifactLocation) {
         this.artifactLocation = artifactLocation;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public String getFunctionName() {
+        return functionName;
+    }
+
     public void setFunctionName(String functionName) {
         this.functionName = functionName;
+    }
+
+    public String getHandler() {
+        return handler;
     }
 
     public void setHandler(String handler) {
         this.handler = handler;
     }
 
+    public String getMemorySize() {
+        return memorySize;
+    }
+
     public void setMemorySize(String memorySize) {
         this.memorySize = memorySize;
+    }
+
+    public String getRole() {
+        return role;
     }
 
     public void setRole(String role) {
         this.role = role;
     }
 
+    public String getRuntime() {
+        return runtime;
+    }
+
     public void setRuntime(String runtime) {
         this.runtime = runtime;
+    }
+
+    public String getTimeout() {
+        return timeout;
     }
 
     public void setTimeout(String timeout) {
         this.timeout = timeout;
     }
 
-    public void setUpdateMode(String updateMode) {
-        this.updateMode = updateMode;
+    public boolean getSuccessOnly() {
+        return successOnly;
     }
 
     public void setSuccessOnly(boolean successOnly) {
         this.successOnly = successOnly;
     }
 
-    public void setPublish(boolean publish) { this.publish = publish; }
+    public boolean getPublish() {
+        return publish;
+    }
+
+    public void setPublish(boolean publish) {
+        this.publish = publish;
+    }
+
+    public String getUpdateMode() {
+        return updateMode;
+    }
+
+    public void setUpdateMode(String updateMode) {
+        this.updateMode = updateMode;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
 
     public void setAlias(String alias) {
         this.alias = alias;
     }
 
+    public boolean getCreateAlias() {
+        return createAlias;
+    }
+
     public void setCreateAlias(boolean createAlias) {
         this.createAlias = createAlias;
+    }
+
+    public String getSubnets() {
+        return subnets;
+    }
+
+    public void setSubnets(String subnets) {
+        this.subnets = subnets;
+    }
+
+    public String getSecurityGroups() {
+        return securityGroups;
+    }
+
+    public void setSecurityGroups(String securityGroups) {
+        this.securityGroups = securityGroups;
     }
 
     public void expandVariables(EnvVars env) {
@@ -227,14 +252,16 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         memorySize = expand(memorySize, env);
         timeout = expand(timeout, env);
         alias = expand(alias, env);
+        subnets = expand(subnets, env);
+        securityGroups = expand(securityGroups, env);
     }
 
     public LambdaVariables getClone(){
-        return new LambdaVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, publish, updateMode, alias, createAlias);
+        return new LambdaVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, publish, updateMode, alias, createAlias, subnets, securityGroups);
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode, publish, alias, createAlias);
+        return new DeployConfig(artifactLocation, description, functionName, handler, Integer.valueOf(memorySize), role, runtime, Integer.valueOf(timeout), updateMode, publish, alias, createAlias, Tokenizer.split(subnets), Tokenizer.split(securityGroups));
     }
 
     public LambdaClientConfig getLambdaClientConfig(){

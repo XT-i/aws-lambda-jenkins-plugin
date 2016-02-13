@@ -45,8 +45,6 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
-### Java template
-*.class
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -63,6 +61,9 @@ hs_err_pid*
 
 # Jenkins work directory
 work/
+
+# Maven target directory
+target
 
 # Maven Release Plugin
 release.properties
