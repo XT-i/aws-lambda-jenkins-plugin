@@ -34,13 +34,6 @@
                     <f:entry title="Memory Size" field="memorySize" help="/plugin/aws-lambda/help-memorySize.html">
                         <f:textbox />
                     </f:entry>
-                    <f:optionalBlock title="Publish new version" field="publish" checked="${instance.publish}" inline="true">
-                        <f:optionalBlock title="Assign alias" field="createAlias" checked="${instance.createAlias}" inline="true">
-                            <f:entry title="Function Alias" help="/plugin/aws-lambda/help-functionAlias.html">
-                                <f:textbox name="alias" field="alias" />
-                            </f:entry>
-                        </f:optionalBlock>
-                    </f:optionalBlock>
                     <f:entry title="Timeout" field="timeout" help="/plugin/aws-lambda/help-timeout.html">
                         <f:textbox />
                     </f:entry>
@@ -50,6 +43,21 @@
                     <f:entry field="updateMode" title="Update Mode" help="/plugin/aws-lambda/help-updateMode.html">
                         <f:select />
                     </f:entry>
+                    <f:advanced>
+                        <f:optionalBlock title="Publish new version" field="publish" checked="${instance.publish}" inline="true">
+                            <f:optionalBlock title="Assign alias" field="createAlias" checked="${instance.createAlias}" inline="true">
+                                <f:entry title="Function Alias" help="/plugin/aws-lambda/help-functionAlias.html">
+                                    <f:textbox name="alias" field="alias" />
+                                </f:entry>
+                            </f:optionalBlock>
+                        </f:optionalBlock>
+                        <f:entry title="Subnets" help="/plugin/aws-lambda/help-subnets.html">
+                            <f:textbox name="subnets" field="subnets" />
+                        </f:entry>
+                        <f:entry title="Security Groups" help="/plugin/aws-lambda/help-securityGroups.html">
+                            <f:textbox name="securityGroups" field="securityGroups" />
+                        </f:entry>
+                    </f:advanced>
                 </table>
             </div>
         </f:nested>

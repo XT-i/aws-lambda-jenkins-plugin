@@ -1,6 +1,7 @@
 package com.xti.jenkins.plugin.awslambda.upload;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class DeployConfig implements Serializable {
     private String artifactLocation;
@@ -15,8 +16,10 @@ public class DeployConfig implements Serializable {
     private String updateMode;
     private String alias;
     private Boolean createAlias;
+    private List<String> subnets;
+    private List<String> securityGroups;
 
-    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode, boolean publish, String alias, boolean createAlias) {
+    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode, boolean publish, String alias, boolean createAlias, List<String> subnets, List<String> securityGroups) {
         this.artifactLocation = artifactLocation;
         this.description = description;
         this.functionName = functionName;
@@ -29,6 +32,8 @@ public class DeployConfig implements Serializable {
         this.publish = publish;
         this.alias = alias;
         this.createAlias = createAlias;
+        this.subnets = subnets;
+        this.securityGroups = securityGroups;
     }
 
     public String getArtifactLocation() {
@@ -121,5 +126,21 @@ public class DeployConfig implements Serializable {
 
     public void setCreateAlias(Boolean createAlias) {
         this.createAlias = createAlias;
+    }
+
+    public List<String> getSubnets() {
+        return subnets;
+    }
+
+    public void setSubnets(List<String> subnets) {
+        this.subnets = subnets;
+    }
+
+    public List<String> getSecurityGroups() {
+        return securityGroups;
+    }
+
+    public void setSecurityGroups(List<String> securityGroups) {
+        this.securityGroups = securityGroups;
     }
 }

@@ -7,6 +7,9 @@ import hudson.EnvVars;
 import hudson.util.Secret;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -14,7 +17,7 @@ public class LambdaVariablesTest {
 
     @Test
     public void testCloneExpandVariables() throws Exception {
-        LambdaVariables variables = new LambdaVariables(false, "${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FILE}", "description ${ENV_DESCRIPTION}", "${ENV_FUNCTION}", "${ENV_HANDLER}", "${ENV_MEMORY_SIZE}", "${ENV_ROLE}", "$ENV_RUNTIME", "${ENV_TIMEOUT}", true, false, "full", null, false);
+        LambdaVariables variables = new LambdaVariables(false, "${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FILE}", "description ${ENV_DESCRIPTION}", "${ENV_FUNCTION}", "${ENV_HANDLER}", "${ENV_MEMORY_SIZE}", "${ENV_ROLE}", "$ENV_RUNTIME", "${ENV_TIMEOUT}", true, false, "full", null, false, "", "");
         LambdaVariables clone = variables.getClone();
 
         EnvVars envVars = new EnvVars();
@@ -31,7 +34,7 @@ public class LambdaVariablesTest {
         envVars.put("ENV_TIMEOUT", "30");
         clone.expandVariables(envVars);
 
-        LambdaVariables expected = new LambdaVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", true, false, "full", null, false);
+        LambdaVariables expected = new LambdaVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", true, false, "full", null, false, "", "");
 
         assertEquals(expected.getAwsAccessKeyId(), clone.getAwsAccessKeyId());
         assertEquals(expected.getAwsSecretKey(), clone.getAwsSecretKey());
@@ -49,7 +52,7 @@ public class LambdaVariablesTest {
 
     @Test
     public void testGetUploadConfig() throws Exception {
-        LambdaVariables variables = new LambdaVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", true, false, "full", null, false);
+        LambdaVariables variables = new LambdaVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", true, false, "full", null, false, "subnet1, subnet2", "secgroup");
         DeployConfig uploadConfig = variables.getUploadConfig();
 
         assertEquals(variables.getArtifactLocation(), uploadConfig.getArtifactLocation());
@@ -61,11 +64,13 @@ public class LambdaVariablesTest {
         assertEquals(variables.getFunctionName(), uploadConfig.getFunctionName());
         assertEquals(variables.getRole(), uploadConfig.getRole());
         assertEquals(variables.getUpdateMode(), uploadConfig.getUpdateMode());
+        assertEquals(Arrays.asList("subnet1", "subnet2"), uploadConfig.getSubnets());
+        assertEquals(Collections.singletonList("secgroup"), uploadConfig.getSecurityGroups());
     }
 
     @Test
     public void testGetLambdaClientConfig() throws Exception {
-        LambdaVariables variables = new LambdaVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", true, false, "full", null, false);
+        LambdaVariables variables = new LambdaVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", true, false, "full", null, false, "subnet1, subnet2", "secgroup");
         LambdaClientConfig lambdaClientConfig = variables.getLambdaClientConfig();
 
         AWSLambda lambda = lambdaClientConfig.getClient();

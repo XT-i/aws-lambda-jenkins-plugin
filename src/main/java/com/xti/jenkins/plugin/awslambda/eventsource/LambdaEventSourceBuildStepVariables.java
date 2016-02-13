@@ -49,7 +49,7 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
         return functionName;
     }
 
-    public boolean isUseInstanceCredentials() {
+    public boolean getUseInstanceCredentials() {
         return useInstanceCredentials;
     }
 
