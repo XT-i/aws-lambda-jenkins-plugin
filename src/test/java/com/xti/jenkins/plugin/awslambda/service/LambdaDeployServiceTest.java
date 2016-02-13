@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
@@ -36,6 +38,8 @@ public class LambdaDeployServiceTest {
     private Boolean createAlias;
     private String alias;
     private Integer timeout;
+    private List<String> subnets;
+    private List<String> securityGroups;
 
     @Mock
     private AWSLambdaClient awsLambdaClient;
@@ -63,6 +67,8 @@ public class LambdaDeployServiceTest {
         createAlias = Boolean.FALSE;
         alias = null;
         timeout = 30;
+        subnets = new ArrayList<>();
+        securityGroups = new ArrayList<>();
         lambdaDeployService = new LambdaDeployService(awsLambdaClient, jenkinsLogger);
         when(awsLambdaClient.updateFunctionConfiguration(any(UpdateFunctionConfigurationRequest.class)))
                 .thenReturn(new UpdateFunctionConfigurationResult());
@@ -111,6 +117,19 @@ public class LambdaDeployServiceTest {
     @Test
     public void testExistsZipFull() throws Exception {
         setFunctionFound(true);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(false);
+        calledUpdateCode(true);
+        calledUpdateConfiguration(true);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testExistsZipFullVpc() throws Exception {
+        setFunctionFound(true);
+        setVpcEnabled(Collections.singletonList("subnet1"), Collections.singletonList("secgroup1"));
         Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Full);
 
         calledGetFunction();
@@ -238,6 +257,20 @@ public class LambdaDeployServiceTest {
     @Test
     public void testNewZipFull() throws Exception {
         setFunctionFound(false);
+        Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Full);
+
+        calledGetFunction();
+        calledCreateFunction(true);
+        calledUpdateCode(false);
+        calledUpdateConfiguration(false);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testNewZipFullVpc() throws Exception {
+        setFunctionFound(false);
+        setVpcEnabled(Collections.singletonList("subnet1"), Collections.singletonList("secgroup1"));
+
         Boolean result = lambdaDeployService.deployLambda(getDeployConfig(), getFunctionCode(), UpdateModeValue.Full);
 
         calledGetFunction();
@@ -415,6 +448,7 @@ public class LambdaDeployServiceTest {
                     .withHandler(handler)
                     .withMemorySize(memory)
                     .withRole(role)
+                    .withVpcConfig(subnets.size() > 0 || securityGroups.size() > 0 ? new VpcConfig().withSubnetIds(subnets).withSecurityGroupIds(securityGroups) : null)
                     .withTimeout(timeout);
             assertEquals(expected, args.getValue());
 
@@ -437,6 +471,7 @@ public class LambdaDeployServiceTest {
                         .withTimeout(timeout)
                         .withPublish(publish)
                         .withRuntime(runtime)
+                        .withVpcConfig(subnets.size() > 0 || securityGroups.size() > 0 ? new VpcConfig().withSubnetIds(subnets).withSecurityGroupIds(securityGroups) : null)
                         .withCode(new FunctionCode().withZipFile(ByteBuffer.wrap(FileUtils.readFileToByteArray(getZipFile()))));
                 assertEquals(expected, args.getValue());
 
@@ -479,7 +514,7 @@ public class LambdaDeployServiceTest {
     }
 
     private DeployConfig getDeployConfig(){
-        return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null, false, null, false, new ArrayList<String>(), new ArrayList<String>());
+        return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null, false, null, false, subnets, securityGroups);
     }
 
     private File getZipFile(){
@@ -502,6 +537,11 @@ public class LambdaDeployServiceTest {
         } else {
             throw new IllegalStateException("Could not load echo.zip");
         }
+    }
+
+    private void setVpcEnabled(List<String> subnets, List<String> securityGroups){
+        this.subnets = subnets;
+        this.securityGroups = securityGroups;
     }
 
     private void setFunctionFound(Boolean found){

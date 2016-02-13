@@ -7,6 +7,8 @@ import hudson.util.Secret;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -49,7 +51,7 @@ public class LambdaUploadBuildStepVariablesTest {
 
     @Test
     public void testGetUploadConfig() throws Exception {
-        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full", false, null, false, "", "");
+        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full", false, null, false, "subnet1, subnet2", "secgroup");
         DeployConfig uploadConfig = variables.getUploadConfig();
 
         assertEquals(variables.getArtifactLocation(), uploadConfig.getArtifactLocation());
@@ -61,11 +63,13 @@ public class LambdaUploadBuildStepVariablesTest {
         assertEquals(variables.getFunctionName(), uploadConfig.getFunctionName());
         assertEquals(variables.getRole(), uploadConfig.getRole());
         assertEquals(variables.getUpdateMode(), uploadConfig.getUpdateMode());
+        assertEquals(Arrays.asList("subnet1", "subnet2"), uploadConfig.getSubnets());
+        assertEquals(Collections.singletonList("secgroup"), uploadConfig.getSecurityGroups());
     }
 
     @Test
     public void testGetLambdaClientConfig() throws Exception {
-        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full", false, null, false, "", "");
+        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full", false, null, false, "subnet1, subnet2", "secgroup");
         LambdaClientConfig lambdaClientConfig = variables.getLambdaClientConfig();
 
         AWSLambda lambda = lambdaClientConfig.getClient();
