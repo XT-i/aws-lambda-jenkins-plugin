@@ -1,3 +1,9 @@
+## 0.4.2 (2016-02-26)
+    
+Bugfixes:
+
+    - Now using workspace to store temporary artifact file instead of system temporary folder.
+
 ## 0.4.1 (2016-02-13)
 
 Features:
