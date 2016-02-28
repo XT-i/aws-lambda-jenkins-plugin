@@ -10,6 +10,9 @@ import hudson.FilePath;
 import hudson.model.BuildListener;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
+import org.jenkinsci.remoting.Role;
+import org.jenkinsci.remoting.RoleChecker;
+import org.jenkinsci.remoting.RoleSensitive;
 
 import java.io.IOException;
 
@@ -44,5 +47,10 @@ public class DeployCallable implements Callable<Boolean, RuntimeException> {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void checkRoles(RoleChecker roleChecker) throws SecurityException {
+        //ignore for now
     }
 }

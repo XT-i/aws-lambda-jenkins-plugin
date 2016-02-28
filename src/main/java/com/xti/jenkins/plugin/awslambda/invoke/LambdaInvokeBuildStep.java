@@ -59,10 +59,6 @@ public class LambdaInvokeBuildStep extends Builder implements SimpleBuildStep{
         return lambdaInvokeBuildStepVariables;
     }
 
-    public void setLambdaInvokeBuildStepVariables(LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables) {
-        this.lambdaInvokeBuildStepVariables = lambdaInvokeBuildStepVariables;
-    }
-
     @Override
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
         perform(lambdaInvokeBuildStepVariables, run, launcher, listener);

@@ -3,10 +3,12 @@ package com.xti.jenkins.plugin.awslambda.eventsource;
 import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
+import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 /**
  * Created by anthonyikeda on 25/11/2015.
@@ -21,8 +23,14 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
     private String functionAlias;
     private String eventSourceArn;
 
-
     @DataBoundConstructor
+    public LambdaEventSourceBuildStepVariables(String awsRegion, String functionName, String eventSourceArn) {
+        this.awsRegion = awsRegion;
+        this.functionName = functionName;
+        this.eventSourceArn = eventSourceArn;
+    }
+
+    @Deprecated
     public LambdaEventSourceBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String functionAlias, String eventSourceArn) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
@@ -33,60 +41,52 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
         this.eventSourceArn = eventSourceArn;
     }
 
+    public boolean getUseInstanceCredentials() {
+        return useInstanceCredentials;
+    }
+
+    @DataBoundSetter
+    public void setUseInstanceCredentials(boolean useInstanceCredentials) {
+        this.useInstanceCredentials = useInstanceCredentials;
+    }
+
     public String getAwsAccessKeyId() {
         return awsAccessKeyId;
     }
 
-    public String getAwsRegion() {
-        return awsRegion;
+    @DataBoundSetter
+    public void setAwsAccessKeyId(String awsAccessKeyId) {
+        this.awsAccessKeyId = awsAccessKeyId;
     }
 
     public Secret getAwsSecretKey() {
         return awsSecretKey;
     }
 
-    public String getFunctionName() {
-        return functionName;
+    @DataBoundSetter
+    public void setAwsSecretKey(Secret awsSecretKey) {
+        this.awsSecretKey = awsSecretKey;
     }
 
-    public boolean getUseInstanceCredentials() {
-        return useInstanceCredentials;
-    }
-
-    public String getEventSourceArn() {
-        return eventSourceArn;
+    public String getAwsRegion() {
+        return awsRegion;
     }
 
     public String getFunctionAlias() {
         return functionAlias;
     }
 
-    public void setAwsAccessKeyId(String awsAccessKeyId) {
-        this.awsAccessKeyId = awsAccessKeyId;
-    }
-
-    public void setAwsRegion(String awsRegion) {
-        this.awsRegion = awsRegion;
-    }
-
-    public void setAwsSecretKey(Secret awsSecretKey) {
-        this.awsSecretKey = awsSecretKey;
-    }
-
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
-    }
-
-    public void setUseInstanceCredentials(boolean useInstanceCredentials) {
-        this.useInstanceCredentials = useInstanceCredentials;
-    }
-
-    public void setEventSourceArn(String eventSourceArn) {
-        this.eventSourceArn = eventSourceArn;
-    }
-
+    @DataBoundSetter
     public void setFunctionAlias(String functionAlias) {
         this.functionAlias = functionAlias;
+    }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public String getEventSourceArn() {
+        return eventSourceArn;
     }
 
     public void expandVariables(EnvVars env) {
@@ -118,6 +118,7 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
         return Util.replaceMacro(value.trim(), env);
     }
 
+    @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static class DescriptorImpl extends AWSLambdaDescriptor<LambdaEventSourceBuildStepVariables> {
 
         public String getDisplayName() {
