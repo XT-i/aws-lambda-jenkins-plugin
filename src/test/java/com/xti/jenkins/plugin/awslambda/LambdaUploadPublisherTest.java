@@ -3,6 +3,8 @@ package com.xti.jenkins.plugin.awslambda;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.*;
+import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadPublisher;
+import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadVariables;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Launcher;
 import hudson.model.*;
@@ -32,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AWSLambdaPublisherTest {
+public class LambdaUploadPublisherTest {
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
@@ -42,23 +44,23 @@ public class AWSLambdaPublisherTest {
     @Test
     @Ignore
     public void testHtml() throws Exception {
-        LambdaVariables variables = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "ziplocation", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
-        List<LambdaVariables> variablesList = new ArrayList<>();
+        LambdaUploadVariables variables = new LambdaUploadVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "ziplocation", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
+        List<LambdaUploadVariables> variablesList = new ArrayList<>();
         variablesList.add(variables);
 
         FreeStyleProject p = j.createFreeStyleProject();
-        AWSLambdaPublisher before = new AWSLambdaPublisher(variablesList);
+        LambdaUploadPublisher before = new LambdaUploadPublisher(variablesList);
         p.getPublishersList().add(before);
 
         j.submit(j.createWebClient().getPage(p,"configure").getFormByName("config"));
 
-        AWSLambdaPublisher after = p.getPublishersList().get(AWSLambdaPublisher.class);
+        LambdaUploadPublisher after = p.getPublishersList().get(LambdaUploadPublisher.class);
 
         assertEquals(before, after);
     }
 
     @Mock
-    private LambdaVariables original;
+    private LambdaUploadVariables original;
 
     @Mock
     private LambdaClientConfig clientConfig;
@@ -67,7 +69,7 @@ public class AWSLambdaPublisherTest {
     private AWSLambdaClient lambdaClient;
 
     @Mock
-    private LambdaVariables original2;
+    private LambdaUploadVariables original2;
 
     @Mock
     private LambdaClientConfig clientConfig2;
@@ -77,9 +79,9 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformFolderSuccess() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
+        LambdaUploadVariables clone = new LambdaUploadVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
 
-        LambdaVariables spy = Mockito.spy(clone);
+        LambdaUploadVariables spy = Mockito.spy(clone);
 
         when(original.getClone()).thenReturn(spy);
         when(spy.getLambdaClientConfig()).thenReturn(clientConfig);
@@ -101,7 +103,7 @@ public class AWSLambdaPublisherTest {
                 return true;
             }
         });
-        p.getPublishersList().add(new AWSLambdaPublisher(Arrays.asList(original, original)));
+        p.getPublishersList().add(new LambdaUploadPublisher(Arrays.asList(original, original)));
         FreeStyleBuild build = p.scheduleBuild2(0).get();
 
         assertEquals(Result.SUCCESS, build.getResult());
@@ -109,9 +111,9 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformFolderFailure() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
+        LambdaUploadVariables clone = new LambdaUploadVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
 
-        LambdaVariables spy = Mockito.spy(clone);
+        LambdaUploadVariables spy = Mockito.spy(clone);
 
         when(original.getClone()).thenReturn(spy);
         when(spy.getLambdaClientConfig()).thenReturn(clientConfig);
@@ -125,7 +127,7 @@ public class AWSLambdaPublisherTest {
         when(lambdaClient.createFunction(any(CreateFunctionRequest.class)))
                 .thenReturn(new CreateFunctionResult());
 
-        LambdaVariables spy2 = Mockito.spy(clone);
+        LambdaUploadVariables spy2 = Mockito.spy(clone);
 
         when(original2.getClone()).thenReturn(spy2);
         when(spy2.getLambdaClientConfig()).thenReturn(clientConfig2);
@@ -143,7 +145,7 @@ public class AWSLambdaPublisherTest {
                 return true;
             }
         });
-        p.getPublishersList().add(new AWSLambdaPublisher(Arrays.asList(original, original2)));
+        p.getPublishersList().add(new LambdaUploadPublisher(Arrays.asList(original, original2)));
         FreeStyleBuild build = p.scheduleBuild2(0).get();
 
         assertEquals(Result.FAILURE, build.getResult());
@@ -151,9 +153,9 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformZipBuildSuccess() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
+        LambdaUploadVariables clone = new LambdaUploadVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
 
-        LambdaVariables spy = Mockito.spy(clone);
+        LambdaUploadVariables spy = Mockito.spy(clone);
 
         setFunctionFound(true);
         when(original.getClone()).thenReturn(spy);
@@ -175,7 +177,7 @@ public class AWSLambdaPublisherTest {
                 return true;
             }
         });
-        p.getPublishersList().add(new AWSLambdaPublisher(Collections.singletonList(original)));
+        p.getPublishersList().add(new LambdaUploadPublisher(Collections.singletonList(original)));
         FreeStyleBuild build = p.scheduleBuild2(0).get();
 
         verify(lambdaClient, times(1)).getFunction(any(GetFunctionRequest.class));
@@ -184,9 +186,9 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformZipBuildUnstableNotSuccessOnly() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", false, false, "full", null, false, "", "");
+        LambdaUploadVariables clone = new LambdaUploadVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", false, false, "full", null, false, "", "");
 
-        LambdaVariables spy = Mockito.spy(clone);
+        LambdaUploadVariables spy = Mockito.spy(clone);
 
         setFunctionFound(true);
         when(original.getClone()).thenReturn(spy);
@@ -210,7 +212,7 @@ public class AWSLambdaPublisherTest {
                 return true;
             }
         });
-        p.getPublishersList().add(new AWSLambdaPublisher(Collections.singletonList(original)));
+        p.getPublishersList().add(new LambdaUploadPublisher(Collections.singletonList(original)));
         FreeStyleBuild build = p.scheduleBuild2(0).get();
 
         verify(lambdaClient, times(1)).getFunction(any(GetFunctionRequest.class));
@@ -219,9 +221,9 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformZipBuildUnstableSuccessOnly() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
+        LambdaUploadVariables clone = new LambdaUploadVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
 
-        LambdaVariables spy = Mockito.spy(clone);
+        LambdaUploadVariables spy = Mockito.spy(clone);
 
         setFunctionFound(true);
         when(original.getClone()).thenReturn(spy);
@@ -245,7 +247,7 @@ public class AWSLambdaPublisherTest {
                 return true;
             }
         });
-        p.getPublishersList().add(new AWSLambdaPublisher(Collections.singletonList(original)));
+        p.getPublishersList().add(new LambdaUploadPublisher(Collections.singletonList(original)));
         FreeStyleBuild build = p.scheduleBuild2(0).get();
 
         verify(lambdaClient, times(0)).getFunction(any(GetFunctionRequest.class));
@@ -254,9 +256,9 @@ public class AWSLambdaPublisherTest {
 
     @Test
     public void testPerformZipBuildFailure() throws IOException, ExecutionException, InterruptedException {
-        LambdaVariables clone = new LambdaVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
+        LambdaUploadVariables clone = new LambdaUploadVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "echo.zip", "description", "function", "handler", "1024", "role", "nodejs", "30", true, false, "full", null, false, "", "");
 
-        LambdaVariables spy = Mockito.spy(clone);
+        LambdaUploadVariables spy = Mockito.spy(clone);
 
         setFunctionFound(true);
         when(original.getClone()).thenReturn(spy);
@@ -279,7 +281,7 @@ public class AWSLambdaPublisherTest {
                 return true;
             }
         });
-        p.getPublishersList().add(new AWSLambdaPublisher(Collections.singletonList(original)));
+        p.getPublishersList().add(new LambdaUploadPublisher(Collections.singletonList(original)));
         FreeStyleBuild build = p.scheduleBuild2(0).get();
 
         verify(lambdaClient, times(0)).getFunction(any(GetFunctionRequest.class));

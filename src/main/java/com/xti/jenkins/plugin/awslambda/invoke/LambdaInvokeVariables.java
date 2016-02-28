@@ -34,6 +34,7 @@ import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,13 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     private List<JsonParameterVariables> jsonParameters = new ArrayList<JsonParameterVariables>();
 
     @DataBoundConstructor
+    public LambdaInvokeVariables(String awsRegion, String functionName, boolean synchronous) {
+        this.awsRegion = awsRegion;
+        this.functionName = functionName;
+        this.synchronous = synchronous;
+    }
+
+    @Deprecated
     public LambdaInvokeVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
@@ -66,12 +74,27 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         return useInstanceCredentials;
     }
 
+    @DataBoundSetter
+    public void setUseInstanceCredentials(boolean useInstanceCredentials) {
+        this.useInstanceCredentials = useInstanceCredentials;
+    }
+
     public String getAwsAccessKeyId() {
         return awsAccessKeyId;
     }
 
+    @DataBoundSetter
+    public void setAwsAccessKeyId(String awsAccessKeyId) {
+        this.awsAccessKeyId = awsAccessKeyId;
+    }
+
     public Secret getAwsSecretKey() {
         return awsSecretKey;
+    }
+
+    @DataBoundSetter
+    public void setAwsSecretKey(Secret awsSecretKey) {
+        this.awsSecretKey = awsSecretKey;
     }
 
     public String getAwsRegion() {
@@ -86,12 +109,22 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         return payload;
     }
 
-    public boolean getSynchronous(){
+    @DataBoundSetter
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
+
+    public boolean getSynchronous() {
         return synchronous;
     }
 
     public boolean getSuccessOnly() {
         return successOnly;
+    }
+
+    @DataBoundSetter
+    public void setSuccessOnly(boolean successOnly) {
+        this.successOnly = successOnly;
     }
 
     public List<JsonParameterVariables> getJsonParameters() {
@@ -102,38 +135,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         }
     }
 
-    public void setUseInstanceCredentials(boolean useInstanceCredentials) {
-        this.useInstanceCredentials = useInstanceCredentials;
-    }
-
-    public void setAwsAccessKeyId(String awsAccessKeyId) {
-        this.awsAccessKeyId = awsAccessKeyId;
-    }
-
-    public void setAwsSecretKey(Secret awsSecretKey) {
-        this.awsSecretKey = awsSecretKey;
-    }
-
-    public void setAwsRegion(String awsRegion) {
-        this.awsRegion = awsRegion;
-    }
-
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
-    }
-
-    public void setPayload(String payload) {
-        this.payload = payload;
-    }
-
-    public void setSynchronous(boolean synchronous) {
-        this.synchronous = synchronous;
-    }
-
-    public void setSuccessOnly(boolean successOnly) {
-        this.successOnly = successOnly;
-    }
-
+    @DataBoundSetter
     public void setJsonParameters(List<JsonParameterVariables> jsonParameters) {
         this.jsonParameters = jsonParameters;
     }
@@ -162,7 +164,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     public InvokeConfig getInvokeConfig(){
         List<JsonParameter> jsonParameters = new ArrayList<JsonParameter>();
         for (JsonParameterVariables jsonParameterVariables : getJsonParameters()) {
-            jsonParameters.add(jsonParameterVariables.getJsonParameter());
+            jsonParameters.add(jsonParameterVariables.buildJsonParameter());
         }
         return new InvokeConfig(functionName, payload, synchronous, jsonParameters);
     }

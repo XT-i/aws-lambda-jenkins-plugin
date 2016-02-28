@@ -8,6 +8,7 @@ import com.xti.jenkins.plugin.awslambda.upload.LambdaUploader;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.FilePath;
 import hudson.model.BuildListener;
+import hudson.model.TaskListener;
 import hudson.remoting.Callable;
 
 import java.io.IOException;
@@ -18,12 +19,12 @@ import java.io.IOException;
  */
 public class DeployCallable implements Callable<Boolean, RuntimeException> {
 
-    private BuildListener listener;
+    private TaskListener listener;
     private FilePath localWorkSpacePath;
     private DeployConfig deployConfig;
     private LambdaClientConfig clientConfig;
 
-    public DeployCallable(BuildListener listener, FilePath localWorkSpacePath, DeployConfig deployConfig, LambdaClientConfig lambdaClientConfig) {
+    public DeployCallable(TaskListener listener, FilePath localWorkSpacePath, DeployConfig deployConfig, LambdaClientConfig lambdaClientConfig) {
         this.listener = listener;
         this.localWorkSpacePath = localWorkSpacePath;
         this.deployConfig = deployConfig;

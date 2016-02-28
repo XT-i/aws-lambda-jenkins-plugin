@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda;
+package com.xti.jenkins.plugin.awslambda.upload;
 
 /*
  * #%L
@@ -27,20 +27,14 @@ package com.xti.jenkins.plugin.awslambda;
  */
 
 import com.xti.jenkins.plugin.awslambda.callable.DeployCallable;
-import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
-import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
-import com.xti.jenkins.plugin.awslambda.service.WorkSpaceZipper;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadAction;
-import com.xti.jenkins.plugin.awslambda.upload.LambdaUploader;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
+import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadVariables;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.Result;
+import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
@@ -52,21 +46,17 @@ import org.kohsuke.stapler.StaplerRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AWSLambdaPublisher extends Notifier{
+public class LambdaUploadPublisher extends Notifier{
 
-    List<LambdaVariables> lambdaVariablesList = new ArrayList<LambdaVariables>();
+    List<LambdaUploadVariables> lambdaVariablesList = new ArrayList<LambdaUploadVariables>();
 
     @DataBoundConstructor
-    public AWSLambdaPublisher(List<LambdaVariables> lambdaVariablesList) {
+    public LambdaUploadPublisher(List<LambdaUploadVariables> lambdaVariablesList) {
         this.lambdaVariablesList = lambdaVariablesList;
     }
 
-    public List<LambdaVariables> getLambdaVariablesList() {
+    public List<LambdaUploadVariables> getLambdaVariablesList() {
         return lambdaVariablesList;
-    }
-
-    public void setLambdaVariablesList(List<LambdaVariables> lambdaVariablesList) {
-        this.lambdaVariablesList = lambdaVariablesList;
     }
 
     @Override
@@ -75,7 +65,7 @@ public class AWSLambdaPublisher extends Notifier{
         boolean returnValue = true;
 
         if (lambdaVariablesList != null){
-            for (LambdaVariables lambdaVariables : lambdaVariablesList) {
+            for (LambdaUploadVariables lambdaVariables : lambdaVariablesList) {
                 returnValue = returnValue && perform(lambdaVariables, build, launcher, listener);
             }
         }
@@ -83,7 +73,7 @@ public class AWSLambdaPublisher extends Notifier{
         return returnValue;
     }
 
-    public boolean perform(LambdaVariables lambdaVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+    public boolean perform(LambdaUploadVariables lambdaVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
         if (lambdaVariables.getSuccessOnly() && build.getResult().isWorseThan(Result.SUCCESS)) {
             listener.getLogger().println("Build not successful, not uploading Lambda function: " + lambdaVariables.getFunctionName());
             return true;
@@ -93,7 +83,7 @@ public class AWSLambdaPublisher extends Notifier{
         }
 
         try {
-            LambdaVariables executionVariables = lambdaVariables.getClone();
+            LambdaUploadVariables executionVariables = lambdaVariables.getClone();
             executionVariables.expandVariables(build.getEnvironment(listener));
             FilePath localWorkspace = build.getWorkspace();
             DeployConfig deployConfig = executionVariables.getUploadConfig();
@@ -131,6 +121,10 @@ public class AWSLambdaPublisher extends Notifier{
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+
+        static{
+            Items.XSTREAM2.addCompatibilityAlias("com.xti.jenkins.plugin.awslambda.AWSLambdaPublisher", com.xti.jenkins.plugin.awslambda.upload.LambdaUploadPublisher.class);
+        }
 
         /**
          * In order to load the persisted global configuration, you have to

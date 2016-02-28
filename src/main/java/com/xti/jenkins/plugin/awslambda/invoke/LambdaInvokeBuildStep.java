@@ -31,22 +31,23 @@ import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaInvokeService;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.Result;
+import hudson.model.*;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Builder;
+import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
+import javax.annotation.Nonnull;
+import java.io.IOException;
 import java.util.Map;
 
-public class LambdaInvokeBuildStep extends Builder implements BuildStep{
+public class LambdaInvokeBuildStep extends Builder implements SimpleBuildStep{
     private LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables;
 
     @DataBoundConstructor
@@ -63,14 +64,14 @@ public class LambdaInvokeBuildStep extends Builder implements BuildStep{
     }
 
     @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-        return perform(lambdaInvokeBuildStepVariables, build, launcher, listener);
+    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
+        perform(lambdaInvokeBuildStepVariables, run, launcher, listener);
     }
 
-    public boolean perform(LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables,AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+    public void perform(LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables,Run<?, ?> run, Launcher launcher, TaskListener listener) {
         try {
             LambdaInvokeBuildStepVariables executionVariables = lambdaInvokeBuildStepVariables.getClone();
-            executionVariables.expandVariables(build.getEnvironment(listener));
+            executionVariables.expandVariables(run.getEnvironment(listener));
             LambdaClientConfig clientConfig = executionVariables.getLambdaClientConfig();
             InvokeConfig invokeConfig = executionVariables.getInvokeConfig();
 
@@ -78,14 +79,13 @@ public class LambdaInvokeBuildStep extends Builder implements BuildStep{
 
             LambdaInvocationResult invocationResult = launcher.getChannel().call(invokeCallable);
             if(!invocationResult.isSuccess()){
-                build.setResult(Result.FAILURE);
+                run.setResult(Result.FAILURE);
             }
             for (Map.Entry<String,String> entry : invocationResult.getInjectables().entrySet()) {
-                build.addAction(new LambdaOutputInjectionAction(entry.getKey(), entry.getValue()));
+                run.addAction(new LambdaOutputInjectionAction(entry.getKey(), entry.getValue()));
             }
-            build.getEnvironment(listener);
-            build.addAction(new LambdaInvokeAction(executionVariables.getFunctionName(), invocationResult.isSuccess()));
-            return true;
+            run.getEnvironment(listener);
+            run.addAction(new LambdaInvokeAction(executionVariables.getFunctionName(), invocationResult.isSuccess()));
         } catch (Exception exc) {
             throw new RuntimeException(exc);
         }
@@ -103,8 +103,6 @@ public class LambdaInvokeBuildStep extends Builder implements BuildStep{
     public BuildStepDescriptor getDescriptor() {
         return (DescriptorImpl)super.getDescriptor();
     }
-
-
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {

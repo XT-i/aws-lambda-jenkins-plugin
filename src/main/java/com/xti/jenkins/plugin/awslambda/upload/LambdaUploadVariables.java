@@ -1,4 +1,4 @@
-package com.xti.jenkins.plugin.awslambda;
+package com.xti.jenkins.plugin.awslambda.upload;
 
 /*
  * #%L
@@ -26,24 +26,25 @@ package com.xti.jenkins.plugin.awslambda;
  * #L%
  */
 
-import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
-import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
+import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import com.xti.jenkins.plugin.awslambda.util.Tokenizer;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
+import hudson.model.Items;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
 /**
  * Describable containing Lambda post build action config, checking feasability of migrating it to upload package.
  */
-public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
+public class LambdaUploadVariables extends AbstractDescribableImpl<LambdaUploadVariables> {
     private boolean useInstanceCredentials;
     private String awsAccessKeyId;
     private Secret awsSecretKey;
@@ -65,7 +66,14 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     private String securityGroups;
 
     @DataBoundConstructor
-    public LambdaVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, boolean successOnly, boolean publish, String updateMode, String alias, boolean createAlias, String subnets, String securityGroups) {
+    public LambdaUploadVariables(String awsRegion, String functionName, String updateMode){
+        this.awsRegion = awsRegion;
+        this.functionName = functionName;
+        this.updateMode = updateMode;
+    }
+
+    @Deprecated
+    public LambdaUploadVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, boolean successOnly, boolean publish, String updateMode, String alias, boolean createAlias, String subnets, String securityGroups) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey;
@@ -91,6 +99,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return useInstanceCredentials;
     }
 
+    @DataBoundSetter
     public void setUseInstanceCredentials(boolean useInstanceCredentials) {
         this.useInstanceCredentials = useInstanceCredentials;
     }
@@ -99,6 +108,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return awsAccessKeyId;
     }
 
+    @DataBoundSetter
     public void setAwsAccessKeyId(String awsAccessKeyId) {
         this.awsAccessKeyId = awsAccessKeyId;
     }
@@ -107,6 +117,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return awsSecretKey;
     }
 
+    @DataBoundSetter
     public void setAwsSecretKey(Secret awsSecretKey) {
         this.awsSecretKey = awsSecretKey;
     }
@@ -115,14 +126,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return awsRegion;
     }
 
-    public void setAwsRegion(String awsRegion) {
-        this.awsRegion = awsRegion;
-    }
-
     public String getArtifactLocation() {
         return artifactLocation;
     }
 
+    @DataBoundSetter
     public void setArtifactLocation(String artifactLocation) {
         this.artifactLocation = artifactLocation;
     }
@@ -131,6 +139,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return description;
     }
 
+    @DataBoundSetter
     public void setDescription(String description) {
         this.description = description;
     }
@@ -139,14 +148,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return functionName;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
-    }
-
     public String getHandler() {
         return handler;
     }
 
+    @DataBoundSetter
     public void setHandler(String handler) {
         this.handler = handler;
     }
@@ -155,6 +161,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return memorySize;
     }
 
+    @DataBoundSetter
     public void setMemorySize(String memorySize) {
         this.memorySize = memorySize;
     }
@@ -163,6 +170,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return role;
     }
 
+    @DataBoundSetter
     public void setRole(String role) {
         this.role = role;
     }
@@ -171,6 +179,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return runtime;
     }
 
+    @DataBoundSetter
     public void setRuntime(String runtime) {
         this.runtime = runtime;
     }
@@ -179,6 +188,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return timeout;
     }
 
+    @DataBoundSetter
     public void setTimeout(String timeout) {
         this.timeout = timeout;
     }
@@ -187,6 +197,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return successOnly;
     }
 
+    @DataBoundSetter
     public void setSuccessOnly(boolean successOnly) {
         this.successOnly = successOnly;
     }
@@ -195,6 +206,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return publish;
     }
 
+    @DataBoundSetter
     public void setPublish(boolean publish) {
         this.publish = publish;
     }
@@ -203,14 +215,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return updateMode;
     }
 
-    public void setUpdateMode(String updateMode) {
-        this.updateMode = updateMode;
-    }
-
     public String getAlias() {
         return alias;
     }
 
+    @DataBoundSetter
     public void setAlias(String alias) {
         this.alias = alias;
     }
@@ -219,6 +228,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return createAlias;
     }
 
+    @DataBoundSetter
     public void setCreateAlias(boolean createAlias) {
         this.createAlias = createAlias;
     }
@@ -227,6 +237,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return subnets;
     }
 
+    @DataBoundSetter
     public void setSubnets(String subnets) {
         this.subnets = subnets;
     }
@@ -235,6 +246,7 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         return securityGroups;
     }
 
+    @DataBoundSetter
     public void setSecurityGroups(String securityGroups) {
         this.securityGroups = securityGroups;
     }
@@ -256,8 +268,8 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
         securityGroups = expand(securityGroups, env);
     }
 
-    public LambdaVariables getClone(){
-        return new LambdaVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, publish, updateMode, alias, createAlias, subnets, securityGroups);
+    public LambdaUploadVariables getClone(){
+        return new LambdaUploadVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, artifactLocation, description, functionName, handler, memorySize, role, runtime, timeout, successOnly, publish, updateMode, alias, createAlias, subnets, securityGroups);
     }
 
     public DeployConfig getUploadConfig(){
@@ -281,7 +293,11 @@ public class LambdaVariables extends AbstractDescribableImpl<LambdaVariables> {
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static class DescriptorImpl extends AWSLambdaDescriptor<LambdaVariables> {
+    public static class DescriptorImpl extends AWSLambdaDescriptor<LambdaUploadVariables> {
+
+        static{
+            Items.XSTREAM2.addCompatibilityAlias("com.xti.jenkins.plugin.awslambda.LambdaVariables", com.xti.jenkins.plugin.awslambda.upload.LambdaUploadVariables.class);
+        }
 
         public FormValidation doCheckTimeout(@QueryParameter String value, @QueryParameter String updateMode) {
             UpdateModeValue updateModeValue = UpdateModeValue.fromString(updateMode);
