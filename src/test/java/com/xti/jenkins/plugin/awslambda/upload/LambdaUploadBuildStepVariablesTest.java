@@ -6,12 +6,12 @@ import hudson.EnvVars;
 import hudson.util.Secret;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class LambdaUploadBuildStepVariablesTest {
 
@@ -58,6 +58,24 @@ public class LambdaUploadBuildStepVariablesTest {
         assertEquals(variables.getDescription(), uploadConfig.getDescription());
         assertEquals(Integer.valueOf(variables.getMemorySize()), uploadConfig.getMemorySize());
         assertEquals(Integer.valueOf(variables.getTimeout()), uploadConfig.getTimeout());
+        assertEquals(variables.getHandler(), uploadConfig.getHandler());
+        assertEquals(variables.getRuntime(), uploadConfig.getRuntime());
+        assertEquals(variables.getFunctionName(), uploadConfig.getFunctionName());
+        assertEquals(variables.getRole(), uploadConfig.getRole());
+        assertEquals(variables.getUpdateMode(), uploadConfig.getUpdateMode());
+        assertEquals(Arrays.asList("subnet1", "subnet2"), uploadConfig.getSubnets());
+        assertEquals(Collections.singletonList("secgroup"), uploadConfig.getSecurityGroups());
+    }
+
+    @Test
+    public void testGetUploadConfigNullTimeoutAndMemory() throws Exception {
+        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", null, "ROLE", "RUNTIME", "", "full", false, null, false, "subnet1, subnet2", "secgroup");
+        DeployConfig uploadConfig = variables.getUploadConfig();
+
+        assertEquals(variables.getArtifactLocation(), uploadConfig.getArtifactLocation());
+        assertEquals(variables.getDescription(), uploadConfig.getDescription());
+        assertNull(uploadConfig.getMemorySize());
+        assertNull(uploadConfig.getTimeout());
         assertEquals(variables.getHandler(), uploadConfig.getHandler());
         assertEquals(variables.getRuntime(), uploadConfig.getRuntime());
         assertEquals(variables.getFunctionName(), uploadConfig.getFunctionName());
