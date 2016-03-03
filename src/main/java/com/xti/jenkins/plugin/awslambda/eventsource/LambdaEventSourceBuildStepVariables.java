@@ -10,8 +10,6 @@ import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import java.util.Objects;
-
 /**
  * Created by anthonyikeda on 25/11/2015.
  *
@@ -37,7 +35,7 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
     public LambdaEventSourceBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String functionAlias, String eventSourceArn) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
-        this.awsSecretKey = Objects.nonNull(awsSecretKey) ? awsSecretKey.getEncryptedValue() : null;
+        this.awsSecretKey = awsSecretKey != null ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.functionAlias = functionAlias;

@@ -1,3 +1,9 @@
+## 0.5.0 (2016-02-13)
+
+Features:
+
+    - Jenkins Pipeline support (General Build Step)
+
 ## 0.4.3 (2016-02-26)
     
 Bugfixes:
