@@ -34,6 +34,7 @@ import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,21 +42,26 @@ import java.util.List;
 public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<LambdaInvokeBuildStepVariables> {
     private boolean useInstanceCredentials;
     private String awsAccessKeyId;
-    private Secret awsSecretKey;
+    private String awsSecretKey;
+    private String clearTextAwsSecretKey;
     private String awsRegion;
     private String functionName;
     private String payload;
     private boolean synchronous;
     private List<JsonParameterVariables> jsonParameters;
 
-    public LambdaInvokeBuildStepVariables() {
+    @DataBoundConstructor
+    public LambdaInvokeBuildStepVariables(String awsRegion, String functionName, boolean synchronous) {
+        this.awsRegion = awsRegion;
+        this.functionName = functionName;
+        this.synchronous = synchronous;
     }
 
-    @DataBoundConstructor
+    @Deprecated
     public LambdaInvokeBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, List<JsonParameterVariables> jsonParameters) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
-        this.awsSecretKey = awsSecretKey;
+        this.awsSecretKey = awsSecretKey != null ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.payload = payload;
@@ -67,12 +73,27 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         return useInstanceCredentials;
     }
 
+    @DataBoundSetter
+    public void setUseInstanceCredentials(boolean useInstanceCredentials) {
+        this.useInstanceCredentials = useInstanceCredentials;
+    }
+
     public String getAwsAccessKeyId() {
         return awsAccessKeyId;
     }
 
-    public Secret getAwsSecretKey() {
+    @DataBoundSetter
+    public void setAwsAccessKeyId(String awsAccessKeyId) {
+        this.awsAccessKeyId = awsAccessKeyId;
+    }
+
+    public String getAwsSecretKey() {
         return awsSecretKey;
+    }
+
+    @DataBoundSetter
+    public void setAwsSecretKey(String awsSecretKey) {
+        this.awsSecretKey = Secret.fromString(awsSecretKey).getEncryptedValue();
     }
 
     public String getAwsRegion() {
@@ -87,7 +108,12 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         return payload;
     }
 
-    public boolean getSynchronous(){
+    @DataBoundSetter
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
+
+    public boolean getSynchronous() {
         return synchronous;
     }
 
@@ -99,41 +125,14 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         }
     }
 
-    public void setUseInstanceCredentials(boolean useInstanceCredentials) {
-        this.useInstanceCredentials = useInstanceCredentials;
-    }
-
-    public void setAwsAccessKeyId(String awsAccessKeyId) {
-        this.awsAccessKeyId = awsAccessKeyId;
-    }
-
-    public void setAwsSecretKey(Secret awsSecretKey) {
-        this.awsSecretKey = awsSecretKey;
-    }
-
-    public void setAwsRegion(String awsRegion) {
-        this.awsRegion = awsRegion;
-    }
-
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
-    }
-
-    public void setPayload(String payload) {
-        this.payload = payload;
-    }
-
-    public void setSynchronous(boolean synchronous) {
-        this.synchronous = synchronous;
-    }
-
+    @DataBoundSetter
     public void setJsonParameters(List<JsonParameterVariables> jsonParameters) {
         this.jsonParameters = jsonParameters;
     }
 
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
-        awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
+        clearTextAwsSecretKey = expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
         awsRegion = expand(awsRegion, env);
         functionName = expand(functionName, env);
         payload = expand(payload, env);
@@ -145,7 +144,13 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     public LambdaInvokeBuildStepVariables getClone(){
-        return new LambdaInvokeBuildStepVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, jsonParameters);
+        LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables = new LambdaInvokeBuildStepVariables(awsRegion, functionName, synchronous);
+        lambdaInvokeBuildStepVariables.setUseInstanceCredentials(useInstanceCredentials);
+        lambdaInvokeBuildStepVariables.setAwsAccessKeyId(awsAccessKeyId);
+        lambdaInvokeBuildStepVariables.setAwsSecretKey(awsSecretKey);
+        lambdaInvokeBuildStepVariables.setPayload(payload);
+        lambdaInvokeBuildStepVariables.setJsonParameters(jsonParameters);
+        return lambdaInvokeBuildStepVariables;
     }
 
     private String expand(String value, EnvVars env) {
@@ -155,7 +160,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
     public InvokeConfig getInvokeConfig(){
         List<JsonParameter> jsonParameters = new ArrayList<>();
         for (JsonParameterVariables jsonParameterVariables : getJsonParameters()) {
-            jsonParameters.add(jsonParameterVariables.getJsonParameter());
+            jsonParameters.add(jsonParameterVariables.buildJsonParameter());
         }
         return new InvokeConfig(functionName, payload, synchronous, jsonParameters);
     }
@@ -164,7 +169,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         if(useInstanceCredentials){
             return new LambdaClientConfig(awsRegion);
         } else {
-            return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
+            return new LambdaClientConfig(awsAccessKeyId, clearTextAwsSecretKey, awsRegion);
         }
     }
 

@@ -31,19 +31,20 @@ import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.Result;
+import hudson.model.*;
 import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Builder;
+import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
-public class LambdaUploadBuildStep extends Builder implements BuildStep{
+import javax.annotation.Nonnull;
+import java.io.IOException;
+
+public class LambdaUploadBuildStep extends Builder implements SimpleBuildStep{
 
     private LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables;
 
@@ -61,29 +62,25 @@ public class LambdaUploadBuildStep extends Builder implements BuildStep{
     }
 
     @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
-        return perform(lambdaUploadBuildStepVariables, build, launcher, listener);
+    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
+        perform(lambdaUploadBuildStepVariables, run, workspace, launcher, listener);
     }
 
-    public boolean perform(LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables, AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+    public void perform(LambdaUploadBuildStepVariables lambdaUploadBuildStepVariables,  Run<?, ?>  run, FilePath workspace, Launcher launcher, TaskListener listener) {
 
         try {
             LambdaUploadBuildStepVariables executionVariables = lambdaUploadBuildStepVariables.getClone();
-            executionVariables.expandVariables(build.getEnvironment(listener));
-            FilePath localWorkspace = build.getWorkspace();
+            executionVariables.expandVariables(run.getEnvironment(listener));
             DeployConfig deployConfig = executionVariables.getUploadConfig();
             LambdaClientConfig lambdaClientConfig = executionVariables.getLambdaClientConfig();
 
-            DeployCallable deployCallable = new DeployCallable(listener, localWorkspace, deployConfig, lambdaClientConfig);
+            DeployCallable deployCallable = new DeployCallable(listener, workspace, deployConfig, lambdaClientConfig);
             Boolean lambdaSuccess = launcher.getChannel().call(deployCallable);
 
             if (!lambdaSuccess) {
-                build.setResult(Result.FAILURE);
+                run.setResult(Result.FAILURE);
             }
-            build.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), lambdaSuccess));
-
-            return true;
-
+            run.addAction(new LambdaUploadAction(executionVariables.getFunctionName(), lambdaSuccess));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
