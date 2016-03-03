@@ -1,8 +1,9 @@
-package com.xti.jenkins.plugin.awslambda;
+package com.xti.jenkins.plugin.awslambda.upload;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.*;
+import com.xti.jenkins.plugin.awslambda.TestUtil;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadPublisher;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadVariables;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;

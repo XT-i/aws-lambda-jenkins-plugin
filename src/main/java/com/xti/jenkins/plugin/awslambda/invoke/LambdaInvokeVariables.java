@@ -38,11 +38,13 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeVariables> {
     private boolean useInstanceCredentials;
     private String awsAccessKeyId;
-    private Secret awsSecretKey;
+    private String awsSecretKey;
+    private String clearTextAwsSecretKey;
     private String awsRegion;
     private String functionName;
     private String payload;
@@ -61,7 +63,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     public LambdaInvokeVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
-        this.awsSecretKey = awsSecretKey;
+        this.awsSecretKey = Objects.nonNull(awsSecretKey) ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.payload = payload;
@@ -88,13 +90,13 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         this.awsAccessKeyId = awsAccessKeyId;
     }
 
-    public Secret getAwsSecretKey() {
+    public String getAwsSecretKey() {
         return awsSecretKey;
     }
 
     @DataBoundSetter
-    public void setAwsSecretKey(Secret awsSecretKey) {
-        this.awsSecretKey = awsSecretKey;
+    public void setAwsSecretKey(String awsSecretKey) {
+        this.awsSecretKey = Secret.fromString(awsSecretKey).getEncryptedValue();
     }
 
     public String getAwsRegion() {
@@ -142,7 +144,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
 
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
-        awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
+        clearTextAwsSecretKey = expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
         awsRegion = expand(awsRegion, env);
         functionName = expand(functionName, env);
         payload = expand(payload, env);
@@ -154,7 +156,14 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     }
 
     public LambdaInvokeVariables getClone(){
-        return new LambdaInvokeVariables(useInstanceCredentials,awsAccessKeyId, awsSecretKey, awsRegion, functionName, payload, synchronous, successOnly, jsonParameters);
+        LambdaInvokeVariables lambdaInvokeVariables = new LambdaInvokeVariables(awsRegion, functionName, synchronous);
+        lambdaInvokeVariables.setUseInstanceCredentials(useInstanceCredentials);
+        lambdaInvokeVariables.setAwsAccessKeyId(awsAccessKeyId);
+        lambdaInvokeVariables.setAwsSecretKey(awsSecretKey);
+        lambdaInvokeVariables.setPayload(payload);
+        lambdaInvokeVariables.setSuccessOnly(successOnly);
+        lambdaInvokeVariables.setJsonParameters(jsonParameters);
+        return lambdaInvokeVariables;
     }
 
     private String expand(String value, EnvVars env) {
@@ -173,7 +182,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         if(useInstanceCredentials){
             return new LambdaClientConfig(awsRegion);
         } else {
-            return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
+            return new LambdaClientConfig(awsAccessKeyId, clearTextAwsSecretKey, awsRegion);
         }
     }
 

@@ -11,13 +11,16 @@ import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
+import java.util.Objects;
+
 /**
  * Created by anthonyikeda on 25/11/2015.
  */
 public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEventSourceVariables> {
     private boolean useInstanceCredentials;
     private String awsAccessKeyId;
-    private Secret awsSecretKey;
+    private String awsSecretKey;
+    private String clearTextAwsSecretKey;
     private String awsRegion;
     private String functionName;
     private String functionAlias;
@@ -35,7 +38,7 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
     public LambdaEventSourceVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String functionAlias, String eventSourceArn, boolean successOnly) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
-        this.awsSecretKey = awsSecretKey;
+        this.awsSecretKey = Objects.nonNull(awsSecretKey) ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.functionAlias = functionAlias;
@@ -61,13 +64,13 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
         this.awsAccessKeyId = awsAccessKeyId;
     }
 
-    public Secret getAwsSecretKey() {
+    public String getAwsSecretKey() {
         return awsSecretKey;
     }
 
     @DataBoundSetter
-    public void setAwsSecretKey(Secret awsSecretKey) {
-        this.awsSecretKey = awsSecretKey;
+    public void setAwsSecretKey(String awsSecretKey) {
+        this.awsSecretKey = Secret.fromString(awsSecretKey).getEncryptedValue();
     }
 
     public String getAwsRegion() {
@@ -102,7 +105,7 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
 
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
-        awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
+        clearTextAwsSecretKey = expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
         awsRegion = expand(awsRegion, env);
         functionName = expand(functionName, env);
         functionAlias = expand(functionAlias, env);
@@ -121,12 +124,18 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
         if(useInstanceCredentials){
             return new LambdaClientConfig(awsRegion);
         } else {
-            return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
+            return new LambdaClientConfig(awsAccessKeyId, clearTextAwsSecretKey, awsRegion);
         }
     }
 
     public LambdaEventSourceVariables getClone() {
-        return new LambdaEventSourceVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, functionName, functionAlias, eventSourceArn, successOnly);
+        LambdaEventSourceVariables lambdaEventSourceVariables = new LambdaEventSourceVariables(awsRegion, functionName, eventSourceArn);
+        lambdaEventSourceVariables.setUseInstanceCredentials(useInstanceCredentials);
+        lambdaEventSourceVariables.setAwsAccessKeyId(awsAccessKeyId);
+        lambdaEventSourceVariables.setAwsSecretKey(awsSecretKey);
+        lambdaEventSourceVariables.setFunctionAlias(functionAlias);
+        lambdaEventSourceVariables.setSuccessOnly(successOnly);
+        return lambdaEventSourceVariables;
     }
 
     @Extension

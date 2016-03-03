@@ -10,6 +10,8 @@ import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
+import java.util.Objects;
+
 /**
  * Created by anthonyikeda on 25/11/2015.
  *
@@ -17,7 +19,8 @@ import org.kohsuke.stapler.DataBoundSetter;
 public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl<LambdaEventSourceBuildStepVariables>{
     private boolean useInstanceCredentials;
     private String awsAccessKeyId;
-    private Secret awsSecretKey;
+    private String awsSecretKey;
+    private String clearTextAwsSecretKey;
     private String awsRegion;
     private String functionName;
     private String functionAlias;
@@ -34,7 +37,7 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
     public LambdaEventSourceBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String functionAlias, String eventSourceArn) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
-        this.awsSecretKey = awsSecretKey;
+        this.awsSecretKey = Objects.nonNull(awsSecretKey) ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.functionAlias = functionAlias;
@@ -59,13 +62,13 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
         this.awsAccessKeyId = awsAccessKeyId;
     }
 
-    public Secret getAwsSecretKey() {
+    public String getAwsSecretKey() {
         return awsSecretKey;
     }
 
     @DataBoundSetter
-    public void setAwsSecretKey(Secret awsSecretKey) {
-        this.awsSecretKey = awsSecretKey;
+    public void setAwsSecretKey(String awsSecretKey) {
+        this.awsSecretKey = Secret.fromString(awsSecretKey).getEncryptedValue();
     }
 
     public String getAwsRegion() {
@@ -91,7 +94,7 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
 
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
-        awsSecretKey = Secret.fromString(expand(Secret.toString(awsSecretKey), env));
+        clearTextAwsSecretKey = expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
         awsRegion = expand(awsRegion, env);
         functionName = expand(functionName, env);
         functionAlias = expand(functionAlias, env);
@@ -99,7 +102,12 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
     }
 
     public LambdaEventSourceBuildStepVariables getClone() {
-        return new LambdaEventSourceBuildStepVariables(useInstanceCredentials, awsAccessKeyId, awsSecretKey, awsRegion, functionName, functionAlias, eventSourceArn);
+        LambdaEventSourceBuildStepVariables lambdaEventSourceBuildStepVariables = new LambdaEventSourceBuildStepVariables(awsRegion, functionName, eventSourceArn);
+        lambdaEventSourceBuildStepVariables.setUseInstanceCredentials(useInstanceCredentials);
+        lambdaEventSourceBuildStepVariables.setAwsAccessKeyId(awsAccessKeyId);
+        lambdaEventSourceBuildStepVariables.setAwsSecretKey(awsSecretKey);
+        lambdaEventSourceBuildStepVariables.setFunctionAlias(functionAlias);
+        return lambdaEventSourceBuildStepVariables;
     }
 
     public EventSourceConfig getEventSourceConfig() {
@@ -110,7 +118,7 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
         if(useInstanceCredentials){
             return new LambdaClientConfig(awsRegion);
         } else {
-            return new LambdaClientConfig(awsAccessKeyId, Secret.toString(awsSecretKey), awsRegion);
+            return new LambdaClientConfig(awsAccessKeyId, clearTextAwsSecretKey, awsRegion);
         }
     }
 
