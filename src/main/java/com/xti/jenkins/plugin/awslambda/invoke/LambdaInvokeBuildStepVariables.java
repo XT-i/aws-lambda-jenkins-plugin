@@ -28,19 +28,16 @@ package com.xti.jenkins.plugin.awslambda.invoke;
 
 import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
-import hudson.*;
+import hudson.EnvVars;
+import hudson.Extension;
+import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
-import hudson.model.Run;
-import hudson.model.TaskListener;
 import hudson.util.Secret;
-import jenkins.tasks.SimpleBuildStep;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<LambdaInvokeBuildStepVariables> {
     private boolean useInstanceCredentials;
@@ -64,7 +61,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
     public LambdaInvokeBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, List<JsonParameterVariables> jsonParameters) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
-        this.awsSecretKey = Objects.nonNull(awsSecretKey) ? awsSecretKey.getEncryptedValue() : null;
+        this.awsSecretKey = awsSecretKey != null ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.payload = payload;

@@ -1,7 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.eventsource;
 
 import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
-import com.xti.jenkins.plugin.awslambda.invoke.JsonParameterVariables;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -10,8 +9,6 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
-
-import java.util.Objects;
 
 /**
  * Created by anthonyikeda on 25/11/2015.
@@ -38,7 +35,7 @@ public class LambdaEventSourceVariables extends AbstractDescribableImpl<LambdaEv
     public LambdaEventSourceVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String functionAlias, String eventSourceArn, boolean successOnly) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
-        this.awsSecretKey = Objects.nonNull(awsSecretKey) ? awsSecretKey.getEncryptedValue() : null;
+        this.awsSecretKey = awsSecretKey != null ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.functionAlias = functionAlias;

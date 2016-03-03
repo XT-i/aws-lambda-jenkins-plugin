@@ -41,8 +41,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
-import java.util.Objects;
-
 /**
  * Describable containing Lambda post build action config, checking feasibility of migrating it to upload package.
  */
@@ -78,7 +76,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     public LambdaUploadBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String artifactLocation, String description, String functionName, String handler, String memorySize, String role, String runtime, String timeout, String updateMode, boolean publish, String alias, boolean createAlias, String subnets, String securityGroups) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
-        this.awsSecretKey = Objects.nonNull(awsSecretKey) ? awsSecretKey.getEncryptedValue() : null;
+        this.awsSecretKey = awsSecretKey != null ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.artifactLocation = artifactLocation;
         this.description = description;

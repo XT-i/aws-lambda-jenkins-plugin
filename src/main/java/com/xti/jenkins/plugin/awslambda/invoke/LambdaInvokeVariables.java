@@ -38,7 +38,6 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeVariables> {
     private boolean useInstanceCredentials;
@@ -63,7 +62,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     public LambdaInvokeVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
-        this.awsSecretKey = Objects.nonNull(awsSecretKey) ? awsSecretKey.getEncryptedValue() : null;
+        this.awsSecretKey = awsSecretKey != null ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
         this.payload = payload;
