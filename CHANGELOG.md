@@ -1,3 +1,9 @@
+## 0.4.3 (2016-02-26)
+    
+Bugfixes:
+
+    - Empty timeout and memory no longer throws a NumberFormatException as they are not required when updating code only.
+
 ## 0.4.2 (2016-02-26)
     
 Bugfixes:

@@ -7,7 +7,9 @@ import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
 import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.model.BuildListener;
+import hudson.model.TaskListener;
 import hudson.remoting.Callable;
+import org.jenkinsci.remoting.RoleChecker;
 
 /**
  * Project: aws-lambda
@@ -15,11 +17,11 @@ import hudson.remoting.Callable;
  */
 public class EventSourceCallable implements Callable<Boolean, RuntimeException> {
 
-    private BuildListener listener;
+    private TaskListener listener;
     private EventSourceConfig eventSourceConfig;
     private LambdaClientConfig clientConfig;
 
-    public EventSourceCallable(BuildListener listener, EventSourceConfig eventSourceConfig, LambdaClientConfig clientConfig) {
+    public EventSourceCallable(TaskListener listener, EventSourceConfig eventSourceConfig, LambdaClientConfig clientConfig) {
         this.listener = listener;
         this.eventSourceConfig = eventSourceConfig;
         this.clientConfig = clientConfig;
@@ -32,5 +34,10 @@ public class EventSourceCallable implements Callable<Boolean, RuntimeException> 
         EventSourceBuilder builder = new EventSourceBuilder(service, logger);
 
         return builder.createEventSource(eventSourceConfig);
+    }
+
+    @Override
+    public void checkRoles(RoleChecker roleChecker) throws SecurityException {
+        //ignore for now
     }
 }

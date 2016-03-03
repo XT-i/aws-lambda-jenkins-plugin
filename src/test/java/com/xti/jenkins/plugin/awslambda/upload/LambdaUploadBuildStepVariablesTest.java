@@ -4,16 +4,21 @@ import com.amazonaws.services.lambda.AWSLambda;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.util.Secret;
+import org.junit.Rule;
 import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class LambdaUploadBuildStepVariablesTest {
+
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
 
     @Test
     public void testCloneExpandVariables() throws Exception {
@@ -34,7 +39,7 @@ public class LambdaUploadBuildStepVariablesTest {
         envVars.put("ENV_TIMEOUT", "30");
         clone.expandVariables(envVars);
 
-        LambdaUploadBuildStepVariables expected = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full", false, null, false, "", "");
+        LambdaUploadBuildStepVariables expected = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("$ENV_SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full", false, null, false, "", "");
 
         assertEquals(expected.getAwsAccessKeyId(), clone.getAwsAccessKeyId());
         assertEquals(expected.getAwsSecretKey(), clone.getAwsSecretKey());
@@ -68,8 +73,27 @@ public class LambdaUploadBuildStepVariablesTest {
     }
 
     @Test
+    public void testGetUploadConfigNullTimeoutAndMemory() throws Exception {
+        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", null, "ROLE", "RUNTIME", "", "full", false, null, false, "subnet1, subnet2", "secgroup");
+        DeployConfig uploadConfig = variables.getUploadConfig();
+
+        assertEquals(variables.getArtifactLocation(), uploadConfig.getArtifactLocation());
+        assertEquals(variables.getDescription(), uploadConfig.getDescription());
+        assertNull(uploadConfig.getMemorySize());
+        assertNull(uploadConfig.getTimeout());
+        assertEquals(variables.getHandler(), uploadConfig.getHandler());
+        assertEquals(variables.getRuntime(), uploadConfig.getRuntime());
+        assertEquals(variables.getFunctionName(), uploadConfig.getFunctionName());
+        assertEquals(variables.getRole(), uploadConfig.getRole());
+        assertEquals(variables.getUpdateMode(), uploadConfig.getUpdateMode());
+        assertEquals(Arrays.asList("subnet1", "subnet2"), uploadConfig.getSubnets());
+        assertEquals(Collections.singletonList("secgroup"), uploadConfig.getSecurityGroups());
+    }
+
+    @Test
     public void testGetLambdaClientConfig() throws Exception {
         LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full", false, null, false, "subnet1, subnet2", "secgroup");
+        variables.expandVariables(new EnvVars());
         LambdaClientConfig lambdaClientConfig = variables.getLambdaClientConfig();
 
         AWSLambda lambda = lambdaClientConfig.getClient();

@@ -12,7 +12,9 @@ import com.xti.jenkins.plugin.awslambda.upload.LambdaUploader;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.FilePath;
 import hudson.model.BuildListener;
+import hudson.model.TaskListener;
 import hudson.remoting.Callable;
+import org.jenkinsci.remoting.RoleChecker;
 
 import java.io.IOException;
 
@@ -22,11 +24,11 @@ import java.io.IOException;
  */
 public class InvokeCallable implements Callable<LambdaInvocationResult, RuntimeException> {
 
-    private BuildListener listener;
+    private TaskListener listener;
     private InvokeConfig invokeConfig;
     private LambdaClientConfig clientConfig;
 
-    public InvokeCallable(BuildListener listener, InvokeConfig invokeConfig, LambdaClientConfig lambdaClientConfig) {
+    public InvokeCallable(TaskListener listener, InvokeConfig invokeConfig, LambdaClientConfig lambdaClientConfig) {
         this.listener = listener;
         this.invokeConfig = invokeConfig;
         this.clientConfig = lambdaClientConfig;
@@ -44,5 +46,10 @@ public class InvokeCallable implements Callable<LambdaInvocationResult, RuntimeE
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void checkRoles(RoleChecker roleChecker) throws SecurityException {
+        //ignore for now
     }
 }

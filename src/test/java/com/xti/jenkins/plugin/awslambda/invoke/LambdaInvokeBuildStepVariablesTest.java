@@ -3,7 +3,9 @@ package com.xti.jenkins.plugin.awslambda.invoke;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.util.Secret;
+import org.junit.Rule;
 import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class LambdaInvokeBuildStepVariablesTest {
+
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
 
     @Test
     public void testCloneExpandVariables() throws Exception {
@@ -33,7 +38,7 @@ public class LambdaInvokeBuildStepVariablesTest {
 
         List<JsonParameterVariables> jsonParameterVariablesExpected = new ArrayList<JsonParameterVariables>();
         jsonParameterVariablesExpected.add(new JsonParameterVariables("ENV_NAME", "$.path"));
-        LambdaInvokeBuildStepVariables expected = new LambdaInvokeBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "{\"payload\":\"vhello\"}", true, jsonParameterVariablesExpected);
+        LambdaInvokeBuildStepVariables expected = new LambdaInvokeBuildStepVariables(false, "ID", Secret.fromString("$ENV_SECRET}"), "eu-west-1", "FUNCTION", "{\"payload\":\"vhello\"}", true, jsonParameterVariablesExpected);
 
         assertEquals(expected.getAwsAccessKeyId(), clone.getAwsAccessKeyId());
         assertEquals(expected.getAwsSecretKey(), clone.getAwsSecretKey());
@@ -61,7 +66,7 @@ public class LambdaInvokeBuildStepVariablesTest {
         envVars.put(".", "bad");
         clone.expandVariables(envVars);
 
-        LambdaInvokeBuildStepVariables expected = new LambdaInvokeBuildStepVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FUNCTION", "{\"payload\":\"vhello\"}", true, null);
+        LambdaInvokeBuildStepVariables expected = new LambdaInvokeBuildStepVariables(false, "ID", Secret.fromString("$ENV_SECRET}"), "eu-west-1", "FUNCTION", "{\"payload\":\"vhello\"}", true, null);
 
         assertEquals(expected.getAwsAccessKeyId(), clone.getAwsAccessKeyId());
         assertEquals(expected.getAwsSecretKey(), clone.getAwsSecretKey());

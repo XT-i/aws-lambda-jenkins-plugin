@@ -34,6 +34,7 @@ import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
 public class JsonParameterVariables extends AbstractDescribableImpl<JsonParameterVariables> {
@@ -41,6 +42,11 @@ public class JsonParameterVariables extends AbstractDescribableImpl<JsonParamete
     private String jsonPath;
 
     @DataBoundConstructor
+    public JsonParameterVariables(String envVarName) {
+        this.envVarName = envVarName;
+    }
+
+    @Deprecated
     public JsonParameterVariables(String envVarName, String jsonPath) {
         this.envVarName = envVarName;
         this.jsonPath = jsonPath;
@@ -54,15 +60,12 @@ public class JsonParameterVariables extends AbstractDescribableImpl<JsonParamete
         return jsonPath;
     }
 
-    public void setEnvVarName(String envVarName) {
-        this.envVarName = envVarName;
-    }
-
+    @DataBoundSetter
     public void setJsonPath(String jsonPath) {
         this.jsonPath = jsonPath;
     }
 
-    public JsonParameter getJsonParameter(){
+    public JsonParameter buildJsonParameter(){
         return new JsonParameter(envVarName, jsonPath);
     }
 
