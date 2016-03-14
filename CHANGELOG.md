@@ -1,3 +1,9 @@
+## 0.5.1 (2016-03-14)
+
+Bugfixes:
+
+    - Fixed non serializable JsonParameter to allow distributed build with Lambda invocation output directed into environment variables
+
 ## 0.5.0 (2016-02-13)
 
 Features:
