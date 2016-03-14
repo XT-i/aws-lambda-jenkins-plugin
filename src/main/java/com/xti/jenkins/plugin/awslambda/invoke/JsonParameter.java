@@ -26,9 +26,10 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
-import hudson.model.AbstractDescribableImpl;
 
-public class JsonParameter extends AbstractDescribableImpl<JsonParameter> {
+import java.io.Serializable;
+
+public class JsonParameter implements Serializable {
     private String envVarName;
     private String jsonPath;
 
