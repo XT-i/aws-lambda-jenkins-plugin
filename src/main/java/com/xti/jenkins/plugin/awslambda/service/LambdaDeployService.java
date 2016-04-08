@@ -257,7 +257,6 @@ public class LambdaDeployService {
                 .withHandler(config.getHandler())
                 .withMemorySize(config.getMemorySize())
                 .withTimeout(config.getTimeout())
-                .withRuntime(config.getRuntime())
                 .withRole(config.getRole());
 
         if(config.getSubnets().size() > 0 && config.getSecurityGroups().size() > 0){
