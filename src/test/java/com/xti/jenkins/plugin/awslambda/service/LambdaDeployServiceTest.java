@@ -342,12 +342,13 @@ public class LambdaDeployServiceTest {
     @Test
     public void getFunctionCodeFile() throws IOException, InterruptedException {
         File file = testUtil.getResource("echo.zip");
+        ByteBuffer beforedeleteByteBuffer = getFunctionZip(file);
 
         when(workSpaceZipper.getZip(any(String.class))).thenReturn(file);
 
         FunctionCode functionCode = lambdaDeployService.getFunctionCode("location.zip", workSpaceZipper);
 
-        assertEquals(getFunctionZip(file), functionCode.getZipFile());
+        assertEquals(beforedeleteByteBuffer, functionCode.getZipFile());
         assertNull(functionCode.getS3Bucket());
         assertNull(functionCode.getS3Key());
         assertNull(functionCode.getS3ObjectVersion());
