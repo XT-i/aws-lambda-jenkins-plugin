@@ -33,7 +33,7 @@ public class WorkSpaceZipper {
     }
 
     private File getArtifactZip(FilePath artifactLocation) throws IOException, InterruptedException {
-        File resultFile = new File(workSpace.createTempFile("awslambda-", ".zip").toURI());
+        File resultFile = File.createTempFile("awslambda-", ".zip");
 
         if (!artifactLocation.isDirectory()) {
             if(artifactLocation.exists()) {

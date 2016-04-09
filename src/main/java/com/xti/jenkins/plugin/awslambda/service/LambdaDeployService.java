@@ -360,7 +360,7 @@ public class LambdaDeployService {
             try {
                 File zipFile = workSpaceZipper.getZip(artifactLocation);
                 return new FunctionCode()
-                        .withZipFile(getFunctionZip(zipFile));
+                        .withZipFile(getByteBufferAndDeleteFile(zipFile));
             } catch (IOException | InterruptedException ioe){
                 throw new LambdaDeployException("Error processing zip file.", ioe);
             }
@@ -374,7 +374,15 @@ public class LambdaDeployService {
      * @return ByteBuffer containing zip file.
      * @throws IOException
      */
-    private ByteBuffer getFunctionZip(File zipFile) throws IOException {
-        return ByteBuffer.wrap(FileUtils.readFileToByteArray(zipFile));
+    private ByteBuffer getByteBufferAndDeleteFile(File zipFile) throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(FileUtils.readFileToByteArray(zipFile));
+        String zipFilePath = zipFile.getAbsolutePath();
+        try {
+            zipFile.delete();
+        } catch (Exception ignored) {
+            //ignoring any errors when deleting temporary file
+            logger.log("Could not delete temporary file: %s", zipFilePath);
+        }
+        return byteBuffer;
     }
 }
