@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>aws-lambda</artifactId>
-	<version>0.5.2-SNAPSHOT</version>
+	<version>0.5.3-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 
 	<name>AWS Lambda Plugin</name>
@@ -45,7 +45,7 @@
 	</developers>
 
     <properties>
-        <aws.version>1.10.52</aws.version>
+        <aws.version>1.10.68</aws.version>
         <jsonpath.version>2.0.0</jsonpath.version>
     </properties>
 
