@@ -448,6 +448,7 @@ public class LambdaDeployServiceTest {
                     .withHandler(handler)
                     .withMemorySize(memory)
                     .withRole(role)
+                    .withRuntime(runtime)
                     .withVpcConfig(subnets.size() > 0 || securityGroups.size() > 0 ? new VpcConfig().withSubnetIds(subnets).withSecurityGroupIds(securityGroups) : null)
                     .withTimeout(timeout);
             assertEquals(expected, args.getValue());

@@ -257,7 +257,8 @@ public class LambdaDeployService {
                 .withHandler(config.getHandler())
                 .withMemorySize(config.getMemorySize())
                 .withTimeout(config.getTimeout())
-                .withRole(config.getRole());
+                .withRole(config.getRole())
+                .withRuntime(config.getRuntime());
 
         if(config.getSubnets().size() > 0 && config.getSecurityGroups().size() > 0){
             VpcConfig vpcConfig = new VpcConfig()
