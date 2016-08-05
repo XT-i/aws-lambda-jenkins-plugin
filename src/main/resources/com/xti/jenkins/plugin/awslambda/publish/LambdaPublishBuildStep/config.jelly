@@ -1,0 +1,26 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:entry>
+        <f:property field="lambdaPublishBuildStepVariables">
+        <table width="100%">
+            <f:entry title="AWS Access Key Id" field="awsAccessKeyId" help="/plugin/aws-lambda/help-awsAccessKeyId.html">
+                <f:textbox />
+            </f:entry>
+            <f:entry title="AWS Secret Key" field="awsSecretKey" help="/plugin/aws-lambda/help-awsSecretKey.html">
+                <f:password />
+            </f:entry>
+            <f:entry title="AWS Region" field="awsRegion" help="/plugin/aws-lambda/help-awsRegion.html">
+                <f:textbox />
+            </f:entry>
+            <f:entry title="Function ARN" field="functionARN" help="/plugin/aws-lambda/help-functionARN.html">
+                <f:textbox />
+            </f:entry>
+            <f:entry title="Function Alias" field="functionAlias" help="/plugin/aws-lambda/help-alias.html">
+                <f:textbox />
+            </f:entry>
+            <f:entry field="versionDescription" title="Version Description" help="/plugin/aws-lambda/help-versionDescription.html">
+                <f:textbox />
+            </f:entry>
+        </table>
+        </f:property>
+    </f:entry>
+</j:jelly>

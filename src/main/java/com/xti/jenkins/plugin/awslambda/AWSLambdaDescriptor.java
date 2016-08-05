@@ -43,4 +43,22 @@ public abstract class AWSLambdaDescriptor<T extends Describable<T>> extends Desc
             return FormValidation.ok();
         }
     }
+
+    //functionARN field
+    public FormValidation doCheckFunctionARN(@QueryParameter String value) {
+        if(StringUtils.isEmpty(value)){
+            return FormValidation.error("Please fill in AWS Lambda function ARN.");
+        } else {
+            return FormValidation.ok();
+        }
+    }
+
+    //functionAlias field
+    public FormValidation doCheckFunctionAlias(@QueryParameter String value) {
+        if(StringUtils.isEmpty(value)){
+            return FormValidation.error("Please fill in AWS Lambda alias name.");
+        } else {
+            return FormValidation.ok();
+        }
+    }
 }
