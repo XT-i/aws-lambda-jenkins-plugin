@@ -1,0 +1,28 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:awslambda="/com/xti/jenkins/plugin/awslambda/tags">
+    <f:entry title="Publish new lambda version and update alias">
+        <f:repeatable field="lambdaPublishVariablesList" header="Lambda publish" add="Publish new lambda version and update alias">
+            <table width="100%">
+                <awslambda:awsLambdaOptionalBlock field="useInstanceCredentials" title="Use instance credentials" negative="true" checked="${instance.useInstanceCredentials}" default="false" inline="true" help="/plugin/aws-lambda/help-useInstanceCredentials.html">
+                    <f:entry title="AWS Access Key Id" field="awsAccessKeyId"  help="/plugin/aws-lambda/help-awsAccessKeyId.html">
+                        <f:textbox />
+                    </f:entry>
+                    <f:entry title="AWS Secret Key" field="awsSecretKey" help="/plugin/aws-lambda/help-awsSecretKey.html">
+                        <f:password />
+                    </f:entry>
+                </awslambda:awsLambdaOptionalBlock>
+                <f:entry field="awsRegion" title="AWS Region" help="/plugin/aws-lambda/help-awsRegion.html">
+                    <f:textbox />
+                </f:entry>
+                <f:entry field="functionARN" title="Function ARN" help="/plugin/aws-lambda/help-functionARN.html">
+                    <f:textbox />
+                </f:entry>
+                <f:entry field="functionAlias" title="Function Alias" help="/plugin/aws-lambda/help-alias.html">
+                    <f:textbox />
+                </f:entry>
+                <f:entry field="versionDescription" title="Version Description" help="/plugin/aws-lambda/help-versionDescription.html">
+                    <f:textbox />
+                </f:entry>
+            </table>
+        </f:repeatable>
+    </f:entry>
+</j:jelly>
