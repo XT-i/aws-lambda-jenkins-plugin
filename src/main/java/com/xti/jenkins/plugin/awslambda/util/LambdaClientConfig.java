@@ -53,6 +53,9 @@ public class LambdaClientConfig implements Serializable {
                     config.setProxyUsername(proxy.getUserName());
                     config.setProxyPassword(proxy.getPassword());
                 }
+                if (proxy.noProxyHost != null){
+                    config.setNonProxyHosts(proxy.noProxyHost);
+                }
             }
         }
         return config;
