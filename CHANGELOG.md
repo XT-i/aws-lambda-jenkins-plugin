@@ -1,3 +1,27 @@
+## 0.5.5
+
+Features:
+
+    - Added support for Jenkins managed proxy configuration
+
+## 0.5.4
+
+Features:
+
+    - Added a separate deploy version and update Lambda alias build step
+
+## 0.5.3
+
+Bugfixes:
+
+    - Fixed problem where zip functionality would continue until full disk if folder was root of workspace. [Issue 41](https://github.com/XT-i/aws-lambda-jenkins-plugin/issues/41)
+    
+## 0.5.2
+
+Features:
+
+    - Allow changing runtime environment.
+
 ## 0.5.1 (2016-03-14)
 
 Bugfixes:
