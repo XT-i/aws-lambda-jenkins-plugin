@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>aws-lambda</artifactId>
-	<version>0.5.4-SNAPSHOT</version>
+	<version>0.5.6-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 
 	<name>AWS Lambda Plugin</name>
@@ -29,7 +29,7 @@
         <connection>scm:git:https://github.com/jenkinsci/aws-lambda-plugin.git</connection>
         <developerConnection>scm:git:https://github.com/jenkinsci/aws-lambda-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/aws-lambda-plugin</url>
-      <tag>aws-lambda-0.3.3</tag>
+      <tag>aws-lambda-0.5.3</tag>
     </scm>
 
 	<organization>
@@ -45,7 +45,7 @@
 	</developers>
 
     <properties>
-        <aws.version>1.10.68</aws.version>
+        <aws.version>1.11.29</aws.version>
         <jsonpath.version>2.0.0</jsonpath.version>
     </properties>
 
@@ -115,21 +115,21 @@
 	<repositories>
 		<repository>
 			<id>repo.jenkins-ci.org</id>
-			<url>http://repo.jenkins-ci.org/public/</url>
+			<url>https://repo.jenkins-ci.org/public/</url>
 		</repository>
 	</repositories>
 
 	<pluginRepositories>
 		<pluginRepository>
 			<id>repo.jenkins-ci.org</id>
-			<url>http://repo.jenkins-ci.org/public/</url>
+			<url>https://repo.jenkins-ci.org/public/</url>
 		</pluginRepository>
 	</pluginRepositories>
 
 	<distributionManagement>
 		<repository>
 			<id>maven.jenkins-ci.org</id>
-			<url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
+			<url>https://repo.jenkins-ci.org/releases</url>
 		</repository>
 	</distributionManagement>
 </project>

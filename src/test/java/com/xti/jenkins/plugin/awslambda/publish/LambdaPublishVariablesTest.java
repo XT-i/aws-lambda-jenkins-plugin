@@ -20,6 +20,9 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(MockitoJUnitRunner.class)
 public class LambdaPublishVariablesTest {
 
+    @Rule
+    public JenkinsRule j = new JenkinsRule();
+
     @Test
     public void testCloneExpandVariables() throws Exception {
         LambdaPublishVariables variables = new LambdaPublishVariables(false, "${ENV_ID}", Secret.fromString("$ENV_SECRET}}"), "${ENV_REGION}", "${ENV_ARN}", "${ENV_ALIAS}", "description ${ENV_VERSIONDESCRIPTION}");
