@@ -22,7 +22,7 @@ public class LambdaUploadBuildStepVariablesTest {
 
     @Test
     public void testCloneExpandVariables() throws Exception {
-        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FILE}", "description ${ENV_DESCRIPTION}", "${ENV_FUNCTION}", "${ENV_HANDLER}", "${ENV_MEMORY_SIZE}", "${ENV_ROLE}", "$ENV_RUNTIME", "${ENV_TIMEOUT}", "full", false, null, false, "", "");
+        LambdaUploadBuildStepVariables variables = new LambdaUploadBuildStepVariables(false, "${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FILE}", "description ${ENV_DESCRIPTION}", "${ENV_FUNCTION}", "${ENV_HANDLER}", "${ENV_MEMORY_SIZE}", "${ENV_ROLE}", "$ENV_RUNTIME", "${ENV_TIMEOUT}", "full", false, "${ENV_ALIAS}", false, "", "");
         LambdaUploadBuildStepVariables clone = variables.getClone();
 
         EnvVars envVars = new EnvVars();
@@ -37,9 +37,10 @@ public class LambdaUploadBuildStepVariablesTest {
         envVars.put("ENV_RUNTIME", "RUNTIME");
         envVars.put("ENV_MEMORY_SIZE", "1024");
         envVars.put("ENV_TIMEOUT", "30");
+        envVars.put("ENV_ALIAS", "ALIAS");
         clone.expandVariables(envVars);
 
-        LambdaUploadBuildStepVariables expected = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("$ENV_SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full", false, null, false, "", "");
+        LambdaUploadBuildStepVariables expected = new LambdaUploadBuildStepVariables(false, "ID", Secret.fromString("$ENV_SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", "full", false, "ALIAS", false, "", "");
 
         assertEquals(expected.getAwsAccessKeyId(), clone.getAwsAccessKeyId());
         assertEquals(expected.getAwsSecretKey(), clone.getAwsSecretKey());
@@ -52,6 +53,7 @@ public class LambdaUploadBuildStepVariablesTest {
         assertEquals(expected.getHandler(), clone.getHandler());
         assertEquals(expected.getRole(), clone.getRole());
         assertEquals(expected.getRuntime(), clone.getRuntime());
+        assertEquals(expected.getAlias(), clone.getAlias ());
     }
 
     @Test
