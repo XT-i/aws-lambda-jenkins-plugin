@@ -474,7 +474,8 @@ public class LambdaDeployServiceTest {
                         .withPublish(publish)
                         .withRuntime(runtime)
                         .withVpcConfig(subnets.size() > 0 || securityGroups.size() > 0 ? new VpcConfig().withSubnetIds(subnets).withSecurityGroupIds(securityGroups) : null)
-                        .withCode(new FunctionCode().withZipFile(ByteBuffer.wrap(FileUtils.readFileToByteArray(getZipFile()))));
+                        .withCode(new FunctionCode().withZipFile(ByteBuffer.wrap(FileUtils.readFileToByteArray(getZipFile()))))
+                        .withEnvironment(new Environment());
                 assertEquals(expected, args.getValue());
 
             } catch (IOException e) {

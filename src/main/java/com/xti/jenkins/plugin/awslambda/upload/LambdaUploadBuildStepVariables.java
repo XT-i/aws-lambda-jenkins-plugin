@@ -41,6 +41,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
+import java.util.HashMap;
+
 /**
  * Describable containing Lambda post build action config, checking feasibility of migrating it to upload package.
  */
@@ -64,6 +66,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     private boolean createAlias;
     private String subnets;
     private String securityGroups;
+    private EnvironmentConfiguration environmentConfiguration;
 
     @DataBoundConstructor
     public LambdaUploadBuildStepVariables(String awsRegion, String functionName, String updateMode){
@@ -241,6 +244,15 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         this.securityGroups = securityGroups;
     }
 
+    public EnvironmentConfiguration getEnvironmentConfiguration() {
+        return environmentConfiguration;
+    }
+
+    @DataBoundSetter
+    public void setEnvironmentConfiguration(EnvironmentConfiguration environmentConfiguration) {
+        this.environmentConfiguration = environmentConfiguration;
+    }
+
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = expand(awsAccessKeyId, env);
         clearTextAwsSecretKey = expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
@@ -255,6 +267,9 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         memorySize = expand(memorySize, env);
         subnets = expand(subnets, env);
         securityGroups = expand(securityGroups, env);
+        if(environmentConfiguration != null){
+            environmentConfiguration.expandVariables(env);
+        }
     }
 
     public LambdaUploadBuildStepVariables getClone(){
@@ -274,11 +289,23 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         lambdaUploadBuildStepVariables.setCreateAlias(createAlias);
         lambdaUploadBuildStepVariables.setSubnets(subnets);
         lambdaUploadBuildStepVariables.setSecurityGroups(securityGroups);
+        if(environmentConfiguration != null){
+            lambdaUploadBuildStepVariables.setEnvironmentConfiguration(environmentConfiguration.getClone());
+        }
         return lambdaUploadBuildStepVariables;
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(artifactLocation, description, functionName, handler, StringUtils.isNotBlank(memorySize) ? Integer.valueOf(memorySize) : null, role, runtime, StringUtils.isNotBlank(timeout) ? Integer.valueOf(timeout) : null, updateMode, publish, alias, createAlias, Tokenizer.split(subnets), Tokenizer.split(securityGroups));
+        DeployConfig deployConfig = new DeployConfig(artifactLocation, description, functionName, handler, StringUtils.isNotBlank(memorySize) ? Integer.valueOf(memorySize) : null, role, runtime, StringUtils.isNotBlank(timeout) ? Integer.valueOf(timeout) : null, updateMode, publish, alias, createAlias, Tokenizer.split(subnets), Tokenizer.split(securityGroups));
+        if(environmentConfiguration != null && environmentConfiguration.isConfigureEnvironment()){
+            deployConfig.setEnvironmentVariables(environmentConfiguration.getMapRepresentation());
+            if(StringUtils.isNotEmpty(environmentConfiguration.getKmsArn())) {
+                deployConfig.setKmsArn(environmentConfiguration.getKmsArn());
+            }
+        } else {
+            deployConfig.setEnvironmentVariables(new HashMap<String, String>());
+        }
+        return deployConfig;
     }
 
     public LambdaClientConfig getLambdaClientConfig(){
