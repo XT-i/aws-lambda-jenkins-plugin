@@ -265,6 +265,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         runtime = expand(runtime, env);
         timeout = expand(timeout, env);
         memorySize = expand(memorySize, env);
+        alias = expand(alias, env);
         subnets = expand(subnets, env);
         securityGroups = expand(securityGroups, env);
         if(environmentConfiguration != null){
