@@ -1,3 +1,9 @@
+## 0.5.6 (2016-11-20)
+
+Features:
+
+    - Added support for AWS Lambda environment variables
+
 ## 0.5.5 (2016-08-26)
 
 Features:
