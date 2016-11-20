@@ -1,10 +1,10 @@
 package com.xti.jenkins.plugin.awslambda.publish;
 
 import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
+import com.xti.jenkins.plugin.awslambda.util.ExpansionUtils;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -105,12 +105,12 @@ public class LambdaPublishBuildStepVariables extends AbstractDescribableImpl<Lam
     }
 
     public void expandVariables(EnvVars env) {
-        awsAccessKeyId = expand(awsAccessKeyId, env);
-        clearTextAwsSecretKey = expand(Secret.toString(Secret.fromString(this.awsSecretKey)), env);
-        awsRegion = expand(this.awsRegion, env);
-        functionARN = expand(this.functionARN, env);
-        functionAlias = expand(this.functionAlias, env);
-        versionDescription = expand(this.versionDescription, env);
+        awsAccessKeyId = ExpansionUtils.expand(awsAccessKeyId, env);
+        clearTextAwsSecretKey = ExpansionUtils.expand(Secret.toString(Secret.fromString(this.awsSecretKey)), env);
+        awsRegion = ExpansionUtils.expand(this.awsRegion, env);
+        functionARN = ExpansionUtils.expand(this.functionARN, env);
+        functionAlias = ExpansionUtils.expand(this.functionAlias, env);
+        versionDescription = ExpansionUtils.expand(this.versionDescription, env);
     }
 
     public LambdaPublishBuildStepVariables getClone(){
@@ -119,10 +119,6 @@ public class LambdaPublishBuildStepVariables extends AbstractDescribableImpl<Lam
         lambdaPublishBuildStepVariables.setAwsSecretKey(this.awsSecretKey);
         lambdaPublishBuildStepVariables.setUseInstanceCredentials(this.useInstanceCredentials);
         return lambdaPublishBuildStepVariables;
-    }
-
-    private String expand(String value, EnvVars env) {
-        return Util.replaceMacro(value.trim(), env);
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.

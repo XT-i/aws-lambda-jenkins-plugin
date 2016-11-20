@@ -1,7 +1,24 @@
 package com.xti.jenkins.plugin.awslambda.service;
 
 import com.amazonaws.services.lambda.AWSLambdaClient;
-import com.amazonaws.services.lambda.model.*;
+import com.amazonaws.services.lambda.model.CreateAliasRequest;
+import com.amazonaws.services.lambda.model.CreateAliasResult;
+import com.amazonaws.services.lambda.model.CreateFunctionRequest;
+import com.amazonaws.services.lambda.model.CreateFunctionResult;
+import com.amazonaws.services.lambda.model.Environment;
+import com.amazonaws.services.lambda.model.FunctionCode;
+import com.amazonaws.services.lambda.model.GetAliasRequest;
+import com.amazonaws.services.lambda.model.GetAliasResult;
+import com.amazonaws.services.lambda.model.GetFunctionRequest;
+import com.amazonaws.services.lambda.model.GetFunctionResult;
+import com.amazonaws.services.lambda.model.ResourceNotFoundException;
+import com.amazonaws.services.lambda.model.UpdateAliasRequest;
+import com.amazonaws.services.lambda.model.UpdateAliasResult;
+import com.amazonaws.services.lambda.model.UpdateFunctionCodeRequest;
+import com.amazonaws.services.lambda.model.UpdateFunctionCodeResult;
+import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationRequest;
+import com.amazonaws.services.lambda.model.UpdateFunctionConfigurationResult;
+import com.amazonaws.services.lambda.model.VpcConfig;
 import com.xti.jenkins.plugin.awslambda.TestUtil;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.upload.UpdateModeValue;
@@ -19,11 +36,20 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LambdaDeployServiceTest {
@@ -40,6 +66,8 @@ public class LambdaDeployServiceTest {
     private Integer timeout;
     private List<String> subnets;
     private List<String> securityGroups;
+    private String kmsArn;
+    private Map<String, String> environment;
 
     @Mock
     private AWSLambdaClient awsLambdaClient;
@@ -69,6 +97,9 @@ public class LambdaDeployServiceTest {
         timeout = 30;
         subnets = new ArrayList<>();
         securityGroups = new ArrayList<>();
+        kmsArn = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012";
+        environment = new HashMap<>();
+        environment.put("key", "value");
         lambdaDeployService = new LambdaDeployService(awsLambdaClient, jenkinsLogger);
         when(awsLambdaClient.updateFunctionConfiguration(any(UpdateFunctionConfigurationRequest.class)))
                 .thenReturn(new UpdateFunctionConfigurationResult());
@@ -452,7 +483,8 @@ public class LambdaDeployServiceTest {
                     .withRuntime(runtime)
                     .withVpcConfig(subnets.size() > 0 || securityGroups.size() > 0 ? new VpcConfig().withSubnetIds(subnets).withSecurityGroupIds(securityGroups) : null)
                     .withTimeout(timeout)
-                    .withEnvironment(new Environment());
+                    .withKMSKeyArn(kmsArn)
+                    .withEnvironment(new Environment().withVariables(environment));
 
             assertEquals(expected, args.getValue());
 
@@ -477,7 +509,8 @@ public class LambdaDeployServiceTest {
                         .withRuntime(runtime)
                         .withVpcConfig(subnets.size() > 0 || securityGroups.size() > 0 ? new VpcConfig().withSubnetIds(subnets).withSecurityGroupIds(securityGroups) : null)
                         .withCode(new FunctionCode().withZipFile(ByteBuffer.wrap(FileUtils.readFileToByteArray(getZipFile()))))
-                        .withEnvironment(new Environment());
+                        .withKMSKeyArn(kmsArn)
+                        .withEnvironment(new Environment().withVariables(environment));
                 assertEquals(expected, args.getValue());
 
             } catch (IOException e) {
@@ -519,7 +552,10 @@ public class LambdaDeployServiceTest {
     }
 
     private DeployConfig getDeployConfig(){
-        return new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null, false, null, false, subnets, securityGroups);
+        DeployConfig deployConfig = new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null, false, null, false, subnets, securityGroups);
+        deployConfig.setKmsArn(kmsArn);
+        deployConfig.setEnvironmentVariables(environment);
+        return deployConfig;
     }
 
     private File getZipFile(){

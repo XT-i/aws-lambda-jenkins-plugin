@@ -1,10 +1,10 @@
 package com.xti.jenkins.plugin.awslambda.eventsource;
 
 import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
+import com.xti.jenkins.plugin.awslambda.util.ExpansionUtils;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -91,12 +91,12 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
     }
 
     public void expandVariables(EnvVars env) {
-        awsAccessKeyId = expand(awsAccessKeyId, env);
-        clearTextAwsSecretKey = expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
-        awsRegion = expand(awsRegion, env);
-        functionName = expand(functionName, env);
-        functionAlias = expand(functionAlias, env);
-        eventSourceArn = expand(eventSourceArn, env);
+        awsAccessKeyId = ExpansionUtils.expand(awsAccessKeyId, env);
+        clearTextAwsSecretKey = ExpansionUtils.expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
+        awsRegion = ExpansionUtils.expand(awsRegion, env);
+        functionName = ExpansionUtils.expand(functionName, env);
+        functionAlias = ExpansionUtils.expand(functionAlias, env);
+        eventSourceArn = ExpansionUtils.expand(eventSourceArn, env);
     }
 
     public LambdaEventSourceBuildStepVariables getClone() {
@@ -118,10 +118,6 @@ public class LambdaEventSourceBuildStepVariables extends AbstractDescribableImpl
         } else {
             return new LambdaClientConfig(awsAccessKeyId, clearTextAwsSecretKey, awsRegion);
         }
-    }
-
-    private String expand(String value, EnvVars env) {
-        return Util.replaceMacro(value.trim(), env);
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.

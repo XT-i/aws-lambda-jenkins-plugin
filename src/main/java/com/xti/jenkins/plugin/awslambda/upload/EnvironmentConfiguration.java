@@ -1,5 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.upload;
 
+import com.xti.jenkins.plugin.awslambda.util.ExpansionUtils;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
@@ -54,6 +55,7 @@ public class EnvironmentConfiguration extends AbstractDescribableImpl<Environmen
     }
 
     public void expandVariables(EnvVars env) {
+        kmsArn = ExpansionUtils.expand(kmsArn, env);
         for (EnvironmentEntry environmentEntry : environment) {
             environmentEntry.expandVariables(env);
         }
