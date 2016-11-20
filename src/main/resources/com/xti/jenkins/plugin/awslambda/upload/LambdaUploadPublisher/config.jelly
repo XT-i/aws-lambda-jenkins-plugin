@@ -46,6 +46,9 @@
                         <f:entry title="Upload Lambda on success only" field="successOnly" help="/plugin/aws-lambda/help-successOnly.html">
                             <f:checkbox value="true" default="true" />
                         </f:entry>
+                        <f:entry>
+                            <f:property field="environmentConfiguration"/>
+                        </f:entry>
                         <f:advanced>
                             <f:optionalBlock title="Publish new version" field="publish" checked="${instance.publish}" inline="true">
                                 <f:optionalBlock title="Assign alias" field="createAlias" checked="${instance.createAlias}" inline="true">

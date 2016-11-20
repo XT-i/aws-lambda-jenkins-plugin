@@ -157,7 +157,9 @@ public class LambdaDeployService {
                 .withTimeout(config.getTimeout())
                 .withRole(config.getRole())
                 .withRuntime(config.getRuntime())
-                .withCode(functionCode);
+                .withCode(functionCode)
+                .withEnvironment(new Environment().withVariables(config.getEnvironmentVariables()))
+                .withKMSKeyArn(config.getKmsArn());
 
         if(config.getSubnets().size() > 0 && config.getSecurityGroups().size() > 0){
             VpcConfig vpcConfig = new VpcConfig()
@@ -258,7 +260,9 @@ public class LambdaDeployService {
                 .withMemorySize(config.getMemorySize())
                 .withTimeout(config.getTimeout())
                 .withRole(config.getRole())
-                .withRuntime(config.getRuntime());
+                .withRuntime(config.getRuntime())
+                .withEnvironment(new Environment().withVariables(config.getEnvironmentVariables()))
+                .withKMSKeyArn(config.getKmsArn());
 
         if(config.getSubnets().size() > 0 && config.getSecurityGroups().size() > 0){
             VpcConfig vpcConfig = new VpcConfig()

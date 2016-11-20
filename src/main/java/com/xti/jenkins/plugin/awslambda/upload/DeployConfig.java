@@ -2,6 +2,7 @@ package com.xti.jenkins.plugin.awslambda.upload;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public class DeployConfig implements Serializable {
     private String artifactLocation;
@@ -18,6 +19,8 @@ public class DeployConfig implements Serializable {
     private Boolean createAlias;
     private List<String> subnets;
     private List<String> securityGroups;
+    private Map<String, String> environmentVariables;
+    private String kmsArn;
 
     public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode, boolean publish, String alias, boolean createAlias, List<String> subnets, List<String> securityGroups) {
         this.artifactLocation = artifactLocation;
@@ -142,5 +145,21 @@ public class DeployConfig implements Serializable {
 
     public void setSecurityGroups(List<String> securityGroups) {
         this.securityGroups = securityGroups;
+    }
+
+    public Map<String, String> getEnvironmentVariables() {
+        return environmentVariables;
+    }
+
+    public void setEnvironmentVariables(Map<String, String> environmentVariables) {
+        this.environmentVariables = environmentVariables;
+    }
+
+    public String getKmsArn() {
+        return kmsArn;
+    }
+
+    public void setKmsArn(String kmsArn) {
+        this.kmsArn = kmsArn;
     }
 }

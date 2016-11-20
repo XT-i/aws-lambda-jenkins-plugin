@@ -1,0 +1,11 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:awslambda="/com/xti/jenkins/plugin/awslambda/tags">
+    <f:entry title="key">
+        <f:textbox name="key" field="key" />
+    </f:entry>
+    <f:entry title="value">
+        <f:textbox name="value" field="value" />
+    </f:entry>
+    <f:entry>
+        <f:repeatableDeleteButton/>
+    </f:entry>
+</j:jelly>

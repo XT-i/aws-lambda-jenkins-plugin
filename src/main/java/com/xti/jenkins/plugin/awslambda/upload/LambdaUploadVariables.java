@@ -27,11 +27,11 @@ package com.xti.jenkins.plugin.awslambda.upload;
  */
 
 import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
+import com.xti.jenkins.plugin.awslambda.util.ExpansionUtils;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import com.xti.jenkins.plugin.awslambda.util.Tokenizer;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Items;
 import hudson.util.FormValidation;
@@ -41,6 +41,8 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
+
+import java.util.HashMap;
 
 /**
  * Describable containing Lambda post build action config, checking feasability of migrating it to upload package.
@@ -66,6 +68,7 @@ public class LambdaUploadVariables extends AbstractDescribableImpl<LambdaUploadV
     private boolean createAlias;
     private String subnets;
     private String securityGroups;
+    private EnvironmentConfiguration environmentConfiguration;
 
     @DataBoundConstructor
     public LambdaUploadVariables(String awsRegion, String functionName, String updateMode){
@@ -253,21 +256,33 @@ public class LambdaUploadVariables extends AbstractDescribableImpl<LambdaUploadV
         this.securityGroups = securityGroups;
     }
 
+    public EnvironmentConfiguration getEnvironmentConfiguration() {
+        return environmentConfiguration;
+    }
+
+    @DataBoundSetter
+    public void setEnvironmentConfiguration(EnvironmentConfiguration environmentConfiguration) {
+        this.environmentConfiguration = environmentConfiguration;
+    }
+
     public void expandVariables(EnvVars env) {
-        awsAccessKeyId = expand(awsAccessKeyId, env);
-        clearTextAwsSecretKey = expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
-        awsRegion = expand(awsRegion, env);
-        artifactLocation = expand(artifactLocation, env);
-        description = expand(description, env);
-        functionName = expand(functionName, env);
-        handler = expand(handler, env);
-        role = expand(role, env);
-        runtime = expand(runtime, env);
-        memorySize = expand(memorySize, env);
-        timeout = expand(timeout, env);
-        alias = expand(alias, env);
-        subnets = expand(subnets, env);
-        securityGroups = expand(securityGroups, env);
+        awsAccessKeyId = ExpansionUtils.expand(awsAccessKeyId, env);
+        clearTextAwsSecretKey = ExpansionUtils.expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
+        awsRegion = ExpansionUtils.expand(awsRegion, env);
+        artifactLocation = ExpansionUtils.expand(artifactLocation, env);
+        description = ExpansionUtils.expand(description, env);
+        functionName = ExpansionUtils.expand(functionName, env);
+        handler = ExpansionUtils.expand(handler, env);
+        role = ExpansionUtils.expand(role, env);
+        runtime = ExpansionUtils.expand(runtime, env);
+        memorySize = ExpansionUtils.expand(memorySize, env);
+        timeout = ExpansionUtils.expand(timeout, env);
+        alias = ExpansionUtils.expand(alias, env);
+        subnets = ExpansionUtils.expand(subnets, env);
+        securityGroups = ExpansionUtils.expand(securityGroups, env);
+        if(environmentConfiguration != null){
+            environmentConfiguration.expandVariables(env);
+        }
     }
 
     public LambdaUploadVariables getClone(){
@@ -288,11 +303,23 @@ public class LambdaUploadVariables extends AbstractDescribableImpl<LambdaUploadV
         lambdaUploadVariables.setCreateAlias(createAlias);
         lambdaUploadVariables.setSubnets(subnets);
         lambdaUploadVariables.setSecurityGroups(securityGroups);
+        if(environmentConfiguration != null){
+            lambdaUploadVariables.setEnvironmentConfiguration(environmentConfiguration.getClone());
+        }
         return lambdaUploadVariables;
     }
 
     public DeployConfig getUploadConfig(){
-        return new DeployConfig(artifactLocation, description, functionName, handler, StringUtils.isNotBlank(memorySize) ? Integer.valueOf(memorySize) : null, role, runtime, StringUtils.isNotBlank(timeout) ? Integer.valueOf(timeout) : null, updateMode, publish, alias, createAlias, Tokenizer.split(subnets), Tokenizer.split(securityGroups));
+        DeployConfig deployConfig = new DeployConfig(artifactLocation, description, functionName, handler, StringUtils.isNotBlank(memorySize) ? Integer.valueOf(memorySize) : null, role, runtime, StringUtils.isNotBlank(timeout) ? Integer.valueOf(timeout) : null, updateMode, publish, alias, createAlias, Tokenizer.split(subnets), Tokenizer.split(securityGroups));
+        if(environmentConfiguration != null && environmentConfiguration.isConfigureEnvironment()){
+            deployConfig.setEnvironmentVariables(environmentConfiguration.getMapRepresentation());
+            if(StringUtils.isNotEmpty(environmentConfiguration.getKmsArn())) {
+                deployConfig.setKmsArn(environmentConfiguration.getKmsArn());
+            }
+        } else {
+            deployConfig.setEnvironmentVariables(new HashMap<String, String>());
+        }
+        return deployConfig;
     }
 
     public LambdaClientConfig getLambdaClientConfig(){
@@ -300,14 +327,6 @@ public class LambdaUploadVariables extends AbstractDescribableImpl<LambdaUploadV
             return new LambdaClientConfig(awsRegion);
         } else {
             return new LambdaClientConfig(awsAccessKeyId, clearTextAwsSecretKey, awsRegion);
-        }
-    }
-
-    private String expand(String value, EnvVars env) {
-        if(value != null) {
-            return Util.replaceMacro(value.trim(), env);
-        } else {
-            return null;
         }
     }
 

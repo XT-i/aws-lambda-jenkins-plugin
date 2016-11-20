@@ -27,10 +27,10 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  */
 
 import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
+import com.xti.jenkins.plugin.awslambda.util.ExpansionUtils;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.util.Secret;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -142,11 +142,11 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     }
 
     public void expandVariables(EnvVars env) {
-        awsAccessKeyId = expand(awsAccessKeyId, env);
-        clearTextAwsSecretKey = expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
-        awsRegion = expand(awsRegion, env);
-        functionName = expand(functionName, env);
-        payload = expand(payload, env);
+        awsAccessKeyId = ExpansionUtils.expand(awsAccessKeyId, env);
+        clearTextAwsSecretKey = ExpansionUtils.expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
+        awsRegion = ExpansionUtils.expand(awsRegion, env);
+        functionName = ExpansionUtils.expand(functionName, env);
+        payload = ExpansionUtils.expand(payload, env);
         if(jsonParameters != null) {
             for (JsonParameterVariables jsonParameter : jsonParameters) {
                 jsonParameter.expandVariables(env);
@@ -163,10 +163,6 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         lambdaInvokeVariables.setSuccessOnly(successOnly);
         lambdaInvokeVariables.setJsonParameters(jsonParameters);
         return lambdaInvokeVariables;
-    }
-
-    private String expand(String value, EnvVars env) {
-        return Util.replaceMacro(value.trim(), env);
     }
 
     public InvokeConfig getInvokeConfig(){

@@ -23,6 +23,10 @@ public class LambdaUploadVariablesTest {
     @Test
     public void testCloneExpandVariables() throws Exception {
         LambdaUploadVariables variables = new LambdaUploadVariables(false, "${ENV_ID}", Secret.fromString("$ENV_SECRET}"), "${ENV_REGION}", "${ENV_FILE}", "description ${ENV_DESCRIPTION}", "${ENV_FUNCTION}", "${ENV_HANDLER}", "${ENV_MEMORY_SIZE}", "${ENV_ROLE}", "$ENV_RUNTIME", "${ENV_TIMEOUT}", true, false, "full", null, false, "", "");
+        EnvironmentConfiguration environmentConfiguration = new EnvironmentConfiguration(Arrays.asList(new EnvironmentEntry("${ENV_ENV_KEY}", "${ENV_ENV_VALUE}")));
+        environmentConfiguration.setKmsArn("${ENV_ENV_KMS}");
+        environmentConfiguration.setConfigureEnvironment(true);
+        variables.setEnvironmentConfiguration(environmentConfiguration);
         LambdaUploadVariables clone = variables.getClone();
 
         EnvVars envVars = new EnvVars();
@@ -37,9 +41,16 @@ public class LambdaUploadVariablesTest {
         envVars.put("ENV_RUNTIME", "RUNTIME");
         envVars.put("ENV_MEMORY_SIZE", "1024");
         envVars.put("ENV_TIMEOUT", "30");
+        envVars.put("ENV_ENV_KEY", "KEY");
+        envVars.put("ENV_ENV_VALUE", "VALUE");
+        envVars.put("ENV_ENV_KMS", "KMS");
         clone.expandVariables(envVars);
 
         LambdaUploadVariables expected = new LambdaUploadVariables(false, "ID", Secret.fromString("$ENV_SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", true, false, "full", null, false, "", "");
+        EnvironmentConfiguration environmentConfigurationExpected = new EnvironmentConfiguration(Arrays.asList(new EnvironmentEntry("KEY", "VALUE")));
+        environmentConfigurationExpected.setKmsArn("KMS");
+        environmentConfigurationExpected.setConfigureEnvironment(true);
+        expected.setEnvironmentConfiguration(environmentConfigurationExpected);
 
         assertEquals(expected.getAwsAccessKeyId(), clone.getAwsAccessKeyId());
         assertEquals(expected.getAwsSecretKey(), clone.getAwsSecretKey());
@@ -53,11 +64,19 @@ public class LambdaUploadVariablesTest {
         assertEquals(expected.getRole(), clone.getRole());
         assertEquals(expected.getRuntime(), clone.getRuntime());
         assertEquals(expected.getSuccessOnly(), clone.getSuccessOnly());
+        assertEquals(expected.getAlias(), clone.getAlias());
+        assertEquals(expected.getEnvironmentConfiguration().getKmsArn(), clone.getEnvironmentConfiguration().getKmsArn());
+        assertEquals(expected.getEnvironmentConfiguration().getEnvironment().get(0).getKey(), clone.getEnvironmentConfiguration().getEnvironment().get(0).getKey());
+        assertEquals(expected.getEnvironmentConfiguration().getEnvironment().get(0).getValue(), clone.getEnvironmentConfiguration().getEnvironment().get(0).getValue());
     }
 
     @Test
     public void testGetUploadConfig() throws Exception {
         LambdaUploadVariables variables = new LambdaUploadVariables(false, "ID", Secret.fromString("SECRET}"), "eu-west-1", "FILE", "description DESCRIPTION", "FUNCTION", "HANDLER", "1024", "ROLE", "RUNTIME", "30", true, false, "full", null, false, "subnet1, subnet2", "secgroup");
+        EnvironmentConfiguration environmentConfiguration = new EnvironmentConfiguration(Arrays.asList(new EnvironmentEntry("key", "value")));
+        environmentConfiguration.setKmsArn("kmsArn");
+        environmentConfiguration.setConfigureEnvironment(true);
+        variables.setEnvironmentConfiguration(environmentConfiguration);
         DeployConfig uploadConfig = variables.getUploadConfig();
 
         assertEquals(variables.getArtifactLocation(), uploadConfig.getArtifactLocation());
@@ -71,6 +90,8 @@ public class LambdaUploadVariablesTest {
         assertEquals(variables.getUpdateMode(), uploadConfig.getUpdateMode());
         assertEquals(Arrays.asList("subnet1", "subnet2"), uploadConfig.getSubnets());
         assertEquals(Collections.singletonList("secgroup"), uploadConfig.getSecurityGroups());
+        assertEquals(variables.getEnvironmentConfiguration().getKmsArn(), uploadConfig.getKmsArn());
+        assertEquals(variables.getEnvironmentConfiguration().getEnvironment().get(0).getValue(), uploadConfig.getEnvironmentVariables().get("key"));
     }
 
     @Test

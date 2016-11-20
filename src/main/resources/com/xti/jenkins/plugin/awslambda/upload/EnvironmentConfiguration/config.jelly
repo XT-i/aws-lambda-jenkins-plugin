@@ -1,0 +1,10 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:awslambda="/com/xti/jenkins/plugin/awslambda/tags">
+    <f:optionalBlock title="Configure environment" field="configureEnvironment" checked="${instance.configureEnvironment}" inline="true">
+        <f:entry title="Environment variables">
+            <f:repeatableProperty field="environment" minimum="0" />
+        </f:entry>
+        <f:entry title="KMS Arn" help="/plugin/aws-lambda/help-kmsArn.html">
+            <f:textbox name="kmsArn" field="kmsArn" />
+        </f:entry>
+    </f:optionalBlock>
+</j:jelly>

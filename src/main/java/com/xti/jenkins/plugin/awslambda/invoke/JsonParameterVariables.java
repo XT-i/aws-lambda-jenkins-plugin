@@ -26,9 +26,9 @@ package com.xti.jenkins.plugin.awslambda.invoke;
  * #L%
  */
 
+import com.xti.jenkins.plugin.awslambda.util.ExpansionUtils;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.Util;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
@@ -70,14 +70,9 @@ public class JsonParameterVariables extends AbstractDescribableImpl<JsonParamete
     }
 
     public void expandVariables(EnvVars env) {
-        envVarName = expand(envVarName, env);
-        jsonPath = expand(jsonPath, env);
+        envVarName = ExpansionUtils.expand(envVarName, env);
+        jsonPath = ExpansionUtils.expand(jsonPath, env);
     }
-
-    private String expand(String value, EnvVars env) {
-        return Util.replaceMacro(value.trim(), env);
-    }
-
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static class DescriptorImpl extends Descriptor<JsonParameterVariables> {
