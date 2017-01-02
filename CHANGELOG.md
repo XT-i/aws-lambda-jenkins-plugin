@@ -1,3 +1,9 @@
+## 0.5.7 (2017-01-02)
+
+Features:
+
+    - Added support for dead letter queue configuration
+
 ## 0.5.6 (2016-11-20)
 
 Features:
