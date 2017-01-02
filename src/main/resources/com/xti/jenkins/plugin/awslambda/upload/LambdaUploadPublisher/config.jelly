@@ -63,6 +63,11 @@
                             <f:entry title="Security Groups" help="/plugin/aws-lambda/help-securityGroups.html">
                                 <f:textbox name="securityGroups" field="securityGroups" />
                             </f:entry>
+                            <f:optionalBlock title="Use dead letter queue" field="enableDeadLetterQueue" checked="${instance.enableDeadLetterQueue}" inline="true">
+                                <f:entry title="target ARN" help="/plugin/aws-lambda/help-deadletterqueue.html">
+                                    <f:textbox name="deadLetterQueueArn" field="deadLetterQueueArn" />
+                                </f:entry>
+                            </f:optionalBlock>
                         </f:advanced>
 
                         <f:entry title="">

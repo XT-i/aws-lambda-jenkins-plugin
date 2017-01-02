@@ -161,11 +161,15 @@ public class LambdaDeployService {
                 .withEnvironment(new Environment().withVariables(config.getEnvironmentVariables()))
                 .withKMSKeyArn(config.getKmsArn());
 
-        if(config.getSubnets().size() > 0 && config.getSecurityGroups().size() > 0){
+        if(config.getSubnets() != null && config.getSubnets().size() > 0 && config.getSecurityGroups() != null && config.getSecurityGroups().size() > 0){
             VpcConfig vpcConfig = new VpcConfig()
                     .withSubnetIds(config.getSubnets())
                     .withSecurityGroupIds(config.getSecurityGroups());
             createFunctionRequest.withVpcConfig(vpcConfig);
+        }
+
+        if(config.getDeadLetterQueueArn() != null && config.getDeadLetterQueueArn().length() > 0){
+            createFunctionRequest.setDeadLetterConfig(new DeadLetterConfig().withTargetArn(config.getDeadLetterQueueArn()));
         }
 
         logger.log("Lambda create function request:%n%s%n", createFunctionRequest.toString());
@@ -264,11 +268,15 @@ public class LambdaDeployService {
                 .withEnvironment(new Environment().withVariables(config.getEnvironmentVariables()))
                 .withKMSKeyArn(config.getKmsArn());
 
-        if(config.getSubnets().size() > 0 && config.getSecurityGroups().size() > 0){
+        if(config.getSubnets() != null && config.getSubnets().size() > 0 && config.getSecurityGroups() != null && config.getSecurityGroups().size() > 0){
             VpcConfig vpcConfig = new VpcConfig()
                     .withSubnetIds(config.getSubnets())
                     .withSecurityGroupIds(config.getSecurityGroups());
             updateFunctionConfigurationRequest.withVpcConfig(vpcConfig);
+        }
+
+        if(config.getDeadLetterQueueArn() != null && config.getDeadLetterQueueArn().length() > 0){
+            updateFunctionConfigurationRequest.setDeadLetterConfig(new DeadLetterConfig().withTargetArn(config.getDeadLetterQueueArn()));
         }
 
         logger.log("Lambda update configuration request:%n%s%n", updateFunctionConfigurationRequest.toString());

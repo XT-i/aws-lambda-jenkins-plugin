@@ -21,6 +21,7 @@ public class DeployConfig implements Serializable {
     private List<String> securityGroups;
     private Map<String, String> environmentVariables;
     private String kmsArn;
+    private String deadLetterQueueArn;
 
     public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode, boolean publish, String alias, boolean createAlias, List<String> subnets, List<String> securityGroups) {
         this.artifactLocation = artifactLocation;
@@ -161,5 +162,13 @@ public class DeployConfig implements Serializable {
 
     public void setKmsArn(String kmsArn) {
         this.kmsArn = kmsArn;
+    }
+
+    public String getDeadLetterQueueArn() {
+        return deadLetterQueueArn;
+    }
+
+    public void setDeadLetterQueueArn(String deadLetterQueueArn) {
+        this.deadLetterQueueArn = deadLetterQueueArn;
     }
 }

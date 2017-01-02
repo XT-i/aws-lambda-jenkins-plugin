@@ -5,6 +5,7 @@ import com.amazonaws.services.lambda.model.CreateAliasRequest;
 import com.amazonaws.services.lambda.model.CreateAliasResult;
 import com.amazonaws.services.lambda.model.CreateFunctionRequest;
 import com.amazonaws.services.lambda.model.CreateFunctionResult;
+import com.amazonaws.services.lambda.model.DeadLetterConfig;
 import com.amazonaws.services.lambda.model.Environment;
 import com.amazonaws.services.lambda.model.FunctionCode;
 import com.amazonaws.services.lambda.model.GetAliasRequest;
@@ -68,6 +69,7 @@ public class LambdaDeployServiceTest {
     private List<String> securityGroups;
     private String kmsArn;
     private Map<String, String> environment;
+    private String deadLetterQueueArn;
 
     @Mock
     private AWSLambdaClient awsLambdaClient;
@@ -100,6 +102,7 @@ public class LambdaDeployServiceTest {
         kmsArn = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012";
         environment = new HashMap<>();
         environment.put("key", "value");
+        deadLetterQueueArn = "arn:aws:sqs:us-east-1:123456789012:queueName";
         lambdaDeployService = new LambdaDeployService(awsLambdaClient, jenkinsLogger);
         when(awsLambdaClient.updateFunctionConfiguration(any(UpdateFunctionConfigurationRequest.class)))
                 .thenReturn(new UpdateFunctionConfigurationResult());
@@ -484,7 +487,8 @@ public class LambdaDeployServiceTest {
                     .withVpcConfig(subnets.size() > 0 || securityGroups.size() > 0 ? new VpcConfig().withSubnetIds(subnets).withSecurityGroupIds(securityGroups) : null)
                     .withTimeout(timeout)
                     .withKMSKeyArn(kmsArn)
-                    .withEnvironment(new Environment().withVariables(environment));
+                    .withEnvironment(new Environment().withVariables(environment))
+                    .withDeadLetterConfig(new DeadLetterConfig().withTargetArn(deadLetterQueueArn));
 
             assertEquals(expected, args.getValue());
 
@@ -510,7 +514,9 @@ public class LambdaDeployServiceTest {
                         .withVpcConfig(subnets.size() > 0 || securityGroups.size() > 0 ? new VpcConfig().withSubnetIds(subnets).withSecurityGroupIds(securityGroups) : null)
                         .withCode(new FunctionCode().withZipFile(ByteBuffer.wrap(FileUtils.readFileToByteArray(getZipFile()))))
                         .withKMSKeyArn(kmsArn)
-                        .withEnvironment(new Environment().withVariables(environment));
+                        .withEnvironment(new Environment().withVariables(environment))
+                        .withDeadLetterConfig(new DeadLetterConfig().withTargetArn(deadLetterQueueArn));
+
                 assertEquals(expected, args.getValue());
 
             } catch (IOException e) {
@@ -555,6 +561,7 @@ public class LambdaDeployServiceTest {
         DeployConfig deployConfig = new DeployConfig(null, description, functionName, handler, memory, role, runtime, timeout, null, false, null, false, subnets, securityGroups);
         deployConfig.setKmsArn(kmsArn);
         deployConfig.setEnvironmentVariables(environment);
+        deployConfig.setDeadLetterQueueArn(deadLetterQueueArn);
         return deployConfig;
     }
 
