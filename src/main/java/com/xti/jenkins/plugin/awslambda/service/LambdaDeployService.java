@@ -148,6 +148,10 @@ public class LambdaDeployService {
      */
     private String createLambdaFunction(DeployConfig config, FunctionCode functionCode) throws IOException {
 
+        VpcConfig vpcConfig = new VpcConfig()
+                .withSubnetIds(config.getSubnets())
+                .withSecurityGroupIds(config.getSecurityGroups());
+        
         CreateFunctionRequest createFunctionRequest = new CreateFunctionRequest()
                 .withDescription(config.getDescription())
                 .withFunctionName(config.getFunctionName())
@@ -159,14 +163,8 @@ public class LambdaDeployService {
                 .withRuntime(config.getRuntime())
                 .withCode(functionCode)
                 .withEnvironment(new Environment().withVariables(config.getEnvironmentVariables()))
-                .withKMSKeyArn(config.getKmsArn());
-
-        if(config.getSubnets() != null && config.getSubnets().size() > 0 && config.getSecurityGroups() != null && config.getSecurityGroups().size() > 0){
-            VpcConfig vpcConfig = new VpcConfig()
-                    .withSubnetIds(config.getSubnets())
-                    .withSecurityGroupIds(config.getSecurityGroups());
-            createFunctionRequest.withVpcConfig(vpcConfig);
-        }
+                .withKMSKeyArn(config.getKmsArn())
+                .withVpcConfig(vpcConfig);
 
         if(config.getDeadLetterQueueArn() != null && config.getDeadLetterQueueArn().length() > 0){
             createFunctionRequest.setDeadLetterConfig(new DeadLetterConfig().withTargetArn(config.getDeadLetterQueueArn()));
@@ -257,6 +255,11 @@ public class LambdaDeployService {
      * @return The new version of the function
      */
     private String updateConfigurationOnly(DeployConfig config){
+
+        VpcConfig vpcConfig = new VpcConfig()
+                .withSubnetIds(config.getSubnets())
+                .withSecurityGroupIds(config.getSecurityGroups());
+
         UpdateFunctionConfigurationRequest updateFunctionConfigurationRequest = new UpdateFunctionConfigurationRequest()
                 .withFunctionName(config.getFunctionName())
                 .withDescription(config.getDescription())
@@ -266,15 +269,9 @@ public class LambdaDeployService {
                 .withRole(config.getRole())
                 .withRuntime(config.getRuntime())
                 .withEnvironment(new Environment().withVariables(config.getEnvironmentVariables()))
-                .withKMSKeyArn(config.getKmsArn());
-
-        if(config.getSubnets() != null && config.getSubnets().size() > 0 && config.getSecurityGroups() != null && config.getSecurityGroups().size() > 0){
-            VpcConfig vpcConfig = new VpcConfig()
-                    .withSubnetIds(config.getSubnets())
-                    .withSecurityGroupIds(config.getSecurityGroups());
-            updateFunctionConfigurationRequest.withVpcConfig(vpcConfig);
-        }
-
+                .withKMSKeyArn(config.getKmsArn())
+                .withVpcConfig(vpcConfig);
+                
         if(config.getDeadLetterQueueArn() != null && config.getDeadLetterQueueArn().length() > 0){
             updateFunctionConfigurationRequest.setDeadLetterConfig(new DeadLetterConfig().withTargetArn(config.getDeadLetterQueueArn()));
         }

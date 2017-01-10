@@ -1,8 +1,11 @@
 package com.xti.jenkins.plugin.awslambda.upload;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.amazonaws.util.CollectionUtils;
 
 public class DeployConfig implements Serializable {
     private String artifactLocation;
@@ -23,7 +26,9 @@ public class DeployConfig implements Serializable {
     private String kmsArn;
     private String deadLetterQueueArn;
 
-    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize, String role, String runtime, Integer timeout, String updateMode, boolean publish, String alias, boolean createAlias, List<String> subnets, List<String> securityGroups) {
+    public DeployConfig(String artifactLocation, String description, String functionName, String handler, Integer memorySize,
+            String role, String runtime, Integer timeout, String updateMode, boolean publish, String alias, boolean createAlias,
+            List<String> subnets, List<String> securityGroups) {
         this.artifactLocation = artifactLocation;
         this.description = description;
         this.functionName = functionName;
@@ -80,9 +85,13 @@ public class DeployConfig implements Serializable {
         this.memorySize = memorySize;
     }
 
-    public Boolean getPublish() { return publish; }
+    public Boolean getPublish() {
+        return publish;
+    }
 
-    public void setPublish(Boolean publish) { this.publish = publish; }
+    public void setPublish(Boolean publish) {
+        this.publish = publish;
+    }
 
     public String getRole() {
         return role;
@@ -133,7 +142,7 @@ public class DeployConfig implements Serializable {
     }
 
     public List<String> getSubnets() {
-        return subnets;
+        return CollectionUtils.isNullOrEmpty(subnets) ? new ArrayList<String>() : subnets;
     }
 
     public void setSubnets(List<String> subnets) {
@@ -141,7 +150,7 @@ public class DeployConfig implements Serializable {
     }
 
     public List<String> getSecurityGroups() {
-        return securityGroups;
+        return CollectionUtils.isNullOrEmpty(securityGroups) ? new ArrayList<String>() : securityGroups;
     }
 
     public void setSecurityGroups(List<String> securityGroups) {
