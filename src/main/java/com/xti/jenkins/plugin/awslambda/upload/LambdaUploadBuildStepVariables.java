@@ -67,6 +67,8 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
     private String subnets;
     private String securityGroups;
     private EnvironmentConfiguration environmentConfiguration;
+    private boolean enableDeadLetterQueue;
+    private String deadLetterQueueArn;
 
     @DataBoundConstructor
     public LambdaUploadBuildStepVariables(String awsRegion, String functionName, String updateMode){
@@ -253,6 +255,25 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         this.environmentConfiguration = environmentConfiguration;
     }
 
+    public boolean getEnableDeadLetterQueue() {
+        return enableDeadLetterQueue;
+    }
+
+    @DataBoundSetter
+    public void setEnableDeadLetterQueue(boolean enableDeadLetterQueue) {
+        this.enableDeadLetterQueue = enableDeadLetterQueue;
+    }
+
+    public String getDeadLetterQueueArn() {
+        return deadLetterQueueArn;
+    }
+
+    @DataBoundSetter
+    public void setDeadLetterQueueArn(String deadLetterQueueArn) {
+        this.deadLetterQueueArn = deadLetterQueueArn;
+    }
+
+
     public void expandVariables(EnvVars env) {
         awsAccessKeyId = ExpansionUtils.expand(awsAccessKeyId, env);
         clearTextAwsSecretKey = ExpansionUtils.expand(Secret.toString(Secret.fromString(awsSecretKey)), env);
@@ -271,6 +292,7 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         if(environmentConfiguration != null){
             environmentConfiguration.expandVariables(env);
         }
+        deadLetterQueueArn = ExpansionUtils.expand(deadLetterQueueArn, env);
     }
 
     public LambdaUploadBuildStepVariables getClone(){
@@ -293,6 +315,8 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
         if(environmentConfiguration != null){
             lambdaUploadBuildStepVariables.setEnvironmentConfiguration(environmentConfiguration.getClone());
         }
+        lambdaUploadBuildStepVariables.setEnableDeadLetterQueue(enableDeadLetterQueue);
+        lambdaUploadBuildStepVariables.setDeadLetterQueueArn(deadLetterQueueArn);
         return lambdaUploadBuildStepVariables;
     }
 
@@ -305,6 +329,9 @@ public class LambdaUploadBuildStepVariables extends AbstractDescribableImpl<Lamb
             }
         } else {
             deployConfig.setEnvironmentVariables(new HashMap<String, String>());
+        }
+        if(enableDeadLetterQueue){
+            deployConfig.setDeadLetterQueueArn(deadLetterQueueArn);
         }
         return deployConfig;
     }
