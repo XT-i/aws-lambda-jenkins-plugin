@@ -1,3 +1,13 @@
+## 0.5.9 (2017-03-04)
+
+Bugfixes:
+
+    - PublishConfig and AliasConfig now implement Serializable [Issue 64](https://github.com/XT-i/aws-lambda-jenkins-plugin/issues/64)
+
+Features:
+
+    - Added the following short forms for build step pipeline usage: deployLambda, invokeLambda, publishLambda and eventSourceLambda
+
 ## 0.5.8 (2017-01-11)
 
 Bugfixes:

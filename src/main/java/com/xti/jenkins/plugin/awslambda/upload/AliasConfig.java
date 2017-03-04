@@ -1,7 +1,12 @@
 package com.xti.jenkins.plugin.awslambda.upload;
 
-public class AliasConfig {
-    public AliasConfig(boolean createAlias, String aliasName, String aliasDescription, String functionName, String functionVersion) {
+import java.io.Serializable;
+
+public class AliasConfig implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	public AliasConfig(boolean createAlias, String aliasName, String aliasDescription, String functionName, String functionVersion) {
         this.createAlias = createAlias;
         this.aliasName = aliasName;
         this.aliasDescription = aliasDescription;

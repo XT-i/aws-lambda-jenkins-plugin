@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>aws-lambda</artifactId>
-	<version>0.5.9-SNAPSHOT</version>
+	<version>0.5.10-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 
 	<name>AWS Lambda Plugin</name>
@@ -64,6 +64,11 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>${jsonpath.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>structs</artifactId>
+            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>

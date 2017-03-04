@@ -1,11 +1,16 @@
 package com.xti.jenkins.plugin.awslambda.publish;
 
+import java.io.Serializable;
+
 /**
  * Project: aws-lambda
  * Created by Magnus Sulland on 26/07/2016.
  */
-public class PublishConfig {
-    private String functionAlias;
+public class PublishConfig implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	private String functionAlias;
     private String functionARN;
     private String versionDescription;
 

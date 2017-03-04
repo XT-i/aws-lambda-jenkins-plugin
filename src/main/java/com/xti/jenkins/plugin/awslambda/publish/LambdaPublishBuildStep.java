@@ -14,6 +14,7 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Builder;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -80,6 +81,7 @@ public class LambdaPublishBuildStep extends Builder implements SimpleBuildStep {
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
+    @Symbol("publishLambda")
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 
         public DescriptorImpl() {

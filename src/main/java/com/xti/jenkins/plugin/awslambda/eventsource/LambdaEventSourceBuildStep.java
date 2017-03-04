@@ -1,19 +1,20 @@
 package com.xti.jenkins.plugin.awslambda.eventsource;
 
 import com.xti.jenkins.plugin.awslambda.callable.EventSourceCallable;
-import com.xti.jenkins.plugin.awslambda.service.JenkinsLogger;
-import com.xti.jenkins.plugin.awslambda.service.LambdaDeployService;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.*;
-import hudson.tasks.BuildStep;
+import hudson.model.AbstractProject;
+import hudson.model.Result;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Builder;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -77,6 +78,7 @@ public class LambdaEventSourceBuildStep extends Builder implements SimpleBuildSt
     }
 
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
+    @Symbol("eventSourceLambda")
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
         /**
          * In order to load the persisted global configuration, you have to
