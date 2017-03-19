@@ -49,6 +49,7 @@ public class LambdaPublishVariables  extends AbstractDescribableImpl<LambdaPubli
         return useInstanceCredentials;
     }
 
+    @DataBoundSetter
     public void setUseInstanceCredentials(boolean useInstanceCredentials){
         this.useInstanceCredentials = useInstanceCredentials;
     }
@@ -75,26 +76,12 @@ public class LambdaPublishVariables  extends AbstractDescribableImpl<LambdaPubli
         return this.awsRegion;
     }
 
-    @DataBoundSetter
-    public void setFunctionARN(String functionARN){
-        this.functionARN = functionARN;
-    }
-
     public String getFunctionARN() {
         return this.functionARN;
     }
 
-    @DataBoundSetter
-    public void setFunctionAlias(String functionAlias){
-        this.functionAlias = functionAlias;
-    }
-
     public String getFunctionAlias() {
         return this.functionAlias;
-    }
-
-    public void setVersionDescription(String versionDescription){
-        this.versionDescription = versionDescription;
     }
 
     public String getVersionDescription(){

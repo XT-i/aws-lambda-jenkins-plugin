@@ -1,4 +1,4 @@
-#AWS Lambda Jenkins plugin
+# AWS Lambda Jenkins plugin
 
 [![Build Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/aws-lambda-plugin)](https://jenkins.ci.cloudbees.com/job/plugins/job/aws-lambda-plugin/)
 
@@ -158,3 +158,12 @@ These environment variables can be used as parameters in further build steps and
 On the job build result page you'll get a summary of all deployed and invoked functions and their success state.
 
 ![AWS Lambda Jenkins plugin job build result](blogpost/result.jpg)
+
+##Jenkins Pipeline support
+
+In the pipeline syntax helper first select the following value:
+step: General Build Step
+
+In the new select box you can then choose the wanted AWS Lambda build step.
+
+![Jenkins Pipeline syntax helper](img/pipeline-syntax.png)
