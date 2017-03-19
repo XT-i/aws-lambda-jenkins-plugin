@@ -1,4 +1,4 @@
-#AWS Lambda Jenkins plugin
+# AWS Lambda Jenkins plugin
 
 [![Build Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/aws-lambda-plugin)](https://jenkins.ci.cloudbees.com/job/plugins/job/aws-lambda-plugin/)
 
