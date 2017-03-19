@@ -1,3 +1,9 @@
+## 0.5.10 (2017-03-19)
+
+Bugfixes:
+
+    - Instance Credentials are now saved and used when using the publish new version post build action. [Issue 68](https://github.com/XT-i/aws-lambda-jenkins-plugin/issues/68)
+
 ## 0.5.9 (2017-03-04)
 
 Bugfixes:
