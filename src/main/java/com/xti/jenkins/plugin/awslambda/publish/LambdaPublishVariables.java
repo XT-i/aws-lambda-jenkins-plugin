@@ -2,6 +2,7 @@ package com.xti.jenkins.plugin.awslambda.publish;
 
 import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
 import com.xti.jenkins.plugin.awslambda.util.ExpansionUtils;
+import com.xti.jenkins.plugin.awslambda.util.JenkinsProxy;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -94,9 +95,9 @@ public class LambdaPublishVariables  extends AbstractDescribableImpl<LambdaPubli
 
     public LambdaClientConfig getLambdaClientConfig(){
         if(useInstanceCredentials){
-            return new LambdaClientConfig(awsRegion);
+            return new LambdaClientConfig(awsRegion, JenkinsProxy.getConfig());
         } else {
-            return new LambdaClientConfig(awsAccessKeyId, clearTextAwsSecretKey, awsRegion);
+            return new LambdaClientConfig(awsAccessKeyId, clearTextAwsSecretKey, awsRegion, JenkinsProxy.getConfig());
         }
     }
 
