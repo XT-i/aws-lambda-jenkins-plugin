@@ -1,5 +1,6 @@
 package com.xti.jenkins.plugin.awslambda.service;
 
+import com.xti.jenkins.plugin.awslambda.util.JenkinsProxy;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import org.junit.Test;
 
@@ -10,14 +11,14 @@ public class LambdaClientConfigTest {
 
     @Test
     public void testGetClient() throws Exception {
-        LambdaClientConfig lambdaClientConfig = new LambdaClientConfig("abc", "def", "eu-west-1");
+        LambdaClientConfig lambdaClientConfig = new LambdaClientConfig("abc", "def", "eu-west-1", JenkinsProxy.getConfig());
         assertNotNull(lambdaClientConfig.getClient());
     }
 
     @Test
     public void testGetClientInvalidRegion() throws Exception {
         try {
-            LambdaClientConfig lambdaClientConfig = new LambdaClientConfig("abc", "def", "ghi");
+            LambdaClientConfig lambdaClientConfig = new LambdaClientConfig("abc", "def", "ghi", JenkinsProxy.getConfig());
             lambdaClientConfig.getClient();
             fail("Should have failed with IllegalArgumentException");
         } catch (IllegalArgumentException ignored){

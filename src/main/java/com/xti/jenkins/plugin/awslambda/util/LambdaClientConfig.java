@@ -7,7 +7,6 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import hudson.ProxyConfiguration;
-import jenkins.model.Jenkins;
 
 import java.io.Serializable;
 
@@ -16,17 +15,20 @@ public class LambdaClientConfig implements Serializable {
     private String accessKeyId;
     private String secretKey;
     private Boolean useDefaultAWSCredentials;
+    private ProxyConfiguration proxyConfiguration;
 
-    public LambdaClientConfig(String region){
+    public LambdaClientConfig(String region, ProxyConfiguration proxyConfiguration){
         this.region = region;
-        useDefaultAWSCredentials = true;
+        this.useDefaultAWSCredentials = true;
+        this.proxyConfiguration = proxyConfiguration;
     }
 
-    public LambdaClientConfig(String accessKeyId, String secretKey, String region) {
+    public LambdaClientConfig(String accessKeyId, String secretKey, String region, ProxyConfiguration proxyConfiguration) {
         this.region = region;
         this.accessKeyId = accessKeyId;
         this.secretKey = secretKey;
-        useDefaultAWSCredentials = false;
+        this.useDefaultAWSCredentials = false;
+        this.proxyConfiguration = proxyConfiguration;
     }
 
     public AWSLambdaClient getClient() {
@@ -40,24 +42,27 @@ public class LambdaClientConfig implements Serializable {
     }
 
     private ClientConfiguration getClientConfiguration() {
-        ClientConfiguration config = new ClientConfiguration();
+        /*
         Jenkins instance = Jenkins.getInstance();
 
         if (instance != null) {
             ProxyConfiguration proxy = instance.proxy;
+        */
+        ClientConfiguration config = new ClientConfiguration();
 
-            if (proxy != null) {
-                config.setProxyHost(proxy.name);
-                config.setProxyPort(proxy.port);
-                if (proxy.getUserName() != null) {
-                    config.setProxyUsername(proxy.getUserName());
-                    config.setProxyPassword(proxy.getPassword());
-                }
-                if (proxy.noProxyHost != null){
-                    config.setNonProxyHosts(proxy.noProxyHost);
-                }
+        if (proxyConfiguration != null) {
+            config.setProxyHost(proxyConfiguration.name);
+            config.setProxyPort(proxyConfiguration.port);
+            if (proxyConfiguration.getUserName() != null) {
+                config.setProxyUsername(proxyConfiguration.getUserName());
+                config.setProxyPassword(proxyConfiguration.getPassword());
+            }
+            if (proxyConfiguration.noProxyHost != null) {
+                config.setNonProxyHosts(proxyConfiguration.noProxyHost);
             }
         }
+
         return config;
+
     }
 }

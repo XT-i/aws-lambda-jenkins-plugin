@@ -7,12 +7,9 @@ import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploader;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.FilePath;
-import hudson.model.BuildListener;
 import hudson.model.TaskListener;
 import hudson.remoting.Callable;
-import org.jenkinsci.remoting.Role;
 import org.jenkinsci.remoting.RoleChecker;
-import org.jenkinsci.remoting.RoleSensitive;
 
 import java.io.IOException;
 
