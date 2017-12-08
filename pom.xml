@@ -45,7 +45,7 @@
 	</developers>
 
     <properties>
-        <aws.version>1.11.64</aws.version>
+        <aws.version>1.11.160</aws.version>
         <jsonpath.version>2.0.0</jsonpath.version>
     </properties>
 
