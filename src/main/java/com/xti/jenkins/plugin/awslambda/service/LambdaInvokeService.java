@@ -32,6 +32,10 @@ public class LambdaInvokeService {
                 .withFunctionName(invokeConfig.getFunctionName())
                 .withPayload(invokeConfig.getPayload());
 
+        if(invokeConfig.getQualifier() !=null && !invokeConfig.getQualifier().isEmpty()){
+            invokeRequest.withQualifier(invokeConfig.getQualifier());
+        }
+
         if(invokeConfig.isSynchronous()){
             invokeRequest
                     .withInvocationType(InvocationType.RequestResponse)

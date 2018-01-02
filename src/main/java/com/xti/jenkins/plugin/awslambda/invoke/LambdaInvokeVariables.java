@@ -47,25 +47,28 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     private String clearTextAwsSecretKey;
     private String awsRegion;
     private String functionName;
+    private String qualifier;
     private String payload;
     private boolean synchronous;
     private boolean successOnly;
     private List<JsonParameterVariables> jsonParameters = new ArrayList<JsonParameterVariables>();
 
     @DataBoundConstructor
-    public LambdaInvokeVariables(String awsRegion, String functionName, boolean synchronous) {
+    public LambdaInvokeVariables(String awsRegion, String functionName, String qualifier, boolean synchronous) {
         this.awsRegion = awsRegion;
         this.functionName = functionName;
+        this.qualifier = qualifier;
         this.synchronous = synchronous;
     }
 
     @Deprecated
-    public LambdaInvokeVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
+    public LambdaInvokeVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String qualifier, String payload, boolean synchronous, boolean successOnly, List<JsonParameterVariables> jsonParameters) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey != null ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
+        this.qualifier = qualifier;
         this.payload = payload;
         this.synchronous = synchronous;
         this.successOnly = successOnly;
@@ -105,6 +108,15 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
 
     public String getFunctionName() {
         return functionName;
+    }
+
+
+    public String getQualifier() {
+        return qualifier;
+    }
+
+    public void setQualifier(String qualifier) {
+        this.qualifier = qualifier;
     }
 
     public String getPayload() {
@@ -148,6 +160,9 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         awsRegion = ExpansionUtils.expand(awsRegion, env);
         functionName = ExpansionUtils.expand(functionName, env);
         payload = ExpansionUtils.expand(payload, env);
+        if(qualifier !=null){
+            qualifier = ExpansionUtils.expand(qualifier, env);
+        }
         if(jsonParameters != null) {
             for (JsonParameterVariables jsonParameter : jsonParameters) {
                 jsonParameter.expandVariables(env);
@@ -156,7 +171,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
     }
 
     public LambdaInvokeVariables getClone(){
-        LambdaInvokeVariables lambdaInvokeVariables = new LambdaInvokeVariables(awsRegion, functionName, synchronous);
+        LambdaInvokeVariables lambdaInvokeVariables = new LambdaInvokeVariables(awsRegion, functionName, qualifier, synchronous);
         lambdaInvokeVariables.setUseInstanceCredentials(useInstanceCredentials);
         lambdaInvokeVariables.setAwsAccessKeyId(awsAccessKeyId);
         lambdaInvokeVariables.setAwsSecretKey(awsSecretKey);
@@ -171,7 +186,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         for (JsonParameterVariables jsonParameterVariables : getJsonParameters()) {
             jsonParameters.add(jsonParameterVariables.buildJsonParameter());
         }
-        return new InvokeConfig(functionName, payload, synchronous, jsonParameters);
+        return new InvokeConfig(functionName, qualifier, payload, synchronous, jsonParameters);
     }
 
     public LambdaClientConfig getLambdaClientConfig(){
@@ -212,6 +227,8 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
             return false;
         if (getFunctionName() != null ? !getFunctionName().equals(that.getFunctionName()) : that.getFunctionName() != null)
             return false;
+        if (getQualifier() != null ? !getQualifier().equals(that.getQualifier()) : that.getQualifier() != null)
+            return false;
         if (getPayload() != null ? !getPayload().equals(that.getPayload()) : that.getPayload() != null) return false;
         return !(getJsonParameters() != null ? !getJsonParameters().equals(that.getJsonParameters()) : that.getJsonParameters() != null);
 
@@ -224,6 +241,7 @@ public class LambdaInvokeVariables extends AbstractDescribableImpl<LambdaInvokeV
         result = 31 * result + (getAwsSecretKey() != null ? getAwsSecretKey().hashCode() : 0);
         result = 31 * result + (getAwsRegion() != null ? getAwsRegion().hashCode() : 0);
         result = 31 * result + (getFunctionName() != null ? getFunctionName().hashCode() : 0);
+        result = 31 * result + (getQualifier() != null ? getQualifier().hashCode() : 0);
         result = 31 * result + (getPayload() != null ? getPayload().hashCode() : 0);
         result = 31 * result + (getSynchronous() ? 1 : 0);
         result = 31 * result + (getSuccessOnly() ? 1 : 0);

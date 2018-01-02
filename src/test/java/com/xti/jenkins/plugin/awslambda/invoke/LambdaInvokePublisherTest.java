@@ -49,7 +49,7 @@ public class LambdaInvokePublisherTest {
     public void testHtml() throws Exception {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "value"));
-        LambdaInvokeVariables variables = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, true, jsonParameterVariables);
+        LambdaInvokeVariables variables = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", null, "payload", true, true, jsonParameterVariables);
         List<LambdaInvokeVariables> variablesList = new ArrayList<>();
         variablesList.add(variables);
 
@@ -69,7 +69,7 @@ public class LambdaInvokePublisherTest {
     public void testHtmlInstanceRole() throws Exception {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "value"));
-        LambdaInvokeVariables variables = new LambdaInvokeVariables(true, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, true, jsonParameterVariables);
+        LambdaInvokeVariables variables = new LambdaInvokeVariables(true, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", null, "payload", true, true, jsonParameterVariables);
         List<LambdaInvokeVariables> variablesList = new ArrayList<>();
         variablesList.add(variables);
 
@@ -107,7 +107,7 @@ public class LambdaInvokePublisherTest {
     public void testPerform() throws IOException, ExecutionException, InterruptedException {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "$.key2"));
-        LambdaInvokeVariables clone = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, true, jsonParameterVariables);
+        LambdaInvokeVariables clone = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "alias", "payload", true, true, jsonParameterVariables);
         LambdaInvokeVariables spy = Mockito.spy(clone);
 
         when(original.getClone()).thenReturn(spy);
@@ -136,7 +136,7 @@ public class LambdaInvokePublisherTest {
     public void testPerformInstanceRole() throws IOException, ExecutionException, InterruptedException {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "$.key2"));
-        LambdaInvokeVariables clone = new LambdaInvokeVariables(true, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, true, jsonParameterVariables);
+        LambdaInvokeVariables clone = new LambdaInvokeVariables(true, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "alias", "payload", true, true, jsonParameterVariables);
         LambdaInvokeVariables spy = Mockito.spy(clone);
 
         when(original.getClone()).thenReturn(spy);
@@ -165,7 +165,7 @@ public class LambdaInvokePublisherTest {
     public void testPerformBuildUnstableNotSuccessOnly() throws IOException, ExecutionException, InterruptedException {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "$.key2"));
-        LambdaInvokeVariables clone = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, false, jsonParameterVariables);
+        LambdaInvokeVariables clone = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", null, "payload", true, false, jsonParameterVariables);
         LambdaInvokeVariables spy = Mockito.spy(clone);
 
         when(original.getClone()).thenReturn(spy);
@@ -201,7 +201,7 @@ public class LambdaInvokePublisherTest {
     public void testPerformBuildUnstableSuccessOnly() throws IOException, ExecutionException, InterruptedException {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "$.key2"));
-        LambdaInvokeVariables clone = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, true, jsonParameterVariables);
+        LambdaInvokeVariables clone = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "alias", "payload", true, true, jsonParameterVariables);
         LambdaInvokeVariables spy = Mockito.spy(clone);
 
         when(original.getClone()).thenReturn(spy);
@@ -228,7 +228,7 @@ public class LambdaInvokePublisherTest {
     public void testPerformBuildFailure() throws IOException, ExecutionException, InterruptedException {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "$.key2"));
-        LambdaInvokeVariables clone = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, true, jsonParameterVariables);
+        LambdaInvokeVariables clone = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", null, "payload", true, true, jsonParameterVariables);
         LambdaInvokeVariables spy = Mockito.spy(clone);
 
         when(original.getClone()).thenReturn(spy);
@@ -255,7 +255,7 @@ public class LambdaInvokePublisherTest {
     public void testPerformFailure() throws IOException, ExecutionException, InterruptedException {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "$.key2"));
-        LambdaInvokeVariables clone = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, true, jsonParameterVariables);
+        LambdaInvokeVariables clone = new LambdaInvokeVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", null, "payload", true, true, jsonParameterVariables);
         LambdaInvokeVariables spy = Mockito.spy(clone);
 
         when(original.getClone()).thenReturn(spy);

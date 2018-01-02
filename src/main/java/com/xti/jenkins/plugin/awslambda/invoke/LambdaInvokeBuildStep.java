@@ -82,7 +82,7 @@ public class LambdaInvokeBuildStep extends Builder implements SimpleBuildStep{
                 run.addAction(new LambdaOutputInjectionAction(entry.getKey(), entry.getValue()));
             }
             run.getEnvironment(listener);
-            run.addAction(new LambdaInvokeAction(executionVariables.getFunctionName(), invocationResult.isSuccess()));
+            run.addAction(new LambdaInvokeAction(executionVariables.getFunctionName(), executionVariables.getQualifier(), invocationResult.isSuccess()));
         } catch (Exception exc) {
             throw new RuntimeException(exc);
         }
