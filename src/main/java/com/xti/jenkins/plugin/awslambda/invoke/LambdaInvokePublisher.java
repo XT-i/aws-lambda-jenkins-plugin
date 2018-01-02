@@ -106,7 +106,7 @@ public class LambdaInvokePublisher extends Notifier{
                 build.addAction(new LambdaOutputInjectionAction(entry.getKey(), entry.getValue()));
             }
             build.getEnvironment(listener);
-            build.addAction(new LambdaInvokeAction(executionVariables.getFunctionName(), invocationResult.isSuccess()));
+            build.addAction(new LambdaInvokeAction(executionVariables.getFunctionName(), executionVariables.getQualifier(), invocationResult.isSuccess()));
             return true;
         } catch (Exception exc) {
             throw new RuntimeException(exc);

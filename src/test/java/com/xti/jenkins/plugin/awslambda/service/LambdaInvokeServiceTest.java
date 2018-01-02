@@ -51,7 +51,7 @@ public class LambdaInvokeServiceTest {
 
     @Test
     public void testInvokeLambdaFunctionAsynchronous() throws Exception {
-        InvokeConfig invokeConfig = new InvokeConfig("function", "{\"key1\": \"value1\"}", false, null);
+        InvokeConfig invokeConfig = new InvokeConfig("function", "alias","{\"key1\": \"value1\"}", false, null);
 
         when(awsLambdaClient.invoke(any(InvokeRequest.class)))
                 .thenReturn(new InvokeResult());
@@ -70,7 +70,7 @@ public class LambdaInvokeServiceTest {
 
     @Test
     public void testInvokeLambdaFunctionAsynchronousError() throws Exception {
-        InvokeConfig invokeConfig = new InvokeConfig("function", "{\"key1\": \"value1\"}", false, null);
+        InvokeConfig invokeConfig = new InvokeConfig("function", "alias","{\"key1\": \"value1\"}", false, null);
 
         when(awsLambdaClient.invoke(any(InvokeRequest.class)))
                 .thenReturn(new InvokeResult().withFunctionError("Handled"));
@@ -98,7 +98,7 @@ public class LambdaInvokeServiceTest {
         final String requestPayload = "{\"key1\": \"value1\"}";
         final String responsePayload = "{\"key2\": \"value2\"}";
 
-        InvokeConfig invokeConfig = new InvokeConfig("function", requestPayload, true, null);
+        InvokeConfig invokeConfig = new InvokeConfig("function", "alias", requestPayload, true, null);
 
         InvokeResult invokeResult = new InvokeResult()
                 .withLogResult(logBase64)
@@ -138,7 +138,7 @@ public class LambdaInvokeServiceTest {
         final String requestPayload = "{\"key1\": \"value1\"}";
         final String responsePayload = "{\"errorMessage\":\"event_fail\"}";
 
-        InvokeConfig invokeConfig = new InvokeConfig("function", requestPayload, true, null);
+        InvokeConfig invokeConfig = new InvokeConfig("function", null, requestPayload, true, null);
 
         InvokeResult invokeResult = new InvokeResult()
                 .withLogResult(logBase64)

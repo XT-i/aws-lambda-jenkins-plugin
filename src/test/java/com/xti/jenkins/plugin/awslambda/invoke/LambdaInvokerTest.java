@@ -32,7 +32,7 @@ public class LambdaInvokerTest {
 
         LambdaInvoker invoker = new LambdaInvoker(service, logger);
 
-        InvokeConfig invokeConfig = new InvokeConfig("function", "{\"key\":\"value\"}", true, Collections.singletonList(new JsonParameter("LAMBDA_ENV_VAR", "$.key2")));
+        InvokeConfig invokeConfig = new InvokeConfig("function", "alias", "{\"key\":\"value\"}", true, Collections.singletonList(new JsonParameter("LAMBDA_ENV_VAR", "$.key2")));
 
         LambdaInvocationResult result = invoker.invoke(invokeConfig);
 
@@ -46,7 +46,7 @@ public class LambdaInvokerTest {
 
         LambdaInvoker invoker = new LambdaInvoker(service, logger);
 
-        InvokeConfig invokeConfig = new InvokeConfig("function", "{\"key\":\"value\"}", true, new ArrayList<JsonParameter>());
+        InvokeConfig invokeConfig = new InvokeConfig("function", "alias", "{\"key\":\"value\"}", true, new ArrayList<JsonParameter>());
 
         LambdaInvocationResult result = invoker.invoke(invokeConfig);
 

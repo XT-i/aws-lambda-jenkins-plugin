@@ -45,7 +45,7 @@ public class LambdaInvokeBuildStepTest {
     public void testHtml() throws Exception {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<JsonParameterVariables>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "value"));
-        LambdaInvokeBuildStepVariables variables = new LambdaInvokeBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, jsonParameterVariables);
+        LambdaInvokeBuildStepVariables variables = new LambdaInvokeBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "alias", "payload", true, jsonParameterVariables);
 
         FreeStyleProject p = j.createFreeStyleProject();
         LambdaInvokeBuildStep before = new LambdaInvokeBuildStep(variables);
@@ -71,7 +71,7 @@ public class LambdaInvokeBuildStepTest {
     public void testPerform() throws IOException, ExecutionException, InterruptedException {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<JsonParameterVariables>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "$.key2"));
-        LambdaInvokeBuildStepVariables clone = new LambdaInvokeBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, jsonParameterVariables);
+        LambdaInvokeBuildStepVariables clone = new LambdaInvokeBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "alias", "payload", true, jsonParameterVariables);
         LambdaInvokeBuildStepVariables spy = Mockito.spy(clone);
 
         when(original.getClone()).thenReturn(spy);
@@ -100,7 +100,7 @@ public class LambdaInvokeBuildStepTest {
     public void testPerformFailure() throws IOException, ExecutionException, InterruptedException {
         List<JsonParameterVariables> jsonParameterVariables = new ArrayList<JsonParameterVariables>();
         jsonParameterVariables.add(new JsonParameterVariables("KEY", "$.key2"));
-        LambdaInvokeBuildStepVariables clone = new LambdaInvokeBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "payload", true, jsonParameterVariables);
+        LambdaInvokeBuildStepVariables clone = new LambdaInvokeBuildStepVariables(false, "accessKeyId", Secret.fromString("secretKey"), "eu-west-1", "function", "alias", "payload", true, jsonParameterVariables);
         LambdaInvokeBuildStepVariables spy = Mockito.spy(clone);
 
         when(original.getClone()).thenReturn(spy);

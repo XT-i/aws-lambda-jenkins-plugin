@@ -38,15 +38,18 @@ public class LambdaInvokeAction implements ProminentProjectAction {
     private final String displayName;
 
 
-    public LambdaInvokeAction(String functionName, Boolean success) {
+    public LambdaInvokeAction(String functionName, String qualifier, Boolean success) {
+
+        final String qualifierWithColon = qualifier!=null && !qualifier.isEmpty()? ":" + qualifier:"";
+
         if(success){
             iconFileName = "/plugin/aws-lambda/images/Lambda_24.png";
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48.png";
-            displayName = "Invoked Lambda: " + functionName;
+            displayName = "Invoked Lambda: " + functionName + qualifierWithColon;
         }else {
             iconFileName = "/plugin/aws-lambda/images/Lambda_24_grey.png";
             bigIconFileName = "/plugin/aws-lambda/images/Lambda_48_grey.png";
-            displayName = "Lambda invocation failure: " + functionName;
+            displayName = "Lambda invocation failure: " + functionName + qualifierWithColon;
         }
     }
 

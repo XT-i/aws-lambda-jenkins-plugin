@@ -47,24 +47,27 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
     private String clearTextAwsSecretKey;
     private String awsRegion;
     private String functionName;
+    private String qualifier;
     private String payload;
     private boolean synchronous;
     private List<JsonParameterVariables> jsonParameters;
 
     @DataBoundConstructor
-    public LambdaInvokeBuildStepVariables(String awsRegion, String functionName, boolean synchronous) {
+    public LambdaInvokeBuildStepVariables(String awsRegion, String functionName, String qualifier, boolean synchronous) {
         this.awsRegion = awsRegion;
         this.functionName = functionName;
+        this.qualifier = qualifier;
         this.synchronous = synchronous;
     }
 
     @Deprecated
-    public LambdaInvokeBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, String payload, boolean synchronous, List<JsonParameterVariables> jsonParameters) {
+    public LambdaInvokeBuildStepVariables(boolean useInstanceCredentials, String awsAccessKeyId, Secret awsSecretKey, String awsRegion, String functionName, final String qualifier, String payload, boolean synchronous, List<JsonParameterVariables> jsonParameters) {
         this.useInstanceCredentials = useInstanceCredentials;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretKey = awsSecretKey != null ? awsSecretKey.getEncryptedValue() : null;
         this.awsRegion = awsRegion;
         this.functionName = functionName;
+        this.qualifier = qualifier;
         this.payload = payload;
         this.synchronous = synchronous;
         this.jsonParameters = jsonParameters;
@@ -105,6 +108,10 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         return functionName;
     }
 
+    public String getQualifier() {
+        return qualifier;
+    }
+
     public String getPayload() {
         return payload;
     }
@@ -137,6 +144,9 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         awsRegion = ExpansionUtils.expand(awsRegion, env);
         functionName = ExpansionUtils.expand(functionName, env);
         payload = ExpansionUtils.expand(payload, env);
+        if(qualifier !=null){
+            qualifier = ExpansionUtils.expand(qualifier, env);
+        }
         if(jsonParameters != null) {
             for (JsonParameterVariables jsonParameter : jsonParameters) {
                 jsonParameter.expandVariables(env);
@@ -145,7 +155,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
     }
 
     public LambdaInvokeBuildStepVariables getClone(){
-        LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables = new LambdaInvokeBuildStepVariables(awsRegion, functionName, synchronous);
+        LambdaInvokeBuildStepVariables lambdaInvokeBuildStepVariables = new LambdaInvokeBuildStepVariables(awsRegion, functionName, qualifier, synchronous);
         lambdaInvokeBuildStepVariables.setUseInstanceCredentials(useInstanceCredentials);
         lambdaInvokeBuildStepVariables.setAwsAccessKeyId(awsAccessKeyId);
         lambdaInvokeBuildStepVariables.setAwsSecretKey(awsSecretKey);
@@ -159,7 +169,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         for (JsonParameterVariables jsonParameterVariables : getJsonParameters()) {
             jsonParameters.add(jsonParameterVariables.buildJsonParameter());
         }
-        return new InvokeConfig(functionName, payload, synchronous, jsonParameters);
+        return new InvokeConfig(functionName, qualifier, payload, synchronous, jsonParameters);
     }
 
     public LambdaClientConfig getLambdaClientConfig(){
@@ -199,6 +209,8 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
             return false;
         if (getFunctionName() != null ? !getFunctionName().equals(variables.getFunctionName()) : variables.getFunctionName() != null)
             return false;
+        if (getQualifier() != null ? !getQualifier().equals(variables.getQualifier()) : variables.getQualifier() != null)
+            return false;
         if (getPayload() != null ? !getPayload().equals(variables.getPayload()) : variables.getPayload() != null)
             return false;
         return !(getJsonParameters() != null ? !getJsonParameters().equals(variables.getJsonParameters()) : variables.getJsonParameters() != null);
@@ -212,6 +224,7 @@ public class LambdaInvokeBuildStepVariables extends AbstractDescribableImpl<Lamb
         result = 31 * result + (getAwsSecretKey() != null ? getAwsSecretKey().hashCode() : 0);
         result = 31 * result + (getAwsRegion() != null ? getAwsRegion().hashCode() : 0);
         result = 31 * result + (getFunctionName() != null ? getFunctionName().hashCode() : 0);
+        result = 31 * result + (getQualifier() != null ? getQualifier().hashCode() : 0);
         result = 31 * result + (getPayload() != null ? getPayload().hashCode() : 0);
         result = 31 * result + (getSynchronous() ? 1 : 0);
         result = 31 * result + (getJsonParameters() != null ? getJsonParameters().hashCode() : 0);
