@@ -55,7 +55,6 @@ public class LambdaPublishBuildStepVariables extends AbstractDescribableImpl<Lam
         return useInstanceCredentials;
     }
 
-    @DataBoundSetter
     public void setAwsAccessKeyId(String awsAccessKeyId) {
         this.awsAccessKeyId = awsAccessKeyId;
     }
@@ -64,7 +63,6 @@ public class LambdaPublishBuildStepVariables extends AbstractDescribableImpl<Lam
         return this.awsAccessKeyId;
     }
 
-    @DataBoundSetter
     public void setAwsSecretKey(String awsSecretKey) {
         this.awsSecretKey = Secret.fromString(awsSecretKey).getEncryptedValue();
     }

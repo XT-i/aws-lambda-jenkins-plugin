@@ -26,11 +26,14 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.IdCredentials;
 import com.xti.jenkins.plugin.awslambda.callable.DeployCallable;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadAction;
 import com.xti.jenkins.plugin.awslambda.upload.DeployConfig;
 import com.xti.jenkins.plugin.awslambda.upload.LambdaUploadVariables;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -40,6 +43,7 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import net.sf.json.JSONObject;
+import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -63,9 +67,22 @@ public class LambdaUploadPublisher extends Notifier{
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
                            BuildListener listener) {
         boolean returnValue = true;
+        EnvVars environment;
+        try{environment = build.getEnvironment(listener);}
+        catch(Exception e){
+            e.printStackTrace();
+        }
 
         if (lambdaVariablesList != null){
             for (LambdaUploadVariables lambdaVariables : lambdaVariablesList) {
+                IdCredentials cred = CredentialsProvider.findCredentialById(
+                        lambdaVariables.getCredentialsId(),
+                        IdCredentials.class,
+                        build);
+                StringCredentials c = (StringCredentials)cred;
+                lambdaVariables.setAwsAccessKeyId(c.getId());
+                lambdaVariables.setAwsSecretKey(c.getSecret().getPlainText());
+
                 returnValue = returnValue && perform(lambdaVariables, build, launcher, listener);
             }
         }
