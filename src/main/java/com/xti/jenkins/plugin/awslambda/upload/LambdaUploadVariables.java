@@ -26,6 +26,10 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
+import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.xti.jenkins.plugin.awslambda.AWSLambdaDescriptor;
 import com.xti.jenkins.plugin.awslambda.util.ExpansionUtils;
 import com.xti.jenkins.plugin.awslambda.util.JenkinsProxy;
@@ -33,17 +37,24 @@ import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import com.xti.jenkins.plugin.awslambda.util.Tokenizer;
 import hudson.EnvVars;
 import hudson.Extension;
-import hudson.model.AbstractDescribableImpl;
-import hudson.model.Items;
+import hudson.Util;
+import hudson.model.*;
+import hudson.model.queue.Tasks;
+import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
+import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.plaincredentials.StringCredentials;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * Describable containing Lambda post build action config, checking feasability of migrating it to upload package.
@@ -72,6 +83,7 @@ public class LambdaUploadVariables extends AbstractDescribableImpl<LambdaUploadV
     private EnvironmentConfiguration environmentConfiguration;
     private boolean enableDeadLetterQueue;
     private String deadLetterQueueArn;
+    private String credentialsId;
 
     @DataBoundConstructor
     public LambdaUploadVariables(String awsRegion, String functionName, String updateMode){
@@ -129,6 +141,11 @@ public class LambdaUploadVariables extends AbstractDescribableImpl<LambdaUploadV
     public void setAwsSecretKey(String awsSecretKey) {
         this.awsSecretKey = Secret.fromString(awsSecretKey).getEncryptedValue();
     }
+
+    @DataBoundSetter
+    public void setCredentialsId(String credentialsId) {this.credentialsId = credentialsId;}
+
+    public String getCredentialsId() {return credentialsId; }
 
     public String getAwsRegion() {
         return awsRegion;
@@ -305,6 +322,7 @@ public class LambdaUploadVariables extends AbstractDescribableImpl<LambdaUploadV
             environmentConfiguration.expandVariables(env);
         }
         deadLetterQueueArn = ExpansionUtils.expand(deadLetterQueueArn, env);
+        credentialsId = ExpansionUtils.expand(credentialsId, env);
     }
 
     public LambdaUploadVariables getClone(){
@@ -330,6 +348,7 @@ public class LambdaUploadVariables extends AbstractDescribableImpl<LambdaUploadV
         }
         lambdaUploadVariables.setEnableDeadLetterQueue(enableDeadLetterQueue);
         lambdaUploadVariables.setDeadLetterQueueArn(deadLetterQueueArn);
+        lambdaUploadVariables.setCredentialsId(credentialsId);
         return lambdaUploadVariables;
     }
 
@@ -401,6 +420,52 @@ public class LambdaUploadVariables extends AbstractDescribableImpl<LambdaUploadV
             return items;
         }
 
+        public ListBoxModel doFillCredentialsIdItems(
+                @AncestorInPath Item item,
+                @QueryParameter String credentialsId
+        ){
+            if (item == null && !Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER) ||
+                    item != null && !item.hasPermission(Item.EXTENDED_READ)) {
+                return new StandardListBoxModel().includeCurrentValue(credentialsId);
+            }
+
+            return new StandardListBoxModel()
+                    .includeMatchingAs(
+                            item instanceof Queue.Task
+                                    ? Tasks.getAuthenticationOf((Queue.Task) item)
+                                    : ACL.SYSTEM,
+                            item,
+                            StringCredentials.class,
+                            Collections.<DomainRequirement> emptyList(),
+                            CredentialsMatchers.anyOf(CredentialsMatchers.instanceOf(StringCredentials.class)))
+                    .includeCurrentValue(credentialsId);
+        }
+
+        public FormValidation doCheckCredentialsId(@AncestorInPath Item item,
+                                                   @QueryParameter String value) {
+            if (item == null && !Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER) ||
+                    item != null && !item.hasPermission(Item.EXTENDED_READ)) {
+                return FormValidation.ok();
+            }
+
+            value = Util.fixEmptyAndTrim(value);
+            if (value == null) {
+                return FormValidation.ok();
+            }
+
+            for (ListBoxModel.Option o : CredentialsProvider
+                    .listCredentials(StringCredentials.class, item, item instanceof Queue.Task
+                                    ? Tasks.getAuthenticationOf((Queue.Task) item)
+                                    : ACL.SYSTEM,
+                            Collections.<DomainRequirement> emptyList(),
+                            CredentialsMatchers.anyOf(CredentialsMatchers.instanceOf(StringCredentials.class)))) {
+                if (StringUtils.equals(value, o.value)) {
+                    return FormValidation.ok();
+                }
+            }
+            // no credentials available, can't check
+            return FormValidation.warning("Cannot find any credentials with id " + value);
+        }
         /**
          * This human readable name is used in the configuration screen.
          */

@@ -26,6 +26,8 @@ package com.xti.jenkins.plugin.awslambda.upload;
  * #L%
  */
 
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.IdCredentials;
 import com.xti.jenkins.plugin.awslambda.callable.DeployCallable;
 import com.xti.jenkins.plugin.awslambda.util.LambdaClientConfig;
 import hudson.Extension;
@@ -41,6 +43,7 @@ import hudson.tasks.Builder;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
+import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -66,6 +69,13 @@ public class LambdaUploadBuildStep extends Builder implements SimpleBuildStep{
 
     @Override
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
+        IdCredentials cred = CredentialsProvider.findCredentialById(
+                lambdaUploadBuildStepVariables.getCredentialsId(),
+                IdCredentials.class,
+                run);
+        StringCredentials c = (StringCredentials)cred;
+        lambdaUploadBuildStepVariables.setAwsAccessKeyId(c.getId());
+        lambdaUploadBuildStepVariables.setAwsSecretKey(c.getSecret().getPlainText());
         perform(lambdaUploadBuildStepVariables, run, workspace, launcher, listener);
     }
 

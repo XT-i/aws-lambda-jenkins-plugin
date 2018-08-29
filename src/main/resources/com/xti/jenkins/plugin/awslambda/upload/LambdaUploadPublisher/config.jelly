@@ -1,4 +1,4 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:awslambda="/com/xti/jenkins/plugin/awslambda/tags">
+<j:jelly xmlns:j="jelly:core" xmlns:c="/lib/credentials" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:awslambda="/com/xti/jenkins/plugin/awslambda/tags">
 
     <f:entry title="Deploy AWS Lambda functions">
         <f:nested>
@@ -6,11 +6,8 @@
                 <f:repeatable field="lambdaVariablesList" header="Lambda deployment" add="Deploy AWS Lambda">
                     <table width="100%">
                         <awslambda:awsLambdaOptionalBlock field="useInstanceCredentials" title="Use instance credentials" negative="true" checked="${instance.useInstanceCredentials}" default="false" inline="true" help="/plugin/aws-lambda/help-useInstanceCredentials.html">
-                            <f:entry title="AWS Access Key Id" field="awsAccessKeyId"  help="/plugin/aws-lambda/help-awsAccessKeyId.html">
-                                <f:textbox />
-                            </f:entry>
-                            <f:entry title="AWS Secret Key" field="awsSecretKey" help="/plugin/aws-lambda/help-awsSecretKey.html">
-                                <f:password />
+                            <f:entry field="credentialsId" title="Credentials select">
+                                <c:select />
                             </f:entry>
                         </awslambda:awsLambdaOptionalBlock>
                         <f:entry title="AWS Region" field="awsRegion" help="/plugin/aws-lambda/help-awsRegion.html">
