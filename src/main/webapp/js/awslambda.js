@@ -11,7 +11,7 @@ function updateAwsLambdaOptionalBlock(c,scroll) {
 
     var checked = xor(c.checked,Element.hasClassName(c.parentElement.parentElement,"negative"));
 
-    vg.rowVisibilityGroup.makeInnerVisisble(checked);
+    vg.rowVisibilityGroup.makeInnerVisible(checked);
 
     if (checked && scroll) {
         var D = YAHOO.util.Dom;
