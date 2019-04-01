@@ -1,9 +1,11 @@
 package com.xti.jenkins.plugin.awslambda.publish;
 
+import java.io.Serializable;
+
 /**
  * Created by sulland on 27/07/16.
  */
-public class LambdaPublishServiceResponse {
+public class LambdaPublishServiceResponse implements Serializable {
     private String functionVersion;
     private String functionAlias;
     private boolean success;
