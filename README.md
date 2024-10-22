@@ -1,3 +1,7 @@
+# Deprecated
+
+Please use commonly used infrastructure as code tooling or other plugins rather than this plugin.
+
 # AWS Lambda Jenkins plugin
 
 [![Build Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/aws-lambda-plugin)](https://jenkins.ci.cloudbees.com/job/plugins/job/aws-lambda-plugin/)
